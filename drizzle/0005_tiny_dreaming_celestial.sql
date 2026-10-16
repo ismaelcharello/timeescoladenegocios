@@ -1,0 +1,1 @@
+ALTER TABLE `event_attendees` ADD `added_at_door` integer DEFAULT false NOT NULL;

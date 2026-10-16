@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TIME Escola de Negócios</string>
+    <string name="title_activity_main">TIME Escola de Negócios</string>
+    <string name="package_name">br.com.timeescoladenegocios.app</string>
+    <string name="custom_url_scheme">br.com.timeescoladenegocios.app</string>
+</resources>

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ "${SITES_ENV_READY:-}" != "1" ]]; then
+  exec "${script_dir}/sites-env.sh" -- "$0" "$@"
+fi
+
+command -v timeout >/dev/null || {
+  echo "build-verified.sh requires GNU timeout." >&2
+  exit 69
+}
+
+vinext="${SITES_PROJECT_ROOT}/node_modules/.bin/vinext"
+typescript="${SITES_PROJECT_ROOT}/node_modules/.bin/tsc"
+eslint="${SITES_PROJECT_ROOT}/node_modules/.bin/eslint"
+if [[ ! -x "${vinext}" || ! -x "${typescript}" || ! -x "${eslint}" ]]; then
+  echo "Build tools are unavailable. Run npm run install:ci and wait for it to finish before building." >&2
+  exit 69
+fi
+
+echo "Running TypeScript verification..."
+timeout --signal=TERM --kill-after=10s 2m "${typescript}" --noEmit
+
+echo "Running lint verification..."
+timeout --signal=TERM --kill-after=10s 4m "${eslint}" . --ignore-pattern dist --ignore-pattern .next
+
+echo "Running bounded vinext build..."
+timeout \
+  --signal=TERM \
+  --kill-after="${SITES_BUILD_KILL_AFTER:-10s}" \
+  "${SITES_BUILD_TIMEOUT:-3m}" \
+  "${vinext}" build
+
+"${script_dir}/validate-artifact.sh"

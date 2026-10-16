@@ -1,0 +1,53 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Miscellaneous
+.DS_Store
+*.pem
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# TypeScript
+next-env.d.ts
+*.tsbuildinfo
+
+# Build and runtime caches
+/dist/
+/.wrangler/
+/.sites-runtime/
+/.vinext/
+/outputs/
+/work/
+android/.idea/
+
+# Private signing credentials
+/Keys/
+*.jks
+*.keystore
+*.mobileprovision

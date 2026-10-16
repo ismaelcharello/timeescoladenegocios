@@ -1,0 +1,29 @@
+"use client";
+import { FormEvent, useEffect, useState } from "react";
+
+type PodcastStatus = "draft" | "published" | "archived";
+type Episode = { id: number; title: string; description: string; guestName: string; seasonNumber: number | null; episodeNumber: number | null; thumbnailUrl: string; externalUrl: string; status: PodcastStatus; position: number };
+type EpisodeForm = Omit<Episode, "id" | "seasonNumber" | "episodeNumber" | "position"> & {
+  seasonNumber: string;
+  episodeNumber: string;
+  position: string;
+};
+const empty: EpisodeForm = { title: "", description: "", guestName: "", seasonNumber: "", episodeNumber: "", thumbnailUrl: "", externalUrl: "", status: "draft", position: "0" };
+
+export default function PodcastAdmin() {
+  const [episodes, setEpisodes] = useState<Episode[]>([]); const [form, setForm] = useState<EpisodeForm>({ ...empty }); const [editingId, setEditingId] = useState<number | null>(null); const [loading, setLoading] = useState(true); const [saving, setSaving] = useState(false); const [error, setError] = useState("");
+  async function load() { const response = await fetch("/api/podcasts", { cache: "no-store" }); const payload = await response.json() as { episodes?: Episode[]; error?: string }; if (!response.ok) throw new Error(payload.error ?? "Não foi possível carregar."); setEpisodes(payload.episodes ?? []); }
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/podcasts", { cache: "no-store" }).then(async (response) => {
+      const payload = await response.json() as { episodes?: Episode[]; error?: string };
+      if (!response.ok) throw new Error(payload.error ?? "Não foi possível carregar.");
+      if (active) setEpisodes(payload.episodes ?? []);
+    }).catch((requestError) => { if (active) setError(requestError instanceof Error ? requestError.message : "Falha ao carregar."); }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+  function edit(item: Episode) { setEditingId(item.id); setForm({ title: item.title, description: item.description, guestName: item.guestName, seasonNumber: item.seasonNumber ? String(item.seasonNumber) : "", episodeNumber: item.episodeNumber ? String(item.episodeNumber) : "", thumbnailUrl: item.thumbnailUrl, externalUrl: item.externalUrl, status: item.status, position: String(item.position) }); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  async function save(event: FormEvent) { event.preventDefault(); setSaving(true); setError(""); try { const response = await fetch("/api/podcasts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: editingId ?? undefined, ...form, seasonNumber: form.seasonNumber ? Number(form.seasonNumber) : null, episodeNumber: form.episodeNumber ? Number(form.episodeNumber) : null, position: Number(form.position) || 0 }) }); const payload = await response.json() as { error?: string }; if (!response.ok) throw new Error(payload.error ?? "Não foi possível salvar."); setForm({ ...empty }); setEditingId(null); await load(); } catch (requestError) { setError(requestError instanceof Error ? requestError.message : "Não foi possível salvar."); } finally { setSaving(false); } }
+  async function remove(item: Episode) { if (!window.confirm(`Excluir “${item.title}”?`)) return; const response = await fetch(`/api/podcasts?id=${item.id}`, { method: "DELETE" }); const payload = await response.json() as { error?: string }; if (!response.ok) { setError(payload.error ?? "Não foi possível excluir."); return; } await load(); }
+  return <div className="podcast-admin-layout"><form onSubmit={save}><h2>{editingId ? "Editar episódio" : "Novo episódio"}</h2><label>Título<input required value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} /></label><label>Convidado<input value={form.guestName} onChange={(event) => setForm({ ...form, guestName: event.target.value })} /></label><div><label>Temporada<input type="number" min="1" value={form.seasonNumber} onChange={(event) => setForm({ ...form, seasonNumber: event.target.value })} /></label><label>Episódio<input type="number" min="1" value={form.episodeNumber} onChange={(event) => setForm({ ...form, episodeNumber: event.target.value })} /></label></div><label>Descrição<textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></label><label>Link oficial<input type="url" placeholder="https://youtube.com/..." value={form.externalUrl} onChange={(event) => setForm({ ...form, externalUrl: event.target.value })} /></label><label>URL da capa<input type="url" value={form.thumbnailUrl} onChange={(event) => setForm({ ...form, thumbnailUrl: event.target.value })} /></label><label>Status<select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as PodcastStatus })}><option value="draft">Rascunho</option><option value="published">Publicado</option><option value="archived">Arquivado</option></select></label>{error ? <p role="alert">{error}</p> : null}<footer>{editingId ? <button type="button" onClick={() => { setEditingId(null); setForm({ ...empty }); }}>Cancelar edição</button> : null}<button disabled={saving}>{saving ? "Salvando…" : "Salvar episódio"}</button></footer></form><section><h2>Episódios cadastrados</h2>{loading ? <p>Carregando…</p> : episodes.length ? episodes.map((item) => <article key={item.id}><div><small>{item.status === "published" ? "PUBLICADO" : item.status === "draft" ? "RASCUNHO" : "ARQUIVADO"}</small><strong>{item.title}</strong><span>{item.guestName || "Convidado não informado"}</span></div><div><button onClick={() => edit(item)}>Editar</button><button onClick={() => void remove(item)}>Excluir</button></div></article>) : <p>Nenhum episódio cadastrado. A área de membros exibirá “Em breve”.</p>}</section></div>;
+}
