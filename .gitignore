@@ -28,6 +28,8 @@ yarn-error.log*
 # Environment variables and secrets
 .env
 .env.*
+# Somente valores públicos (NEXT_PUBLIC_*). Nunca coloque segredos aqui.
+!.env.production
 !.env.example
 
 # Vercel
