@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import vinext from "vinext";
 import { defineConfig } from "vite";
 import hostingConfig from "./.openai/hosting.json";
@@ -11,7 +12,13 @@ const { d1, r2 } = hostingConfig;
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 
-const localBindingConfig = {
+// When wrangler.jsonc exists it is the source of truth for production bindings
+// (D1, R2, IMAGES); the simulated placeholders below are only for Sites/local use.
+const hasWranglerConfig = existsSync(new URL("./wrangler.jsonc", import.meta.url));
+
+const localBindingConfig = hasWranglerConfig
+  ? { main: "./worker/index.ts", compatibility_flags: ["nodejs_compat"] }
+  : {
   main: "./worker/index.ts",
   compatibility_flags: ["nodejs_compat"],
   d1_databases: d1
