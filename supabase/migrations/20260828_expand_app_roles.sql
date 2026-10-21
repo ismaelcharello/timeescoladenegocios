@@ -5,4 +5,4 @@ alter table public.app_roles
 
 alter table public.app_roles
   add constraint app_roles_role_check
-  check (role in ('member', 'support', 'coordinator', 'admin', 'super_admin', 'superadmin));
+  check (role in ('member', 'support', 'coordinator', 'admin', 'super_admin', 'superadmin'));
