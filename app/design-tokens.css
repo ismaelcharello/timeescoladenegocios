@@ -1,0 +1,148 @@
+/* Tokens do sistema de design TIME. Contrato: docs/DESIGN-SYSTEM.md.
+   Tema: claro por padrão do :root; escuro via [data-theme="dark"] ou, sem atributo,
+   via prefers-color-scheme. */
+
+:root {
+  --time-ink: #050829;
+  --time-violet: #3700f0;
+  --time-magenta: #ff00e0;
+
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.75rem;
+  --fs-2xl: clamp(2rem, 5vw, 3.5rem);
+
+  --track-display: -0.03em;
+  --track-title: -0.02em;
+  --track-label: 0.08em;
+
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --dur-press: 120ms;
+  --dur-hover: 160ms;
+  --dur-pop: 200ms;
+  --dur-panel: 280ms;
+
+  --bg: #f7f7fb;
+  --surface: #ffffff;
+  --surface-2: #efeff7;
+  --text: #0b0d26;
+  --text-muted: #555874;
+  --border: #dcdcea;
+  --border-strong: #b7b8cf;
+  --focus: #5a33ff;
+  --primary: var(--time-violet);
+  --primary-hover: #2c00c5;
+  --on-primary: #ffffff;
+  --link: #2e00c7;
+  --success-bg: #e8f6ef;
+  --success-text: #0d5a3a;
+  --success-border: #9fd3b9;
+  --error-bg: #fdeeee;
+  --error-text: #8a1f1f;
+  --error-border: #e3a9a9;
+  --notice-bg: #efeff7;
+  --notice-text: #30335a;
+  --notice-border: #cfd0e6;
+  --shadow-1: 0 1px 2px rgba(5, 8, 41, 0.06);
+  --shadow-2: 0 12px 32px rgba(5, 8, 41, 0.1);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #050829;
+  --surface: #0d1033;
+  --surface-2: #151945;
+  --text: #f4f4fb;
+  --text-muted: #b4b6d0;
+  --border: #262a5c;
+  --border-strong: #3d4283;
+  --focus: #a58bff;
+  --primary-hover: #4d1fff;
+  --link: #b9a7ff;
+  --success-bg: #0c2a22;
+  --success-text: #8be0b8;
+  --success-border: #1d5b45;
+  --error-bg: #34121a;
+  --error-text: #ffb4b4;
+  --error-border: #70303a;
+  --notice-bg: #151945;
+  --notice-text: #d2d3ea;
+  --notice-border: #2f3472;
+  --shadow-1: none;
+  --shadow-2: 0 16px 40px rgba(0, 0, 0, 0.45);
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #050829;
+    --surface: #0d1033;
+    --surface-2: #151945;
+    --text: #f4f4fb;
+    --text-muted: #b4b6d0;
+    --border: #262a5c;
+    --border-strong: #3d4283;
+    --focus: #a58bff;
+    --primary-hover: #4d1fff;
+    --link: #b9a7ff;
+    --success-bg: #0c2a22;
+    --success-text: #8be0b8;
+    --success-border: #1d5b45;
+    --error-bg: #34121a;
+    --error-text: #ffb4b4;
+    --error-border: #70303a;
+    --notice-bg: #151945;
+    --notice-text: #d2d3ea;
+    --notice-border: #2f3472;
+    --shadow-1: none;
+    --shadow-2: 0 16px 40px rgba(0, 0, 0, 0.45);
+
+    color-scheme: dark;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --border: var(--border-strong);
+    --text-muted: var(--text);
+  }
+}
+
+/* Base mobile nativo (docs/DESIGN-SYSTEM.md, seção "Mobile nativo") */
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+input,
+textarea,
+select {
+  font-size: max(16px, 1rem);
+}
+
+button,
+[role="button"] {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}

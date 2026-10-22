@@ -17,7 +17,7 @@ test("landing mantém hierarquia clara em todas as superfícies escuras", () => 
 
 test("autenticação e onboarding expõem foco, placeholder e estados desabilitados", () => {
   assert.match(authCss, /\.auth-form :is\(input, button, a\):focus-visible/);
-  assert.match(authCss, /\.auth-submit:disabled \{ background: #575267; color: #f7f5fa; opacity: 1; \}/);
+  assert.match(authCss, /\.auth-submit:disabled \{[^}]*background: var\(--text-muted\); color: var\(--surface\); opacity: 1;/);
   assert.match(onboardingCss, /\.onboarding-sidebar nav button:disabled \{ color: rgba\(255, 255, 255, \.62\); opacity: 1; \}/);
   assert.match(onboardingCss, /\.onboarding-actions button:disabled \{ border-color: #c7c3cf; background: #ddd9e2; color: #5d5968; opacity: 1; \}/);
 });
