@@ -1,4 +1,4 @@
-import { LandingMotion } from "./landing-motion";
+import { LandingMotion, LandingReveal } from "./landing-motion";
 import { CourseCarousel } from "./course-carousel";
 import { getSupportWhatsappHref } from "@/lib/support-contact";
 import { getSchoolStatus } from "@/lib/school-status";
@@ -46,6 +46,7 @@ export default function Home() {
   return (
     <main className="time-landing">
       <LandingMotion />
+      <LandingReveal />
       <section className="hero" id="inicio" data-motion-scene="hero">
         <div className="hero-grid" aria-hidden="true" />
         <div className="hero-glow hero-glow-one" aria-hidden="true" />

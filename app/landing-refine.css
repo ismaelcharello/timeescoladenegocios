@@ -145,3 +145,36 @@ html.landing-motion-ready .time-landing .product-stage.demo-results-in .motion-r
   html .time-landing .motion-search-query::after { animation: none; }
   html.landing-motion-ready .time-landing .motion-result-preview article { transition: none; }
 }
+
+/* Revelação ao entrar na tela (LandingReveal). Usa as propriedades individuais
+   opacity + translate, que não colidem com os transform de hover dos cartões.
+   Substitui as animações de scroll antigas, que dependiam de animation-timeline. */
+@media (prefers-reduced-motion: no-preference) {
+  html.landing-motion-ready .time-landing [data-reveal] {
+    opacity: 0;
+    translate: 0 20px;
+    animation: none !important;
+    transition:
+      opacity 560ms var(--ease-out) var(--reveal-delay, 0ms),
+      translate 560ms var(--ease-out) var(--reveal-delay, 0ms),
+      transform var(--dur-pop) var(--ease-out),
+      border-color var(--dur-hover) var(--ease-out);
+  }
+  html.landing-motion-ready .time-landing [data-reveal][data-motion-item] {
+    transform: none;
+  }
+  html.landing-motion-ready .time-landing [data-reveal].is-revealed {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* Elevação sutil dos cartões, só com mouse (hover real) */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .time-landing :is(.ecosystem-card, .club-card) {
+    transition: transform var(--dur-pop) var(--ease-out);
+  }
+  .time-landing :is(.ecosystem-card, .club-card):hover {
+    transform: translate3d(0, -4px, 0);
+  }
+}
