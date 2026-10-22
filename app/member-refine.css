@@ -5,3 +5,176 @@
 .member-search-spacer {
   flex: 1;
 }
+
+/* ---------- Benefícios e Ouvidoria (páginas dentro do shell único) ---------- */
+html[data-resolved] .member-app {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.mf-page .simple-member-page {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  color: var(--text);
+}
+.mf-page .simple-member-page > header {
+  max-width: 62ch;
+  margin-bottom: var(--s-5);
+}
+.mf-page .simple-member-page > header > span {
+  color: var(--link);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: var(--track-label);
+}
+.mf-page .simple-member-page h1 {
+  max-width: 22ch;
+  margin: var(--s-3) 0;
+  color: var(--text);
+  font-size: var(--fs-2xl);
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: var(--track-display);
+  text-wrap: balance;
+}
+.mf-page .simple-member-page > header p {
+  color: var(--text-muted);
+  font-size: var(--fs-md);
+  line-height: 1.55;
+}
+
+.mf-page .benefits-catalog-tools {
+  gap: var(--s-3);
+  margin-bottom: var(--s-5);
+}
+.mf-page .benefits-catalog-tools label,
+.mf-page .simple-member-form label {
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 650;
+}
+.mf-page :is(.benefits-catalog-tools input, .benefits-catalog-tools select, .simple-member-form input, .simple-member-form select, .simple-member-form textarea) {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text);
+  font-size: max(16px, 1rem);
+  font-weight: 500;
+}
+.mf-page :is(.benefits-catalog-tools input, .simple-member-form input, .simple-member-form textarea)::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+.mf-page :is(.benefits-catalog-tools input, .benefits-catalog-tools select, .simple-member-form input, .simple-member-form select, .simple-member-form textarea):focus-visible {
+  border-color: var(--focus);
+  outline: 3px solid color-mix(in srgb, var(--focus) 28%, transparent);
+  outline-offset: 0;
+}
+
+.mf-page :is(.simple-member-grid article, .simple-member-form, .benefits-empty) {
+  border-color: var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  color: var(--text);
+}
+.mf-page .benefits-empty {
+  border-style: dashed;
+  color: var(--text-muted);
+}
+.mf-page .simple-member-grid article > div span {
+  color: var(--link);
+  letter-spacing: var(--track-label);
+}
+.mf-page .simple-member-grid article > div b {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+.mf-page .simple-member-grid h2 {
+  color: var(--text);
+  font-size: var(--fs-xl);
+  letter-spacing: var(--track-title);
+}
+.mf-page .simple-member-grid p {
+  color: var(--text-muted);
+}
+.mf-page .simple-member-grid dt {
+  color: var(--text-muted);
+  letter-spacing: var(--track-label);
+}
+.mf-page .simple-member-grid dd {
+  color: var(--text);
+}
+.mf-page :is(.simple-member-grid a, .simple-member-grid button, .simple-member-form > button) {
+  border-radius: var(--r-md);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 650;
+  transition: transform var(--dur-press) var(--ease-out), background-color var(--dur-hover) var(--ease-out);
+}
+.mf-page :is(.simple-member-grid a, .simple-member-grid button, .simple-member-form > button):active {
+  transform: scale(0.97);
+}
+.mf-page :is(.simple-member-grid button:disabled, .simple-member-form > button:disabled) {
+  background: var(--text-muted);
+  color: var(--surface);
+}
+.mf-page .simple-member-error {
+  border-color: var(--error-border);
+  background: var(--error-bg);
+  color: var(--error-text);
+}
+.mf-page .simple-member-success {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+/* Detalhe do benefício (folha modal) */
+.benefit-detail-modal > section {
+  border-color: var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-2);
+}
+.benefit-detail-backdrop {
+  background: rgba(5, 8, 41, 0.6);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.benefit-detail-modal header span {
+  color: var(--link);
+  letter-spacing: var(--track-label);
+}
+.benefit-detail-modal h2 {
+  color: var(--text);
+  letter-spacing: var(--track-title);
+}
+.benefit-detail-modal header > button {
+  border-color: var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+}
+.benefit-detail-modal :is(section > p, small) {
+  color: var(--text-muted);
+}
+.benefit-detail-modal dt {
+  color: var(--text-muted);
+}
+.benefit-detail-modal dd {
+  color: var(--text);
+}
+.benefit-detail-modal a {
+  border-radius: var(--r-md);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 650;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mf-page :is(.simple-member-grid a, .simple-member-grid button, .simple-member-form > button):hover:not(:disabled) {
+    background: var(--primary-hover);
+  }
+}

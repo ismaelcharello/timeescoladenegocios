@@ -15,6 +15,7 @@ import {
   type MemberProfileDraft,
   type SaveProfileResult,
 } from "@/lib/member-profile";
+import { Icon } from "../icons";
 
 type Props = {
   user: { id: string; email: string; name: string };
@@ -224,7 +225,7 @@ export default function OnboardingForm({ user, initialProfile, supabaseConfig }:
                 onClick={() => item.number <= step && setStep(item.number)}
                 disabled={item.number > step || busy}
               >
-                <b>{item.number < step ? "✓" : item.number}</b>
+                <b>{item.number < step ? <Icon name="check" size={14} /> : item.number}</b>
                 <span>{item.label}<small>{item.helper}</small></span>
               </button>
             ))}

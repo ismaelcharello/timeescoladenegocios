@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Icon } from "../icons";
 
 type BenefitItem = {
   id: number;
@@ -47,7 +48,7 @@ export default function BenefitsCatalog({ items }: { items: BenefitItem[] }) {
     </div>}
     {selected ? <div className="benefit-detail-modal" role="dialog" aria-modal="true" aria-labelledby="benefit-detail-title">
       <button className="benefit-detail-backdrop" aria-label="Fechar detalhe" onClick={() => setSelected(null)} />
-      <section><header><div><span>{selected.category}</span><h2 id="benefit-detail-title">{selected.title}</h2></div><button aria-label="Fechar detalhe" onClick={() => setSelected(null)}>×</button></header><p>{selected.description}</p><dl><div><dt>Benefício</dt><dd>{selected.benefit}</dd></div><div><dt>Condições</dt><dd>{selected.conditions}</dd></div><div><dt>Abrangência</dt><dd>{selected.coverage || "Não informada"}</dd></div><div><dt>Validade</dt><dd>{formatValidity(selected.validUntil)}</dd></div></dl>{selected.ctaUrl ? <a href={selected.ctaUrl} target="_blank" rel="noreferrer">{selected.ctaLabel}</a> : <small>Consulte a equipe TIME para utilizar este benefício.</small>}</section>
+      <section><header><div><span>{selected.category}</span><h2 id="benefit-detail-title">{selected.title}</h2></div><button aria-label="Fechar detalhe" onClick={() => setSelected(null)}><Icon name="close" size={18} /></button></header><p>{selected.description}</p><dl><div><dt>Benefício</dt><dd>{selected.benefit}</dd></div><div><dt>Condições</dt><dd>{selected.conditions}</dd></div><div><dt>Abrangência</dt><dd>{selected.coverage || "Não informada"}</dd></div><div><dt>Validade</dt><dd>{formatValidity(selected.validUntil)}</dd></div></dl>{selected.ctaUrl ? <a href={selected.ctaUrl} target="_blank" rel="noreferrer">{selected.ctaLabel}</a> : <small>Consulte a equipe TIME para utilizar este benefício.</small>}</section>
     </div> : null}
   </>;
 }

@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import type { SupabasePublicConfig } from "@/lib/supabase/config";
 import { safeReturnPath } from "@/lib/auth-redirect";
+import { Icon } from "../app/icons";
 
 type Mode = "login" | "signup" | "forgot" | "reset";
 
@@ -212,7 +213,7 @@ export function AuthForm({ mode, supabaseConfig }: { mode: Mode; supabaseConfig:
   return (
     <form className="auth-form" method="post" onSubmit={submit} noValidate>
       <button className="auth-back" type="button" onClick={goBack} disabled={loading}>
-        <span aria-hidden="true">←</span>
+        <Icon name="back" size={18} />
         Voltar
       </button>
       {notice ? <div className="auth-notice" role="status">{notice}</div> : null}

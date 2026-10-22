@@ -5,7 +5,8 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "re
 import { getEmbedVideoUrl, getExternalVideoProvider } from "@/lib/video-hosting";
 import { courseThumbnailLibrary } from "@/lib/course-thumbnails";
 import { selectHomeCourse, selectHomePosts, selectNextEvent } from "@/lib/member-home";
-import TimeLogo from "@/app/time-logo";
+import MemberFrame from "./member-frame";
+import { Icon, type IconName } from "./icons";
 
 type Section = "inicio" | "cursos" | "podcasts" | "tutor" | "comunidade" | "agenda" | "conquistas";
 type SchoolStatus = "active" | "coming_soon";
@@ -116,30 +117,18 @@ type TutorMessage = {
 type PodcastEpisode = { id: number; title: string; description: string; guestName: string; seasonNumber: number | null; episodeNumber: number | null; thumbnailUrl: string; externalUrl: string; locked: boolean };
 type HomeConnection = { userId: string; name: string | null; avatarUrl: string | null; company: string | null; jobTitle: string | null; segment: string | null; reason: string };
 
-type BeforeInstallPromptEvent = Event & { prompt: () => Promise<void>; userChoice?: Promise<{ outcome: "accepted" | "dismissed" }> };
 
-const menu: Array<{ id: Section; icon: string; label: string }> = [
-  { id: "inicio", icon: "⌂", label: "Início" },
-  { id: "cursos", icon: "▶", label: "Cursos" },
-  { id: "podcasts", icon: "◉", label: "Podcasts" },
-  { id: "tutor", icon: "✦", label: "Tutor TIME IA" },
-  { id: "comunidade", icon: "◉", label: "Comunidade" },
-  { id: "agenda", icon: "□", label: "Eventos" },
-  { id: "conquistas", icon: "◇", label: "Conquistas" },
+
+const communityCategories: Array<{ id: CommunityCategory | "all"; label: string; icon: IconName }> = [
+  { id: "all", label: "Todos", icon: "grid" },
+  { id: "opportunity", label: "Oportunidades", icon: "trend" },
+  { id: "achievement", label: "Conquistas", icon: "achievements" },
+  { id: "question", label: "Dúvidas", icon: "help" },
+  { id: "business", label: "Negócios", icon: "directory" },
+  { id: "offer", label: "Ofertas dos membros", icon: "tag" },
+  { id: "news", label: "Novidades", icon: "megaphone" },
+  { id: "general", label: "Conversas", icon: "community" },
 ];
-
-const communityCategories: Array<{ id: CommunityCategory | "all"; label: string; icon: string }> = [
-  { id: "all", label: "Todos", icon: "◉" },
-  { id: "opportunity", label: "Oportunidades", icon: "↗" },
-  { id: "achievement", label: "Conquistas", icon: "◇" },
-  { id: "question", label: "Dúvidas", icon: "?" },
-  { id: "business", label: "Negócios", icon: "◇" },
-  { id: "offer", label: "Ofertas dos membros", icon: "↗" },
-  { id: "news", label: "Novidades", icon: "○" },
-  { id: "general", label: "Conversas", icon: "○" },
-];
-
-const mobileMenu = menu.slice(0, 2);
 
 // Prévia editorial: estas áreas não representam cursos publicados, professores
 // ou datas confirmadas. Elas mostram como a biblioteca será organizada quando
@@ -255,10 +244,10 @@ function displayLink(url: string) {
   try { return new URL(url).hostname.replace(/^www\./, "") || "Link"; } catch { return "Link"; }
 }
 
-function EmptyState({ icon, title, text, action }: { icon: string; title: string; text: string; action?: React.ReactNode }) {
+function EmptyState({ icon, title, text, action }: { icon: IconName; title: string; text: string; action?: React.ReactNode }) {
   return (
     <section className="real-empty-state">
-      <span>{icon}</span>
+      <span><Icon name={icon} size={22} /></span>
       <h3>{title}</h3>
       <p>{text}</p>
       {action}
@@ -287,13 +276,13 @@ function ProfileGate({ completeness, missingFields, area }: { completeness: numb
   return <section className="profile-access-gate" role="status">
     <div className="profile-gate-score"><strong>{completeness}</strong><span>%</span></div>
     <div><span className="profile-gate-kicker">CAMPOS ESSENCIAIS</span><h2>Complete os dados necessários para acessar {area}</h2><p>Para participar, informe os dados profissionais essenciais usados nas conexões da TIME. Os demais campos continuam opcionais.</p><div className="profile-gate-progress"><i style={{ width: `${completeness}%` }} /></div><small>{completeness}% preenchido · faltam {missingFields.length} campos essenciais</small></div>
-    <a href="/app/cadastro">Completar meu perfil →</a>
+    <a href="/app/cadastro">Completar meu perfil</a>
     {missingFields.length ? <ul>{missingFields.slice(0, 5).map((field) => <li key={field}>{field}</li>)}{missingFields.length > 5 ? <li>e mais {missingFields.length - 5} itens</li> : null}</ul> : null}
   </section>;
 }
 
 function MembershipGate({ area }: { area: string }) {
-  return <section className="membership-gate"><span>EXCLUSIVO PARA MEMBROS</span><h2>Seu cadastro está pronto. Ative sua participação.</h2><p>Conheça a estrutura da TIME e torne-se membro para acessar {area}, networking, eventos e benefícios empresariais.</p><a href="/checkout">Tornar-me membro →</a></section>;
+  return <section className="membership-gate"><span>EXCLUSIVO PARA MEMBROS</span><h2>Seu cadastro está pronto. Ative sua participação.</h2><p>Conheça a estrutura da TIME e torne-se membro para acessar {area}, networking, eventos e benefícios empresariais.</p><a href="/checkout">Tornar-me membro</a></section>;
 }
 
 function CourseCard({ course, onOpen }: { course: Course; onOpen: () => void }) {
@@ -303,7 +292,7 @@ function CourseCard({ course, onOpen }: { course: Course; onOpen: () => void }) 
         {course.thumbnailUrl ? <img src={course.thumbnailUrl} alt="" /> : <div className="real-course-placeholder">TIME</div>}
         <div className="member-course-shade" />
         <span>{course.category || "CURSO TIME"}</span>
-        <b aria-hidden="true">▶</b>
+        <b aria-hidden="true"><Icon name="play" size={22} fill="currentColor" /></b>
         <div className="streaming-card-hover" aria-hidden="true">
           <strong>{course.title}</strong>
           <small>{[course.teacher, `${course.lessonCount} ${course.lessonCount === 1 ? "aula" : "aulas"}`].filter(Boolean).join(" · ")}</small>
@@ -316,7 +305,7 @@ function CourseCard({ course, onOpen }: { course: Course; onOpen: () => void }) 
         <div className="member-course-progress" aria-label={`${course.progressPercent}% concluído`}><i style={{ width: `${course.progressPercent}%` }} /></div>
         <div className="member-course-meta">
           <span>{course.progressPercent ? `${course.progressPercent}% concluído` : "Começar curso"}</span>
-          {course.averageRating ? <strong>★ {course.averageRating}</strong> : <strong>Sem avaliações</strong>}
+          {course.averageRating ? <strong><Icon name="star" size={14} fill="currentColor" /> {course.averageRating}</strong> : <strong>Sem avaliações</strong>}
         </div>
       </div>
     </button>
@@ -463,9 +452,9 @@ function HomeSection({ member, courses, schoolComingSoon, posts, events, connect
 
       <section className="member-home-next-action" aria-labelledby="home-next-action-title">
         <div><span>{nextAction.eyebrow}</span><h2 id="home-next-action-title">{nextAction.title}</h2><p>{nextAction.text}</p></div>
-        {"course" in nextAction && nextAction.course ? <button onClick={() => onOpenCourse(nextAction.course)}>{nextAction.label}<b>→</b></button> : null}
-        {"section" in nextAction && nextAction.section ? <button onClick={() => onNavigate(nextAction.section)}>{nextAction.label}<b>→</b></button> : null}
-        {"href" in nextAction && nextAction.href ? <a href={nextAction.href}>{nextAction.label}<b>→</b></a> : null}
+        {"course" in nextAction && nextAction.course ? <button onClick={() => onOpenCourse(nextAction.course)}>{nextAction.label}<b aria-hidden="true"><Icon name="arrow" size={16} /></b></button> : null}
+        {"section" in nextAction && nextAction.section ? <button onClick={() => onNavigate(nextAction.section)}>{nextAction.label}<b aria-hidden="true"><Icon name="arrow" size={16} /></b></button> : null}
+        {"href" in nextAction && nextAction.href ? <a href={nextAction.href}>{nextAction.label}<b aria-hidden="true"><Icon name="arrow" size={16} /></b></a> : null}
       </section>
 
       {profileCompleteness < 100 ? <section className="member-home-profile" aria-label="Completude do perfil">
@@ -483,7 +472,7 @@ function HomeSection({ member, courses, schoolComingSoon, posts, events, connect
       </nav>
 
       <section className="member-home-section" aria-labelledby="home-learning-title">
-        <header><div><span>APRENDER</span><h2 id="home-learning-title">{schoolComingSoon ? "Escola TIME" : "Continue aprendendo"}</h2></div><button onClick={() => onNavigate("cursos")}>{schoolComingSoon ? "Ver prévia" : "Ver cursos"} <b>→</b></button></header>
+        <header><div><span>APRENDER</span><h2 id="home-learning-title">{schoolComingSoon ? "Escola TIME" : "Continue aprendendo"}</h2></div><button onClick={() => onNavigate("cursos")}>{schoolComingSoon ? "Ver prévia" : "Ver cursos"} <b aria-hidden="true"><Icon name="arrow" size={16} /></b></button></header>
         {schoolComingSoon ? <div className="member-home-inline-state school-coming-soon-home"><strong>Conteúdos e trilhas em breve.</strong><p>Estamos preparando formações práticas para o próximo movimento do seu negócio.</p><button onClick={() => onNavigate("cursos")}>Conhecer as próximas formações</button></div> : loading.courses ? <LoadingCards /> : errors.courses ? <div className="member-home-inline-state error" role="alert"><strong>Não foi possível carregar seu aprendizado.</strong><p>{errors.courses}</p></div> : recommended ? <article className="member-home-learning">
           {recommended.thumbnailUrl ? <img src={recommended.thumbnailUrl} alt="" /> : null}
           <div className="member-home-learning-overlay" />
@@ -494,12 +483,12 @@ function HomeSection({ member, courses, schoolComingSoon, posts, events, connect
             <div className="member-home-learning-progress"><i style={{ width: `${recommended.progressPercent}%` }} /></div>
             <small>{recommended.completedLessons} de {recommended.lessonCount} aulas concluídas</small>
           </div>
-          <button onClick={() => onOpenCourse(recommended)}>{recommended.progressPercent ? "Continuar" : "Abrir curso"}<b>→</b></button>
+          <button onClick={() => onOpenCourse(recommended)}>{recommended.progressPercent ? "Continuar" : "Abrir curso"}<b aria-hidden="true"><Icon name="arrow" size={16} /></b></button>
         </article> : <div className="member-home-inline-state"><strong>Nenhum curso disponível agora.</strong><p>Conteúdos publicados pela TIME aparecerão aqui automaticamente.</p></div>}
       </section>
 
       <section className="member-home-section" aria-labelledby="home-connections-title">
-        <header><div><span>CONECTAR</span><h2 id="home-connections-title">Pessoas que podem fazer sentido para você</h2></div>{canUse("networking") ? <a href="/app/conexoes">Ver conexões <b>→</b></a> : null}</header>
+        <header><div><span>CONECTAR</span><h2 id="home-connections-title">Pessoas que podem fazer sentido para você</h2></div>{canUse("networking") ? <a href="/app/conexoes">Ver conexões <b aria-hidden="true"><Icon name="arrow" size={16} /></b></a> : null}</header>
         {!canUse("networking") ? <div className="member-home-inline-state locked"><strong>Conexões são exclusivas para membros.</strong><p>Ative sua associação para acessar perfis profissionais e contatos autorizados.</p><a href="/checkout">Tornar-me membro</a></div> : !profileReady ? <div className="member-home-inline-state"><strong>Complete os campos essenciais para receber conexões melhores.</strong><p>Usamos seus objetivos e necessidades reais, sem recomendações inventadas.</p><a href="/app/cadastro">Completar perfil</a></div> : errors.connections ? <div className="member-home-inline-state error" role="alert"><strong>Conexões indisponíveis no momento.</strong><p>{errors.connections}</p></div> : connections.length ? <div className="member-home-connections">{connections.map((connection) => <article key={connection.userId}>
           <div className="member-home-avatar" role="img" aria-label={`Foto de ${connection.name || "membro TIME"}`} style={connection.avatarUrl ? { backgroundImage: `url(${connection.avatarUrl})` } : undefined}>{connection.avatarUrl ? "" : initials(connection.name || "TIME")}</div>
           <div><span>{connection.segment || "Perfil empresarial"}</span><h3>{connection.name || "Perfil em atualização"}</h3><p>{[connection.jobTitle, connection.company].filter(Boolean).join(" · ") || "Informações profissionais em atualização"}</p><small>{connection.reason}</small></div>
@@ -509,15 +498,15 @@ function HomeSection({ member, courses, schoolComingSoon, posts, events, connect
 
       <section className="member-home-split">
         <article className="member-home-event" aria-label="Próximo evento">
-          <header><span>PRÓXIMO EVENTO</span><button onClick={() => onNavigate("agenda")}>Ver agenda <b>→</b></button></header>
+          <header><span>PRÓXIMO EVENTO</span><button onClick={() => onNavigate("agenda")}>Ver agenda <b aria-hidden="true"><Icon name="arrow" size={16} /></b></button></header>
           {loading.events ? <div className="member-home-card-loading" aria-label="Carregando próximo evento" /> : errors.events ? <div className="member-home-inline-state error" role="alert"><strong>Agenda indisponível.</strong><p>{errors.events}</p></div> : nextEvent ? <div className="member-home-event-content">
             {eventCoverUrl(nextEvent) ? <img src={eventCoverUrl(nextEvent)} alt="" /> : null}
-            <div><span>{eventAvailabilityLabel(nextEvent)}</span><h2 id="home-event-title">{nextEvent.title}</h2><p>{eventDateParts(nextEvent.startsAt).full} · {eventDateParts(nextEvent.startsAt).time}</p><small>{[nextEvent.locationName, nextEvent.city].filter(Boolean).join(" · ") || "Local a confirmar"}</small><button onClick={() => onNavigate("agenda")}>{nextEvent.registered ? "Inscrição confirmada" : "Ver evento"}<b>→</b></button></div>
+            <div><span>{eventAvailabilityLabel(nextEvent)}</span><h2 id="home-event-title">{nextEvent.title}</h2><p>{eventDateParts(nextEvent.startsAt).full} · {eventDateParts(nextEvent.startsAt).time}</p><small>{[nextEvent.locationName, nextEvent.city].filter(Boolean).join(" · ") || "Local a confirmar"}</small><button onClick={() => onNavigate("agenda")}>{nextEvent.registered ? "Inscrição confirmada" : "Ver evento"}<b aria-hidden="true"><Icon name="arrow" size={16} /></b></button></div>
           </div> : <div className="member-home-inline-state"><strong id="home-event-title">Nenhum próximo evento publicado.</strong><p>A agenda será atualizada quando a equipe confirmar uma nova data.</p></div>}
         </article>
 
         <article className="member-home-community" aria-labelledby="home-community-title">
-          <header><div><span>COMUNIDADE</span><h2 id="home-community-title">O que está movimentando a TIME</h2></div><button onClick={() => onNavigate("comunidade")}>Ver comunidade <b>→</b></button></header>
+          <header><div><span>COMUNIDADE</span><h2 id="home-community-title">O que está movimentando a TIME</h2></div><button onClick={() => onNavigate("comunidade")}>Ver comunidade <b aria-hidden="true"><Icon name="arrow" size={16} /></b></button></header>
           {loading.community ? <div className="member-home-card-loading" aria-label="Carregando comunidade" /> : errors.community ? <div className="member-home-inline-state error" role="alert"><strong>Comunidade indisponível.</strong><p>{errors.community}</p></div> : recentPosts.length ? <div className="member-home-posts">{recentPosts.map((post) => <button key={post.id} onClick={() => onNavigate("comunidade")}><span>{categoryLabel(post.category)}</span><strong>{post.title || post.content.slice(0, 88)}</strong><small>{post.authorName} · {timeAgo(post.createdAt)}</small></button>)}</div> : <div className="member-home-inline-state"><strong>Nenhuma oportunidade ou novidade recente.</strong><p>As publicações reais da comunidade aparecerão aqui.</p></div>}
         </article>
       </section>
@@ -525,9 +514,9 @@ function HomeSection({ member, courses, schoolComingSoon, posts, events, connect
       <section className="member-home-business" aria-labelledby="home-business-title">
         <div><span>FAZER NEGÓCIOS</span><h2 id="home-business-title">Transforme uma necessidade em movimento.</h2><p>Encontre fornecedores, procure parceiros ou compartilhe uma oportunidade com a comunidade.</p></div>
         <div>
-          {canUse("networking") ? <a href="/app/conexoes">Procurar fornecedor <b>→</b></a> : <a href="/checkout">Liberar networking <b>→</b></a>}
-          <button onClick={() => onNavigate("comunidade")}>Publicar oportunidade <b>→</b></button>
-          <button onClick={() => onNavigate("comunidade")}>Publicar oferta <b>→</b></button>
+          {canUse("networking") ? <a href="/app/conexoes">Procurar fornecedor <b aria-hidden="true"><Icon name="arrow" size={16} /></b></a> : <a href="/checkout">Liberar networking <b aria-hidden="true"><Icon name="arrow" size={16} /></b></a>}
+          <button onClick={() => onNavigate("comunidade")}>Publicar oportunidade <b aria-hidden="true"><Icon name="arrow" size={16} /></b></button>
+          <button onClick={() => onNavigate("comunidade")}>Publicar oferta <b aria-hidden="true"><Icon name="arrow" size={16} /></b></button>
         </div>
       </section>
     </div>
@@ -571,9 +560,9 @@ function CoursesSection({ courses, loading, error, search, onOpen }: { courses: 
             <li>{featured.lessonCount} {featured.lessonCount === 1 ? "aula" : "aulas"}</li>
           </ul>
           {featured.progressPercent ? <div className="course-streaming-hero-progress"><i style={{ width: `${featured.progressPercent}%` }} /><small>{featured.progressPercent}% concluído</small></div> : null}
-          <div className="course-streaming-hero-actions"><button onClick={() => onOpen(featured)}><span>▶</span>{featured.progressPercent ? "Continuar curso" : "Começar agora"}</button><button className="secondary" onClick={() => onOpen(featured)}>Abrir curso</button></div>
+          <div className="course-streaming-hero-actions"><button onClick={() => onOpen(featured)}><span><Icon name="play" size={16} fill="currentColor" /></span>{featured.progressPercent ? "Continuar curso" : "Começar agora"}</button><button className="secondary" onClick={() => onOpen(featured)}>Abrir curso</button></div>
         </div>
-      </section> : loading ? <LoadingCards /> : <EmptyState icon="▶" title="A biblioteca está sendo preparada" text="Quando a TIME publicar o primeiro curso, ele aparecerá aqui automaticamente." />}
+      </section> : loading ? <LoadingCards /> : <EmptyState icon="courses" title="A biblioteca está sendo preparada" text="Quando a TIME publicar o primeiro curso, ele aparecerá aqui automaticamente." />}
 
       {error ? <div className="real-inline-error" role="alert">{error}</div> : null}
 
@@ -586,7 +575,7 @@ function CoursesSection({ courses, loading, error, search, onOpen }: { courses: 
         <CourseRail title="Em destaque na TIME" eyebrow="CONTEÚDOS PUBLICADOS" courses={courses.slice(0, 8)} onOpen={onOpen} />
         {categoryRails.map(({ category, courses: categoryCourses }) => <CourseRail title={category} eyebrow="EXPLORAR POR CATEGORIA" courses={categoryCourses} onOpen={onOpen} key={category} />)}
         {completed.length ? <CourseRail title="Cursos concluídos" eyebrow="SUA HISTÓRIA" courses={completed} onOpen={onOpen} /> : null}
-        <section className="course-streaming-catalog"><header><div><span>CATÁLOGO COMPLETO</span><h2>{categoryFilter === "Todas" ? "Todos os cursos publicados" : categoryFilter}</h2></div><small>{filtered.length} {filtered.length === 1 ? "resultado" : "resultados"}</small></header>{loading ? <LoadingCards /> : filtered.length ? <div className="course-streaming-catalog-grid">{filtered.map((course) => <CourseCard course={course} key={course.id} onOpen={() => onOpen(course)} />)}</div> : <EmptyState icon="⌕" title="Nenhum curso neste filtro" text="Tente uma categoria ou status diferente." />}</section>
+        <section className="course-streaming-catalog"><header><div><span>CATÁLOGO COMPLETO</span><h2>{categoryFilter === "Todas" ? "Todos os cursos publicados" : categoryFilter}</h2></div><small>{filtered.length} {filtered.length === 1 ? "resultado" : "resultados"}</small></header>{loading ? <LoadingCards /> : filtered.length ? <div className="course-streaming-catalog-grid">{filtered.map((course) => <CourseCard course={course} key={course.id} onOpen={() => onOpen(course)} />)}</div> : <EmptyState icon="search" title="Nenhum curso neste filtro" text="Tente uma categoria ou status diferente." />}</section>
       </> : null}
       <UpcomingCourseShelf />
     </section>
@@ -716,13 +705,13 @@ function CommunityPostCard({ post, onUpdate, onRemove }: { post: CommunityPost; 
     {post.title ? <h3 className="community-offer-title">{post.title}</h3> : null}
     {post.content ? <p>{renderLinkedText(post.content)}</p> : null}
     {post.category === "offer" ? <dl className="community-offer-details"><div><dt>Empresa</dt><dd>{post.company}</dd></div><div><dt>Benefício</dt><dd>{post.benefit}</dd></div>{post.discount ? <div><dt>Desconto</dt><dd>{post.discount}</dd></div> : null}{post.conditions ? <div><dt>Condições</dt><dd>{post.conditions}</dd></div> : null}{post.validUntil ? <div><dt>Validade</dt><dd>{formatShortDate(post.validUntil)}</dd></div> : null}<div><dt>Contato</dt><dd>{post.contact}</dd></div></dl> : null}
-    {post.attachments?.length ? <div className="community-post-attachments">{post.attachments.map((attachment) => attachment.kind === "link" ? <a className="community-link-card" href={attachment.url} target="_blank" rel="noreferrer" key={attachment.url}><span>↗</span><div><small>LINK COMPARTILHADO</small><strong>{attachment.label || displayLink(attachment.url)}</strong><em>Abrir em nova aba</em></div></a> : attachment.kind === "video" ? <figure className="is-video" key={attachment.url}><video controls playsInline preload="metadata" src={attachment.url} aria-label={attachment.label || "Vídeo compartilhado na comunidade"} /><figcaption>{attachment.label || "Vídeo compartilhado"}</figcaption></figure> : <figure className={attachment.kind === "gif" ? "is-gif" : ""} key={attachment.url}><img src={attachment.url} alt={attachment.label || "Imagem compartilhada na comunidade"} loading="lazy" /><figcaption>{attachment.kind === "gif" ? "GIF compartilhado" : attachment.label || "Imagem compartilhada"}</figcaption></figure>)}</div> : null}
+    {post.attachments?.length ? <div className="community-post-attachments">{post.attachments.map((attachment) => attachment.kind === "link" ? <a className="community-link-card" href={attachment.url} target="_blank" rel="noreferrer" key={attachment.url}><span><Icon name="external" size={16} /></span><div><small>LINK COMPARTILHADO</small><strong>{attachment.label || displayLink(attachment.url)}</strong><em>Abrir em nova aba</em></div></a> : attachment.kind === "video" ? <figure className="is-video" key={attachment.url}><video controls playsInline preload="metadata" src={attachment.url} aria-label={attachment.label || "Vídeo compartilhado na comunidade"} /><figcaption>{attachment.label || "Vídeo compartilhado"}</figcaption></figure> : <figure className={attachment.kind === "gif" ? "is-gif" : ""} key={attachment.url}><img src={attachment.url} alt={attachment.label || "Imagem compartilhada na comunidade"} loading="lazy" /><figcaption>{attachment.kind === "gif" ? "GIF compartilhado" : attachment.label || "Imagem compartilhada"}</figcaption></figure>)}</div> : null}
     <footer className="reference-post-actions">
-      <button className={post.likedByMe ? "active" : ""} onClick={() => void toggleInteraction("like")} aria-pressed={post.likedByMe}>♡ <span>{post.likesCount || "Curtir"}</span></button>
-      <button className={commentsOpen ? "active" : ""} onClick={() => void toggleComments()} aria-expanded={commentsOpen}>◯ <span>{post.commentsCount || "Comentar"}</span></button>
-      <button onClick={() => void sharePost()}>↗ <span>{sharingNotice || "Compartilhar"}</span></button>
-      <button className={post.savedByMe ? "active save" : "save"} onClick={() => void toggleInteraction("save")} aria-pressed={post.savedByMe}>◇ <span>{post.savedByMe ? "Salvo" : "Salvar"}</span></button>
-      {post.own ? <><button onClick={() => void editPost()}>✎ <span>Editar</span></button><button onClick={() => void deletePost()}>× <span>Excluir</span></button></> : <button onClick={() => void reportPost()}>! <span>Denunciar</span></button>}
+      <button className={post.likedByMe ? "active" : ""} onClick={() => void toggleInteraction("like")} aria-pressed={post.likedByMe}><Icon name="heart" size={16} /> <span>{post.likesCount || "Curtir"}</span></button>
+      <button className={commentsOpen ? "active" : ""} onClick={() => void toggleComments()} aria-expanded={commentsOpen}><Icon name="community" size={16} /> <span>{post.commentsCount || "Comentar"}</span></button>
+      <button onClick={() => void sharePost()}><Icon name="external" size={16} /> <span>{sharingNotice || "Compartilhar"}</span></button>
+      <button className={post.savedByMe ? "active save" : "save"} onClick={() => void toggleInteraction("save")} aria-pressed={post.savedByMe}><Icon name="bookmark" size={16} /> <span>{post.savedByMe ? "Salvo" : "Salvar"}</span></button>
+      {post.own ? <><button onClick={() => void editPost()}><Icon name="edit" size={16} /> <span>Editar</span></button><button onClick={() => void deletePost()}><Icon name="trash" size={16} /> <span>Excluir</span></button></> : <button onClick={() => void reportPost()}><Icon name="flag" size={16} /> <span>Denunciar</span></button>}
     </footer>
     {commentsOpen ? <section className="reference-comments" aria-label="Comentários da publicação">
       {commentsLoading && !commentsLoaded ? <p>Carregando comentários…</p> : null}
@@ -823,31 +812,31 @@ function CommunitySection({ member, posts, setPosts, loading, error, reload }: {
   return (
     <>
       <PageHeading kicker="COMUNIDADE EMPRESARIAL" title="Contexto antes do contato." description="Compartilhe oportunidades, conquistas, dúvidas e aprendizados com pessoas que também constroem negócios." aside={<div className="online-members"><div><i />Ambiente próprio</div><span>{posts.length} {posts.length === 1 ? "publicação carregada" : "publicações carregadas"}</span></div>} />
-      <nav className="reference-community-tabs" aria-label="Filtrar publicações">{communityCategories.map((category) => <button className={feedCategory === category.id ? "active" : ""} key={category.id} onClick={() => setFeedCategory(category.id)}><span>{category.icon}</span>{category.label}</button>)}</nav>
+      <nav className="reference-community-tabs" aria-label="Filtrar publicações">{communityCategories.map((category) => <button className={feedCategory === category.id ? "active" : ""} key={category.id} onClick={() => setFeedCategory(category.id)}><span><Icon name={category.icon} size={16} /></span>{category.label}</button>)}</nav>
       <div className="community-layout real-community-layout">
         <div className="community-feed">
           <article className="new-post-card social-post-composer">
             <span className="community-avatar own-avatar">{initials(member.name)}</span>
             <div className="community-composer-main">
               <label className="community-composer-label" htmlFor="community-caption">NOVA PUBLICAÇÃO</label>
-              <div className="reference-intent-picker" role="group" aria-label="Tipo de publicação">{communityCategories.filter((category) => category.id !== "all").map((category) => <button type="button" className={postCategory === category.id ? "active" : ""} key={category.id} onClick={() => setPostCategory(category.id as CommunityCategory)}>{category.icon} {category.label}</button>)}</div>
+              <div className="reference-intent-picker" role="group" aria-label="Tipo de publicação">{communityCategories.filter((category) => category.id !== "all").map((category) => <button type="button" className={postCategory === category.id ? "active" : ""} key={category.id} onClick={() => setPostCategory(category.id as CommunityCategory)}><Icon name={category.icon} size={16} /> {category.label}</button>)}</div>
               <textarea id="community-caption" aria-label="Legenda da publicação" maxLength={4000} placeholder="Escreva sua legenda, aprendizado, dúvida ou oportunidade…" value={postText} onChange={(event) => setPostText(event.target.value)} />
               {postCategory === "offer" ? <fieldset className="community-offer-form"><legend>Informações da oferta</legend><div><label>Título<input required maxLength={180} value={offerDraft.title} onChange={(event) => setOfferDraft({ ...offerDraft, title: event.target.value })} placeholder="Ex.: Condição especial para membros TIME" /></label><label>Empresa<input required maxLength={180} value={offerDraft.company} onChange={(event) => setOfferDraft({ ...offerDraft, company: event.target.value })} /></label></div><label>Benefício<textarea required maxLength={500} value={offerDraft.benefit} onChange={(event) => setOfferDraft({ ...offerDraft, benefit: event.target.value })} placeholder="Descreva o benefício oferecido." /></label><div><label>Desconto ou condição<input maxLength={100} value={offerDraft.discount} onChange={(event) => setOfferDraft({ ...offerDraft, discount: event.target.value })} placeholder="Ex.: 20% de desconto" /></label><label>Validade<input type="date" value={offerDraft.validUntil} onChange={(event) => setOfferDraft({ ...offerDraft, validUntil: event.target.value })} /></label></div><label>Condições<textarea maxLength={1200} value={offerDraft.conditions} onChange={(event) => setOfferDraft({ ...offerDraft, conditions: event.target.value })} /></label><label>Contato<input required maxLength={220} value={offerDraft.contact} onChange={(event) => setOfferDraft({ ...offerDraft, contact: event.target.value })} placeholder="WhatsApp ou link HTTPS" /></label></fieldset> : null}
               <div className="community-composer-tools" aria-label="Adicionar mídia à publicação">
                 <input ref={imageInput} type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" onChange={(event) => void uploadCommunityMedia(event.target.files?.[0] ?? null)} />
                 <input ref={videoInput} type="file" accept="video/mp4,video/webm,video/quicktime" onChange={(event) => void uploadCommunityMedia(event.target.files?.[0] ?? null)} />
-                <button type="button" onClick={() => imageInput.current?.click()} disabled={uploading || attachments.length >= maxAttachments}>{uploading ? "Enviando…" : "▧ Imagem ou GIF"}</button>
-                <button type="button" onClick={() => videoInput.current?.click()} disabled={uploading || attachments.length >= maxAttachments}>{uploading ? "Enviando…" : "▶ Vídeo"}</button>
+                <button type="button" onClick={() => imageInput.current?.click()} disabled={uploading || attachments.length >= maxAttachments}>{uploading ? "Enviando…" : <><Icon name="image" size={16} /> Imagem ou GIF</>}</button>
+                <button type="button" onClick={() => videoInput.current?.click()} disabled={uploading || attachments.length >= maxAttachments}>{uploading ? "Enviando…" : <><Icon name="play" size={16} /> Vídeo</>}</button>
                 <div className="community-link-input"><input aria-label="Colar link na publicação" type="url" inputMode="url" placeholder="Cole um link https://" value={linkInput} onChange={(event) => setLinkInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addLink(); } }} /><button type="button" onClick={addLink} disabled={!linkInput.trim() || attachments.length >= maxAttachments}>Adicionar link</button></div>
               </div>
-              {attachments.length ? <div className="community-attachment-drafts" aria-label="Mídias e links da publicação">{attachments.map((attachment) => <div key={attachment.url} className={`attachment-draft ${attachment.kind}`}><span>{attachment.kind === "link" ? "↗" : attachment.kind === "gif" ? "GIF" : attachment.kind === "video" ? "▶" : "▧"}</span><strong>{attachment.label || displayLink(attachment.url)}</strong><button type="button" onClick={() => removeAttachment(attachment.url)} aria-label={`Remover ${attachment.label || "anexo"}`}>×</button></div>)}</div> : null}
-              <div className="new-post-actions"><small>{postText.length}/4000 · até {maxAttachments} mídias ou links</small><button className="publish-button" disabled={(!postText.trim() && !attachments.length) || (postCategory === "offer" && (!offerDraft.title.trim() || !offerDraft.company.trim() || !offerDraft.benefit.trim() || !offerDraft.contact.trim())) || publishing || uploading} onClick={publishPost}>{publishing ? "Publicando…" : "Publicar agora →"}</button></div>
+              {attachments.length ? <div className="community-attachment-drafts" aria-label="Mídias e links da publicação">{attachments.map((attachment) => <div key={attachment.url} className={`attachment-draft ${attachment.kind}`}><span>{attachment.kind === "link" ? <Icon name="external" size={16} /> : attachment.kind === "gif" ? "GIF" : attachment.kind === "video" ? <Icon name="play" size={16} /> : <Icon name="image" size={16} />}</span><strong>{attachment.label || displayLink(attachment.url)}</strong><button type="button" onClick={() => removeAttachment(attachment.url)} aria-label={`Remover ${attachment.label || "anexo"}`}><Icon name="close" size={18} /></button></div>)}</div> : null}
+              <div className="new-post-actions"><small>{postText.length}/4000 · até {maxAttachments} mídias ou links</small><button className="publish-button" disabled={(!postText.trim() && !attachments.length) || (postCategory === "offer" && (!offerDraft.title.trim() || !offerDraft.company.trim() || !offerDraft.benefit.trim() || !offerDraft.contact.trim())) || publishing || uploading} onClick={publishPost}>{publishing ? "Publicando…" : "Publicar agora"}</button></div>
               {attachmentError ? <p className="form-error" role="alert">{attachmentError}</p> : null}
               {publishError ? <p className="form-error" role="alert">{publishError}</p> : null}
             </div>
           </article>
           {error ? <div className="real-inline-error" role="alert">{error}<button onClick={() => void reload()}>Tentar novamente</button></div> : null}
-          {loading ? <LoadingCards /> : filteredPosts.length ? filteredPosts.map((post) => <CommunityPostCard post={post} key={post.id} onUpdate={(patch) => setPosts((current) => current.map((item) => item.id === post.id ? { ...item, ...patch } : item))} onRemove={() => setPosts((current) => current.filter((item) => item.id !== post.id))} />) : <EmptyState icon="◉" title={posts.length ? "Nenhuma publicação neste tema" : "A conversa começa aqui"} text={posts.length ? "Escolha outro filtro ou publique a primeira contribuição desta categoria." : "Ainda não há publicações. Compartilhe o primeiro aprendizado com a comunidade."} />}
+          {loading ? <LoadingCards /> : filteredPosts.length ? filteredPosts.map((post) => <CommunityPostCard post={post} key={post.id} onUpdate={(patch) => setPosts((current) => current.map((item) => item.id === post.id ? { ...item, ...patch } : item))} onRemove={() => setPosts((current) => current.filter((item) => item.id !== post.id))} />) : <EmptyState icon="community" title={posts.length ? "Nenhuma publicação neste tema" : "A conversa começa aqui"} text={posts.length ? "Escolha outro filtro ou publique a primeira contribuição desta categoria." : "Ainda não há publicações. Compartilhe o primeiro aprendizado com a comunidade."} />}
         </div>
         <aside className="community-rail real-community-rail">
           <section className="network-card"><div className="rail-title"><div><span>NETWORKING COM CONTEXTO</span><h3>Construa relevância antes do contato</h3></div></div><ol><li><b>01</b><span>Compartilhe o que você está construindo.</span></li><li><b>02</b><span>Explique qual conexão procura.</span></li><li><b>03</b><span>Contribua antes de pedir.</span></li></ol></section>
@@ -859,7 +848,7 @@ function CommunitySection({ member, posts, setPosts, loading, error, reload }: {
 }
 
 function PodcastsSection({ episodes, loading, error, canListen }: { episodes: PodcastEpisode[]; loading: boolean; error: string; canListen: boolean }) {
-  return <><PageHeading kicker="TIME PODCAST" title="Conversas para quem constrói negócios." description="Episódios e entrevistas publicados oficialmente pela TIME." />{error ? <div className="real-inline-error" role="alert">{error}</div> : null}{loading ? <LoadingCards /> : episodes.length ? <div className="podcast-grid">{episodes.map((episode) => <article key={episode.id}><div className="podcast-cover">{episode.thumbnailUrl ? <img src={episode.thumbnailUrl} alt="" /> : <img src={courseThumbnailLibrary[9].src} alt="" />}</div><div><small>{[episode.seasonNumber ? `TEMPORADA ${episode.seasonNumber}` : "TIME PODCAST", episode.episodeNumber ? `EP. ${episode.episodeNumber}` : ""].filter(Boolean).join(" · ")}</small><h2>{episode.title}</h2>{episode.guestName ? <strong>Com {episode.guestName}</strong> : null}<p>{episode.description || "Descrição em preparação."}</p>{canListen && episode.externalUrl ? <a href={episode.externalUrl} target="_blank" rel="noreferrer">Assistir episódio →</a> : <button type="button" disabled>Exclusivo para membros</button>}</div></article>)}</div> : <EmptyState icon="◉" title="Podcasts em preparação" text="Os episódios oficiais aparecerão aqui assim que forem publicados pela equipe TIME." />}{!canListen ? <MembershipGate area="os episódios completos" /> : null}</>;
+  return <><PageHeading kicker="TIME PODCAST" title="Conversas para quem constrói negócios." description="Episódios e entrevistas publicados oficialmente pela TIME." />{error ? <div className="real-inline-error" role="alert">{error}</div> : null}{loading ? <LoadingCards /> : episodes.length ? <div className="podcast-grid">{episodes.map((episode) => <article key={episode.id}><div className="podcast-cover">{episode.thumbnailUrl ? <img src={episode.thumbnailUrl} alt="" /> : <img src={courseThumbnailLibrary[9].src} alt="" />}</div><div><small>{[episode.seasonNumber ? `TEMPORADA ${episode.seasonNumber}` : "TIME PODCAST", episode.episodeNumber ? `EP. ${episode.episodeNumber}` : ""].filter(Boolean).join(" · ")}</small><h2>{episode.title}</h2>{episode.guestName ? <strong>Com {episode.guestName}</strong> : null}<p>{episode.description || "Descrição em preparação."}</p>{canListen && episode.externalUrl ? <a href={episode.externalUrl} target="_blank" rel="noreferrer">Assistir episódio</a> : <button type="button" disabled>Exclusivo para membros</button>}</div></article>)}</div> : <EmptyState icon="podcasts" title="Podcasts em preparação" text="Os episódios oficiais aparecerão aqui assim que forem publicados pela equipe TIME." />}{!canListen ? <MembershipGate area="os episódios completos" /> : null}</>;
 }
 
 function TutorSection({ courses, member }: { courses: Course[]; member: Member }) {
@@ -896,13 +885,13 @@ function TutorSection({ courses, member }: { courses: Course[]; member: Member }
       <PageHeading kicker="TUTOR TIME IA" title="Conhecimento com fonte, não improviso." description="Pergunte sobre os conteúdos autorizados e receba uma ação prática para as próximas 24 horas." aside={<div className="tutor-status"><i />Base autorizada</div>} />
       <div className="tutor-layout">
         <section className="tutor-chat-card">
-          <header><div className="tutor-avatar">✦</div><div><strong>Tutor TIME</strong><span>Grounding, citações e limite de conhecimento</span></div><button aria-label="Nova conversa" onClick={() => setMessages([{ id: "welcome", role: "assistant", text: welcome, grounded: true }])}>↻</button></header>
+          <header><div className="tutor-avatar"><Icon name="tutor" size={20} /></div><div><strong>Tutor TIME</strong><span>Grounding, citações e limite de conhecimento</span></div><button aria-label="Nova conversa" onClick={() => setMessages([{ id: "welcome", role: "assistant", text: welcome, grounded: true }])}><Icon name="refresh" size={16} /></button></header>
           <div className="tutor-messages" aria-live="polite">
-            {messages.map((message) => <article className={`tutor-message ${message.role}`} key={message.id}>{message.role === "assistant" ? <span>✦</span> : null}<div><p>{message.text}</p>{message.citations?.length ? <footer>{message.citations.map((citation, index) => <span title={citation.excerpt} key={citation.id}>▧ Fonte {index + 1}: {citation.course} · {citation.title}</span>)}</footer> : message.role === "assistant" && message.grounded === false ? <footer><span>Sem fonte suficiente</span></footer> : null}</div></article>)}
+            {messages.map((message) => <article className={`tutor-message ${message.role}`} key={message.id}>{message.role === "assistant" ? <span><Icon name="tutor" size={16} /></span> : null}<div><p>{message.text}</p>{message.citations?.length ? <footer>{message.citations.map((citation, index) => <span title={citation.excerpt} key={citation.id}><Icon name="file" size={14} /> Fonte {index + 1}: {citation.course} · {citation.title}</span>)}</footer> : message.role === "assistant" && message.grounded === false ? <footer><span>Sem fonte suficiente</span></footer> : null}</div></article>)}
             {sending ? <div className="tutor-typing"><i /><i /><i />Consultando a base autorizada</div> : null}
           </div>
           <div className="tutor-suggestions">{suggestions.map((suggestion) => <button key={suggestion} onClick={() => void askTutor(suggestion)}>{suggestion}</button>)}</div>
-          <form className="tutor-composer" onSubmit={(event) => { event.preventDefault(); void askTutor(); }}><textarea maxLength={1600} aria-label="Pergunte ao Tutor TIME" placeholder="Pergunte citando uma aula, curso ou desafio..." value={question} onChange={(event) => setQuestion(event.target.value)} /><div><span>Somente conteúdos autorizados · sem conhecimento externo</span><button disabled={!question.trim() || sending}>{sending ? "Consultando…" : "Enviar ↗"}</button></div></form>
+          <form className="tutor-composer" onSubmit={(event) => { event.preventDefault(); void askTutor(); }}><textarea maxLength={1600} aria-label="Pergunte ao Tutor TIME" placeholder="Pergunte citando uma aula, curso ou desafio..." value={question} onChange={(event) => setQuestion(event.target.value)} /><div><span>Somente conteúdos autorizados · sem conhecimento externo</span><button disabled={!question.trim() || sending}>{sending ? "Consultando…" : "Enviar"}</button></div></form>
         </section>
         <aside className="tutor-context-rail">
           <section><span>BASE DISPONÍVEL</span><h3>{courses.length} {courses.length === 1 ? "curso publicado" : "cursos publicados"}</h3><p>{describedLessons} {describedLessons === 1 ? "aula com descrição autorizada" : "aulas com descrição autorizada"}</p></section>
@@ -973,7 +962,7 @@ function AgendaSection({ member, events, loading, error, onCommunity, reload }: 
     <div className="reference-event-filters" role="tablist" aria-label="Filtrar eventos"><button className={filter === "upcoming" ? "active" : ""} onClick={() => setFilter("upcoming")}>Próximos <span>{upcoming.length}</span></button><button className={filter === "past" ? "active" : ""} onClick={() => setFilter("past")}>Anteriores <span>{past.length}</span></button><button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}>Todos <span>{events.length}</span></button></div>
     {error ? <div className="real-inline-error" role="alert">{error}<button onClick={() => void reload()}>Tentar novamente</button></div> : null}
     {actionError ? <div className="real-inline-error" role="alert">{actionError}</div> : null}
-    {actionNotice ? <div className="onboarding-message" role="status">✓ {actionNotice}</div> : null}
+    {actionNotice ? <div className="onboarding-message" role="status"><Icon name="check" size={16} /> {actionNotice}</div> : null}
     {loading ? <LoadingCards /> : visible.length ? <div className="reference-events-list">{visible.map((event) => {
       const date = eventDateParts(event.startsAt);
       const isPast = Date.parse(event.startsAt) <= now || event.status === "completed";
@@ -981,13 +970,13 @@ function AgendaSection({ member, events, loading, error, onCommunity, reload }: 
       return <article className={isPast ? "past" : "upcoming"} key={event.id}>
         {coverUrl ? <img className="reference-event-cover" src={coverUrl} alt={`Capa oficial do evento ${event.title}`} /> : null}
         <div className="reference-event-date"><strong>{date.day}</strong><span>{date.month}</span></div>
-        <div className="reference-event-body"><div><span>{eventAvailabilityLabel(event)}</span>{event.registered ? <b>✓ Você está na lista</b> : null}</div><h2>{event.title}</h2><p>{event.description || "A equipe TIME ainda não adicionou uma descrição para este evento."}</p><footer><span>◷ {date.full} · {date.time}</span>{event.locationName || event.city ? <span>⌖ {[event.locationName, event.city].filter(Boolean).join(" · ")}</span> : null}<span>◎ {event.remainingSpots === null ? `${event.participantCount} participantes` : event.remainingSpots === 0 ? "Sem vagas" : `${event.remainingSpots} vagas restantes`}</span></footer>{event.guests.length ? <div className="member-event-guests"><strong>Seus convidados</strong>{event.guests.map((guest) => <span key={guest.id}>{guest.name}<button disabled={actionId === event.id} onClick={() => { setActionError(""); setDestructiveAction({ kind: "remove-guest", event, guest }); }}>Remover</button></span>)}</div> : null}</div>
+        <div className="reference-event-body"><div><span>{eventAvailabilityLabel(event)}</span>{event.registered ? <b><Icon name="check" size={14} /> Você está na lista</b> : null}</div><h2>{event.title}</h2><p>{event.description || "A equipe TIME ainda não adicionou uma descrição para este evento."}</p><footer><span><Icon name="clock" size={14} /> {date.full} · {date.time}</span>{event.locationName || event.city ? <span><Icon name="pin" size={14} /> {[event.locationName, event.city].filter(Boolean).join(" · ")}</span> : null}<span><Icon name="ticket" size={14} /> {event.remainingSpots === null ? `${event.participantCount} participantes` : event.remainingSpots === 0 ? "Sem vagas" : `${event.remainingSpots} vagas restantes`}</span></footer>{event.guests.length ? <div className="member-event-guests"><strong>Seus convidados</strong>{event.guests.map((guest) => <span key={guest.id}>{guest.name}<button disabled={actionId === event.id} onClick={() => { setActionError(""); setDestructiveAction({ kind: "remove-guest", event, guest }); }}>Remover</button></span>)}</div> : null}</div>
         <div className="reference-event-actions">{!isPast && event.availability !== "cancelled" ? <>{event.registered ? <button className="secondary" disabled={actionId === event.id} onClick={() => { setActionError(""); setDestructiveAction({ kind: "cancel-registration", event }); }}>{actionId === event.id ? "Atualizando…" : "Cancelar inscrição"}</button> : <button className="primary" disabled={actionId === event.id || !["open", "last_spots"].includes(event.availability)} onClick={() => { setPresenceConfirmed(false); setRegistrationData({ phone: event.registration?.phone ?? "", company: event.registration?.company ?? "" }); setRegistrationEvent(event); }}>{event.availability === "sold_out" ? "Evento lotado" : event.availability === "registration_closed" ? "Inscrições encerradas" : "Quero participar"}</button>}{event.registered && event.allowGuests && event.guests.length < event.maxGuestsPerMember && ["open", "last_spots"].includes(event.availability) ? <button className="secondary" onClick={() => setGuestEvent(event)}>Adicionar convidado</button> : null}<a href={calendarUrl(event)} target="_blank" rel="noreferrer">Adicionar à agenda</a></> : <button className="secondary" onClick={onCommunity}>Ver conversas da comunidade</button>}</div>
       </article>;
-    })}</div> : <EmptyState icon="□" title={filter === "upcoming" ? "Nenhum próximo evento publicado" : "Nenhum evento neste período"} text="Não exibimos datas, vagas ou convidados sem uma fonte cadastrada pela equipe TIME." action={<button onClick={onCommunity}>Acompanhar avisos na comunidade</button>} />}
+    })}</div> : <EmptyState icon="events" title={filter === "upcoming" ? "Nenhum próximo evento publicado" : "Nenhum evento neste período"} text="Não exibimos datas, vagas ou convidados sem uma fonte cadastrada pela equipe TIME." action={<button onClick={onCommunity}>Acompanhar avisos na comunidade</button>} />}
     {registrationEvent ? <div className="event-registration-backdrop" role="presentation">
       <section className="event-registration-modal" role="dialog" aria-modal="true" aria-labelledby="event-registration-title">
-        <button className="event-registration-close" type="button" aria-label="Fechar formulário de inscrição" onClick={() => setRegistrationEvent(null)}>×</button>
+        <button className="event-registration-close" type="button" aria-label="Fechar formulário de inscrição" onClick={() => setRegistrationEvent(null)}><Icon name="close" size={18} /></button>
         {eventCoverUrl(registrationEvent) ? <img src={eventCoverUrl(registrationEvent)} alt={`Capa oficial do evento ${registrationEvent.title}`} /> : null}
         <div className="event-registration-content">
           <span>INSCRIÇÃO PARA MEMBROS</span>
@@ -1002,8 +991,8 @@ function AgendaSection({ member, events, loading, error, onCommunity, reload }: 
         </div>
       </section>
     </div> : null}
-    {guestEvent ? <div className="event-registration-backdrop" role="presentation"><section className="event-registration-modal compact" role="dialog" aria-modal="true" aria-labelledby="guest-registration-title"><button className="event-registration-close" type="button" aria-label="Fechar formulário de convidado" onClick={() => setGuestEvent(null)}>×</button><div className="event-registration-content"><span>CONVIDADO</span><h2 id="guest-registration-title">Adicionar convidado</h2><p>{guestEvent.title} · limite de {guestEvent.maxGuestsPerMember} por membro.</p><form onSubmit={(formEvent) => { formEvent.preventDefault(); void updateGuest(guestEvent, "add-guest"); }}><fieldset className="event-registration-fields"><legend>Dados essenciais</legend><label>Nome completo<input required minLength={3} maxLength={160} value={guestData.name} onChange={(event) => setGuestData({ ...guestData, name: event.target.value })} /></label><label>E-mail<input type="email" maxLength={180} value={guestData.email} onChange={(event) => setGuestData({ ...guestData, email: event.target.value })} /></label><label>WhatsApp<input type="tel" maxLength={32} value={guestData.phone} onChange={(event) => setGuestData({ ...guestData, phone: event.target.value })} /></label><small>Informe ao menos e-mail ou WhatsApp para evitar duplicidade.</small></fieldset><div><button type="button" className="secondary" onClick={() => setGuestEvent(null)}>Voltar</button><button className="primary" disabled={actionId === guestEvent.id || (!guestData.email.trim() && !guestData.phone.trim())}>{actionId === guestEvent.id ? "Salvando…" : "Adicionar convidado"}</button></div></form></div></section></div> : null}
-    {destructiveAction ? <div className="event-registration-backdrop" role="presentation"><section className="event-registration-modal compact" role="dialog" aria-modal="true" aria-labelledby="event-destructive-title"><button className="event-registration-close" type="button" aria-label="Fechar confirmação" disabled={actionId === destructiveAction.event.id} onClick={() => setDestructiveAction(null)}>×</button><div className="event-registration-content"><span>CONFIRMAÇÃO NECESSÁRIA</span><h2 id="event-destructive-title">{destructiveAction.kind === "cancel-registration" ? "Cancelar sua inscrição?" : `Remover ${destructiveAction.guest.name}?`}</h2><p>{destructiveAction.kind === "cancel-registration" ? `Você e seus convidados serão retirados da lista de ${destructiveAction.event.title}.` : `O convidado será removido da lista de ${destructiveAction.event.title}.`}</p>{actionError ? <div className="real-inline-error" role="alert">{actionError}</div> : null}<div><button type="button" className="secondary" disabled={actionId === destructiveAction.event.id} onClick={() => setDestructiveAction(null)}>Manter como está</button><button type="button" className="primary" disabled={actionId === destructiveAction.event.id} onClick={() => void (async () => { const succeeded = destructiveAction.kind === "cancel-registration" ? await updateRegistration(destructiveAction.event, "cancel") : await updateGuest(destructiveAction.event, "remove-guest", destructiveAction.guest.id); if (succeeded) setDestructiveAction(null); })()}>{actionId === destructiveAction.event.id ? "Atualizando…" : destructiveAction.kind === "cancel-registration" ? "Sim, cancelar inscrição" : "Sim, remover convidado"}</button></div></div></section></div> : null}
+    {guestEvent ? <div className="event-registration-backdrop" role="presentation"><section className="event-registration-modal compact" role="dialog" aria-modal="true" aria-labelledby="guest-registration-title"><button className="event-registration-close" type="button" aria-label="Fechar formulário de convidado" onClick={() => setGuestEvent(null)}><Icon name="close" size={18} /></button><div className="event-registration-content"><span>CONVIDADO</span><h2 id="guest-registration-title">Adicionar convidado</h2><p>{guestEvent.title} · limite de {guestEvent.maxGuestsPerMember} por membro.</p><form onSubmit={(formEvent) => { formEvent.preventDefault(); void updateGuest(guestEvent, "add-guest"); }}><fieldset className="event-registration-fields"><legend>Dados essenciais</legend><label>Nome completo<input required minLength={3} maxLength={160} value={guestData.name} onChange={(event) => setGuestData({ ...guestData, name: event.target.value })} /></label><label>E-mail<input type="email" maxLength={180} value={guestData.email} onChange={(event) => setGuestData({ ...guestData, email: event.target.value })} /></label><label>WhatsApp<input type="tel" maxLength={32} value={guestData.phone} onChange={(event) => setGuestData({ ...guestData, phone: event.target.value })} /></label><small>Informe ao menos e-mail ou WhatsApp para evitar duplicidade.</small></fieldset><div><button type="button" className="secondary" onClick={() => setGuestEvent(null)}>Voltar</button><button className="primary" disabled={actionId === guestEvent.id || (!guestData.email.trim() && !guestData.phone.trim())}>{actionId === guestEvent.id ? "Salvando…" : "Adicionar convidado"}</button></div></form></div></section></div> : null}
+    {destructiveAction ? <div className="event-registration-backdrop" role="presentation"><section className="event-registration-modal compact" role="dialog" aria-modal="true" aria-labelledby="event-destructive-title"><button className="event-registration-close" type="button" aria-label="Fechar confirmação" disabled={actionId === destructiveAction.event.id} onClick={() => setDestructiveAction(null)}><Icon name="close" size={18} /></button><div className="event-registration-content"><span>CONFIRMAÇÃO NECESSÁRIA</span><h2 id="event-destructive-title">{destructiveAction.kind === "cancel-registration" ? "Cancelar sua inscrição?" : `Remover ${destructiveAction.guest.name}?`}</h2><p>{destructiveAction.kind === "cancel-registration" ? `Você e seus convidados serão retirados da lista de ${destructiveAction.event.title}.` : `O convidado será removido da lista de ${destructiveAction.event.title}.`}</p>{actionError ? <div className="real-inline-error" role="alert">{actionError}</div> : null}<div><button type="button" className="secondary" disabled={actionId === destructiveAction.event.id} onClick={() => setDestructiveAction(null)}>Manter como está</button><button type="button" className="primary" disabled={actionId === destructiveAction.event.id} onClick={() => void (async () => { const succeeded = destructiveAction.kind === "cancel-registration" ? await updateRegistration(destructiveAction.event, "cancel") : await updateGuest(destructiveAction.event, "remove-guest", destructiveAction.guest.id); if (succeeded) setDestructiveAction(null); })()}>{actionId === destructiveAction.event.id ? "Atualizando…" : destructiveAction.kind === "cancel-registration" ? "Sim, cancelar inscrição" : "Sim, remover convidado"}</button></div></div></section></div> : null}
   </>;
 }
 
@@ -1012,11 +1001,11 @@ function AchievementsSection({ courses }: { courses: Course[] }) {
   const completedCourse = courses.some((course) => course.lessonCount > 0 && course.progressPercent === 100);
   const xp = completed * 100;
   const badges = [
-    ["▶", "Primeiro movimento", "Concluir a primeira aula", completed >= 1],
-    ["✓", "Ritmo de execução", "Concluir 5 aulas", completed >= 5],
-    ["◇", "Jornada completa", "Concluir um curso", completedCourse],
+    ["play", "Primeiro movimento", "Concluir a primeira aula", completed >= 1],
+    ["check", "Ritmo de execução", "Concluir 5 aulas", completed >= 5],
+    ["achievements", "Jornada completa", "Concluir um curso", completedCourse],
   ] as const;
-  return <><PageHeading kicker="GAMIFICAÇÃO TRANSPARENTE" title="Conquistas" description="Regras simples, baseadas apenas em progresso real." aside={<div className="xp-summary"><div><strong>{xp} XP</strong><span>100 XP por aula concluída</span></div><small>{completed} {completed === 1 ? "aula registrada" : "aulas registradas"}</small></div>} /><section className="real-gamification-rules"><span>REGRA ATUAL</span><p>O sistema concede 100 XP por aula concluída. Não há bônus ocultos, ranking fictício ou metas inventadas.</p></section><div className="badge-grid real-badge-grid">{badges.map(([icon, title, text, unlocked]) => <article className={unlocked ? "unlocked" : "locked"} key={title}><span>{unlocked ? "DESBLOQUEADA" : "EM PROGRESSO"}</span><b>{icon}</b><h3>{title}</h3><p>{text}</p></article>)}</div></>;
+  return <><PageHeading kicker="GAMIFICAÇÃO TRANSPARENTE" title="Conquistas" description="Regras simples, baseadas apenas em progresso real." aside={<div className="xp-summary"><div><strong>{xp} XP</strong><span>100 XP por aula concluída</span></div><small>{completed} {completed === 1 ? "aula registrada" : "aulas registradas"}</small></div>} /><section className="real-gamification-rules"><span>REGRA ATUAL</span><p>O sistema concede 100 XP por aula concluída. Não há bônus ocultos, ranking fictício ou metas inventadas.</p></section><div className="badge-grid real-badge-grid">{badges.map(([icon, title, text, unlocked]) => <article className={unlocked ? "unlocked" : "locked"} key={title}><span>{unlocked ? "DESBLOQUEADA" : "EM PROGRESSO"}</span><b><Icon name={icon} size={26} /></b><h3>{title}</h3><p>{text}</p></article>)}</div></>;
 }
 
 function autoplayEmbedUrl(value: string) {
@@ -1206,17 +1195,17 @@ function CourseModal({ course, onClose, onRefresh }: { course: Course; onClose: 
     <div className="lesson-modal real-course-modal course-player-modal" role="dialog" aria-modal="true" aria-label={course.title}>
       <button className="lesson-modal-backdrop" aria-label="Fechar curso" onClick={() => void closeCourse()} />
       <div className="lesson-player course-player-shell">
-        <header className="course-player-header"><div><span>CURSOS / {course.category || "CURSO TIME"}</span><strong>{course.title}</strong></div><button aria-label="Voltar para a biblioteca" onClick={() => void closeCourse()}>×</button></header>
+        <header className="course-player-header"><div><span>CURSOS / {course.category || "CURSO TIME"}</span><strong>{course.title}</strong></div><button aria-label="Voltar para a biblioteca" onClick={() => void closeCourse()}><Icon name="close" size={18} /></button></header>
         <div className={`real-course-viewer${theaterMode ? " theater-mode" : ""}`}>
-          <aside className="course-player-outline"><header className="course-outline-heading"><div><span>CONTEÚDO DO CURSO</span><strong>{course.progressPercent}% concluído</strong></div><i style={{ "--lesson-progress": `${course.progressPercent}%` } as React.CSSProperties} /></header>{modules.length ? modules.map((module, moduleIndex) => <section className="course-module-group" key={module.id}><header><b>{String(moduleIndex + 1).padStart(2, "0")}</b><div><strong>{module.title}</strong><small>{module.lessons.length} {module.lessons.length === 1 ? "aula" : "aulas"}</small></div></header>{module.description ? <p>{module.description}</p> : null}{module.lessons.length ? module.lessons.map((item, lessonIndex) => <button className={item.id === lessonId ? "active" : ""} aria-current={item.id === lessonId ? "step" : undefined} key={item.id} onClick={() => void selectLesson(item)}><b>{item.progress?.completed ? "✓" : item.progress?.startedAt ? "▶" : `${moduleIndex + 1}.${lessonIndex + 1}`}</b><div><strong>{item.title}</strong><small>{formatDuration(item.durationSeconds)}{item.videoUrl ? item.progress?.startedAt ? " · Em andamento" : " · Vídeo" : " · Em breve"}</small></div></button>) : <p className="course-module-empty">A equipe TIME adicionará as aulas deste módulo.</p>}</section>) : <p>Nenhum módulo publicado neste curso.</p>}</aside>
+          <aside className="course-player-outline"><header className="course-outline-heading"><div><span>CONTEÚDO DO CURSO</span><strong>{course.progressPercent}% concluído</strong></div><i style={{ "--lesson-progress": `${course.progressPercent}%` } as React.CSSProperties} /></header>{modules.length ? modules.map((module, moduleIndex) => <section className="course-module-group" key={module.id}><header><b>{String(moduleIndex + 1).padStart(2, "0")}</b><div><strong>{module.title}</strong><small>{module.lessons.length} {module.lessons.length === 1 ? "aula" : "aulas"}</small></div></header>{module.description ? <p>{module.description}</p> : null}{module.lessons.length ? module.lessons.map((item, lessonIndex) => <button className={item.id === lessonId ? "active" : ""} aria-current={item.id === lessonId ? "step" : undefined} key={item.id} onClick={() => void selectLesson(item)}><b>{item.progress?.completed ? <Icon name="check" size={14} /> : item.progress?.startedAt ? <Icon name="play" size={12} fill="currentColor" /> : `${moduleIndex + 1}.${lessonIndex + 1}`}</b><div><strong>{item.title}</strong><small>{formatDuration(item.durationSeconds)}{item.videoUrl ? item.progress?.startedAt ? " · Em andamento" : " · Vídeo" : " · Em breve"}</small></div></button>) : <p className="course-module-empty">A equipe TIME adicionará as aulas deste módulo.</p>}</section>) : <p>Nenhum módulo publicado neste curso.</p>}</aside>
           <main className="course-player-stage">
             <section className="course-learning-overview"><span>AGORA ASSISTINDO</span><p>{modules.length} {modules.length === 1 ? "módulo" : "módulos"} · {course.lessonCount} {course.lessonCount === 1 ? "aula" : "aulas"} · {course.progressPercent}% concluído</p><button className="course-theater-toggle" type="button" aria-pressed={theaterMode} onClick={() => setTheaterMode((current) => !current)}>{theaterMode ? "Sair do modo teatro" : "Modo teatro"}</button></section>
-            <nav className="reference-lesson-tabs" aria-label="Áreas da aula"><button className={activeTab === "lesson" ? "active" : ""} onClick={() => setActiveTab("lesson")}>▶ Aula</button><button className={activeTab === "materials" ? "active" : ""} disabled={!lesson} onClick={() => setActiveTab("materials")}>↧ Materiais <span>{materials.length}</span></button><button className={activeTab === "notes" ? "active" : ""} disabled={!lesson} onClick={() => setActiveTab("notes")}>▧ Anotações</button><button className={activeTab === "comments" ? "active" : ""} disabled={!lesson} onClick={() => setActiveTab("comments")}>◯ Avaliações <span>{reviews.length}</span></button></nav>
-            {lesson ? <div className="video-frame real-video-frame">{lesson.videoUrl ? getExternalVideoProvider(lesson.videoUrl) ? playerStarted ? <iframe src={autoplayEmbedUrl(lesson.videoUrl)} title={`Aula: ${lesson.title}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /> : <button type="button" className="lesson-start-cover" onClick={startPlayer}>{course.thumbnailUrl ? <img src={course.thumbnailUrl} alt="" /> : null}<span><b>▶</b><strong>{lesson.progress?.startedAt ? "Continuar aula" : "Iniciar aula"}</strong><small>Seu progresso começa somente após esta ação.</small></span></button> : <video controls preload="metadata" poster={course.thumbnailUrl || undefined} src={lesson.videoUrl} onPlay={() => { if (!playerStarted) startPlayer(); }} onLoadedMetadata={(event) => { if (watchSecondsRef.current > 0 && event.currentTarget.currentTime === 0) event.currentTarget.currentTime = Math.min(watchSecondsRef.current, Math.max(0, event.currentTarget.duration - 1)); }} onTimeUpdate={(event) => { watchSecondsRef.current = Math.floor(event.currentTarget.currentTime); }} onPause={() => { if (watchSecondsRef.current > (lesson.progress?.watchSeconds ?? 0)) void saveProgress(false, true); }} onEnded={() => void saveProgress(true, true)} /> : <div className="real-video-empty"><span>▶</span><strong>Vídeo ainda não adicionado</strong><p>A equipe TIME publicará o link da aula neste espaço.</p></div>}</div> : activeTab === "lesson" ? <EmptyState icon="▶" title="Curso sem aulas" text="O conteúdo será exibido assim que a equipe publicar a primeira aula." /> : null}
-            {activeTab === "lesson" && lesson ? <section className="real-lesson-copy"><span>{lesson.moduleTitle}</span><h2>{lesson.title}</h2><p>{lesson.description || "A equipe TIME ainda não adicionou uma descrição para esta aula."}</p><div className="reference-lesson-actions"><button className="complete-lesson" disabled={savingProgress} onClick={() => void saveProgress(true, true)}>{savingProgress ? "Salvando…" : lesson.progress?.completed ? "Aula concluída ✓" : "Marcar como concluída"}</button>{previousLesson ? <button onClick={() => void selectLesson(previousLesson)}>← Anterior</button> : null}{nextLesson ? <button onClick={() => void selectLesson(nextLesson)}>Próxima aula →</button> : null}{progressError ? <small className="form-error">{progressError}</small> : null}</div></section> : null}
-            {activeTab === "materials" && lesson ? <section className="lesson-materials"><header><div><span>MATERIAIS DA AULA</span><h2>{lesson.title}</h2></div></header>{reviewsLoading ? <p>Carregando materiais…</p> : materials.length ? <div>{materials.map((material) => <a key={material.id} href={material.url} target={material.kind === "link" ? "_blank" : undefined} rel={material.kind === "link" ? "noreferrer" : undefined}><span>{material.kind === "file" ? "↧" : "↗"}</span><div><strong>{material.title}</strong><small>{material.mimeType || (material.kind === "file" ? "Arquivo complementar" : "Link complementar")}</small></div><b>{material.kind === "file" ? "Baixar" : "Abrir"}</b></a>)}</div> : <EmptyState icon="↧" title="Nenhum material nesta aula" text="Quando a equipe adicionar arquivos ou links, eles aparecerão aqui." />}</section> : null}
+            <nav className="reference-lesson-tabs" aria-label="Áreas da aula"><button className={activeTab === "lesson" ? "active" : ""} onClick={() => setActiveTab("lesson")}><Icon name="play" size={14} /> Aula</button><button className={activeTab === "materials" ? "active" : ""} disabled={!lesson} onClick={() => setActiveTab("materials")}><Icon name="install" size={14} /> Materiais <span>{materials.length}</span></button><button className={activeTab === "notes" ? "active" : ""} disabled={!lesson} onClick={() => setActiveTab("notes")}><Icon name="file" size={14} /> Anotações</button><button className={activeTab === "comments" ? "active" : ""} disabled={!lesson} onClick={() => setActiveTab("comments")}><Icon name="community" size={14} /> Avaliações <span>{reviews.length}</span></button></nav>
+            {lesson ? <div className="video-frame real-video-frame">{lesson.videoUrl ? getExternalVideoProvider(lesson.videoUrl) ? playerStarted ? <iframe src={autoplayEmbedUrl(lesson.videoUrl)} title={`Aula: ${lesson.title}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /> : <button type="button" className="lesson-start-cover" onClick={startPlayer}>{course.thumbnailUrl ? <img src={course.thumbnailUrl} alt="" /> : null}<span><b><Icon name="play" size={22} fill="currentColor" /></b><strong>{lesson.progress?.startedAt ? "Continuar aula" : "Iniciar aula"}</strong><small>Seu progresso começa somente após esta ação.</small></span></button> : <video controls preload="metadata" poster={course.thumbnailUrl || undefined} src={lesson.videoUrl} onPlay={() => { if (!playerStarted) startPlayer(); }} onLoadedMetadata={(event) => { if (watchSecondsRef.current > 0 && event.currentTarget.currentTime === 0) event.currentTarget.currentTime = Math.min(watchSecondsRef.current, Math.max(0, event.currentTarget.duration - 1)); }} onTimeUpdate={(event) => { watchSecondsRef.current = Math.floor(event.currentTarget.currentTime); }} onPause={() => { if (watchSecondsRef.current > (lesson.progress?.watchSeconds ?? 0)) void saveProgress(false, true); }} onEnded={() => void saveProgress(true, true)} /> : <div className="real-video-empty"><span><Icon name="play" size={22} fill="currentColor" /></span><strong>Vídeo ainda não adicionado</strong><p>A equipe TIME publicará o link da aula neste espaço.</p></div>}</div> : activeTab === "lesson" ? <EmptyState icon="courses" title="Curso sem aulas" text="O conteúdo será exibido assim que a equipe publicar a primeira aula." /> : null}
+            {activeTab === "lesson" && lesson ? <section className="real-lesson-copy"><span>{lesson.moduleTitle}</span><h2>{lesson.title}</h2><p>{lesson.description || "A equipe TIME ainda não adicionou uma descrição para esta aula."}</p><div className="reference-lesson-actions"><button className="complete-lesson" disabled={savingProgress} onClick={() => void saveProgress(true, true)}>{savingProgress ? "Salvando…" : lesson.progress?.completed ? <><Icon name="check" size={16} /> Aula concluída</> : "Marcar como concluída"}</button>{previousLesson ? <button onClick={() => void selectLesson(previousLesson)}>Anterior</button> : null}{nextLesson ? <button onClick={() => void selectLesson(nextLesson)}>Próxima aula</button> : null}{progressError ? <small className="form-error">{progressError}</small> : null}</div></section> : null}
+            {activeTab === "materials" && lesson ? <section className="lesson-materials"><header><div><span>MATERIAIS DA AULA</span><h2>{lesson.title}</h2></div></header>{reviewsLoading ? <p>Carregando materiais…</p> : materials.length ? <div>{materials.map((material) => <a key={material.id} href={material.url} target={material.kind === "link" ? "_blank" : undefined} rel={material.kind === "link" ? "noreferrer" : undefined}><span>{material.kind === "file" ? <Icon name="install" size={16} /> : <Icon name="external" size={16} />}</span><div><strong>{material.title}</strong><small>{material.mimeType || (material.kind === "file" ? "Arquivo complementar" : "Link complementar")}</small></div><b>{material.kind === "file" ? "Baixar" : "Abrir"}</b></a>)}</div> : <EmptyState icon="install" title="Nenhum material nesta aula" text="Quando a equipe adicionar arquivos ou links, eles aparecerão aqui." />}</section> : null}
             {activeTab === "notes" && lesson ? <section className="reference-lesson-notes"><header><div><span>ANOTAÇÃO PRIVADA</span><h2>{lesson.title}</h2></div><small>Salvamento automático</small></header><p>Registre decisões, ideias e próximos passos enquanto assiste. Somente você acessa este conteúdo.</p><textarea maxLength={8000} placeholder="O que você quer levar desta aula para a prática?" value={note} onChange={(event) => { setNote(event.target.value); setNoteNotice(""); }} onBlur={() => { if (noteLoadedFor === lesson.id && note !== savedNote) void persistNote(lesson.id, note, true); }} /><footer><span className={noteError ? "form-error" : ""}>{noteError || (savingNote ? "Salvando…" : noteNotice) || `${note.length}/8000`}</span><button disabled={savingNote || note === savedNote} onClick={() => void persistNote(lesson.id, note)}>{savingNote ? "Salvando…" : "Salvar agora"}</button></footer></section> : null}
-            {activeTab === "comments" && lesson ? <section className="reference-course-comments"><form className="real-review-card" onSubmit={saveReview}><div><span>AVALIAÇÃO DA AULA</span><h3>Como foi esta experiência?</h3><p>A nota é simples e o comentário é opcional. Você pode atualizar depois.</p></div><div className="real-rating" aria-label="Nota de 1 a 5">{[1, 2, 3, 4, 5].map((value) => <button type="button" className={rating >= value ? "active" : ""} aria-label={`${value} estrelas`} key={value} onClick={() => setRating(value)}>★</button>)}</div><textarea maxLength={1200} placeholder="Compartilhe uma percepção útil sobre esta aula (opcional)" value={comment} onChange={(event) => setComment(event.target.value)} /><footer><span className={reviewError ? "form-error" : ""}>{reviewError || reviewNotice}</span><button disabled={!rating || savingReview}>{savingReview ? "Salvando…" : reviews.some((review) => review.own) ? "Atualizar avaliação" : "Publicar avaliação"}</button></footer></form><div className="reference-review-list">{reviewsLoading ? <p>Carregando avaliações…</p> : reviews.filter((review) => review.comment && !review.hidden).length ? reviews.filter((review) => review.comment && !review.hidden).map((review) => <article key={review.id}><div><strong>{review.authorName}</strong><span>{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</span></div><p>{review.comment}</p><small>{timeAgo(review.updatedAt || review.createdAt)}</small></article>) : <EmptyState icon="◯" title="Nenhum comentário nesta aula" text="Você pode avaliar sem escrever comentário." />}</div></section> : null}
+            {activeTab === "comments" && lesson ? <section className="reference-course-comments"><form className="real-review-card" onSubmit={saveReview}><div><span>AVALIAÇÃO DA AULA</span><h3>Como foi esta experiência?</h3><p>A nota é simples e o comentário é opcional. Você pode atualizar depois.</p></div><div className="real-rating" aria-label="Nota de 1 a 5">{[1, 2, 3, 4, 5].map((value) => <button type="button" className={rating >= value ? "active" : ""} aria-label={`${value} estrelas`} key={value} onClick={() => setRating(value)}><Icon name="star" size={22} fill={rating >= value ? "currentColor" : "none"} /></button>)}</div><textarea maxLength={1200} placeholder="Compartilhe uma percepção útil sobre esta aula (opcional)" value={comment} onChange={(event) => setComment(event.target.value)} /><footer><span className={reviewError ? "form-error" : ""}>{reviewError || reviewNotice}</span><button disabled={!rating || savingReview}>{savingReview ? "Salvando…" : reviews.some((review) => review.own) ? "Atualizar avaliação" : "Publicar avaliação"}</button></footer></form><div className="reference-review-list">{reviewsLoading ? <p>Carregando avaliações…</p> : reviews.filter((review) => review.comment && !review.hidden).length ? reviews.filter((review) => review.comment && !review.hidden).map((review) => <article key={review.id}><div><strong>{review.authorName}</strong><span>{Array.from({ length: 5 }, (_, index) => <Icon key={index} name="star" size={14} fill={index < review.rating ? "currentColor" : "none"} />)}</span></div><p>{review.comment}</p><small>{timeAgo(review.updatedAt || review.createdAt)}</small></article>) : <EmptyState icon="community" title="Nenhum comentário nesta aula" text="Você pode avaliar sem escrever comentário." />}</div></section> : null}
           </main>
         </div>
       </div>
@@ -1242,55 +1231,7 @@ export default function MemberPlatform({ member, schoolStatus = "active", initia
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
   const [membershipPromptOpen, setMembershipPromptOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [billingLoading, setBillingLoading] = useState(false);
-  const [billingError, setBillingError] = useState("");
-  const [themePreference, setThemePreference] = useState<"dark" | "light" | "system">(() => {
-    if (typeof window === "undefined") return "light";
-    const saved = window.localStorage.getItem("time-theme");
-    return saved === "dark" || saved === "light" || saved === "system" ? saved : "light";
-  });
-  const [systemDark, setSystemDark] = useState(false);
-  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const podcastsRequestStarted = useRef(false);
-
-  useEffect(() => {
-    const onInstall = (event: Event) => { event.preventDefault(); setInstallPrompt(event as BeforeInstallPromptEvent); };
-    window.addEventListener("beforeinstallprompt", onInstall);
-    return () => window.removeEventListener("beforeinstallprompt", onInstall);
-  }, []);
-
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const update = () => setSystemDark(media.matches);
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
-
-  const theme = themePreference === "system" ? (systemDark ? "dark" : "light") : themePreference;
-
-  function toggleTheme() {
-    const next = theme === "dark" ? "light" : "dark";
-    setThemePreference(next);
-    window.localStorage.setItem("time-theme", next);
-  }
-
-  function useSystemTheme() {
-    setThemePreference("system");
-    window.localStorage.setItem("time-theme", "system");
-  }
-
-  async function installApp() {
-    if (!installPrompt) {
-      const isAppleMobile = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      alert(isAppleMobile ? "No iPhone: abra esta página no Safari, toque em Compartilhar e escolha 'Adicionar à Tela de Início'." : "Quando o navegador permitir, use o menu dele para instalar a TIME como aplicativo.");
-      return;
-    }
-    await installPrompt.prompt();
-    setInstallPrompt(null);
-  }
 
   const loadCourses = async () => {
     if (schoolComingSoon) {
@@ -1368,8 +1309,6 @@ export default function MemberPlatform({ member, schoolStatus = "active", initia
     return () => { active = false; };
   }, [section, podcasts.length]);
 
-  const sectionLabel = menu.find((item) => item.id === section)?.label ?? "Início";
-  const memberInitials = useMemo(() => initials(member.name), [member.name]);
   // O bypass de demonstração/gestão depende exclusivamente do papel vindo do
   // banco. Um e-mail digitado no navegador nunca pode liberar estes recursos.
   const canUse = (resource: Member["permissions"][number]) => member.permissions.includes(resource);
@@ -1384,50 +1323,18 @@ export default function MemberPlatform({ member, schoolStatus = "active", initia
   function navigateTo(nextSection: Section) {
     if (nextSection === "podcasts" && !podcasts.length && !podcastsRequestStarted.current) setPodcastsLoading(true);
     setSection(nextSection);
-    setMobileMenuOpen(false);
     if (nextSection !== "cursos") setSearch("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  async function manageSubscription() {
-    setBillingLoading(true);
-    setBillingError("");
-    try {
-      const response = await fetch("/api/billing/portal", { method: "POST" });
-      const payload = (await response.json()) as { url?: string; error?: string };
-      if (!response.ok || !payload.url) throw new Error(payload.error || "Não foi possível abrir sua assinatura.");
-      window.location.href = payload.url;
-    } catch (requestError) {
-      setBillingError(requestError instanceof Error ? requestError.message : "Não foi possível abrir sua assinatura.");
-    } finally {
-      setBillingLoading(false);
-    }
-  }
-
   return (
-    <main className={`member-app real-member-app theme-${theme}`}>
-      <aside className="member-sidebar">
-        <a className="member-logo" href="/" aria-label="TIME Escola de Negócios"><TimeLogo variant={theme === "light" ? "blue" : "white"} priority /></a>
-        <nav aria-label="Navegação da área de membros">{menu.slice(0, 2).map((item) => <button className={section === item.id ? "active" : ""} key={item.id} onClick={() => navigateTo(item.id)} aria-current={section === item.id ? "page" : undefined}><span>{item.icon}</span>{item.label}</button>)}<a className="member-sidebar-link" href="/app/conexoes"><span>⌘</span>Conexões</a>{menu.slice(2).map((item) => <button className={section === item.id ? "active" : ""} key={item.id} onClick={() => navigateTo(item.id)} aria-current={section === item.id ? "page" : undefined}><span>{item.icon}</span>{item.label}</button>)}<a className="member-sidebar-link" href="/app/beneficios"><span>◇</span>Benefícios</a><a className="member-sidebar-link" href="/app/ouvidoria"><span>○</span>Ouvidoria</a></nav>
-        <div className="member-sidebar-bottom">
-          <button disabled={billingLoading} onClick={() => void manageSubscription()}><span>↻</span>{billingLoading ? "Abrindo…" : "Minha assinatura"}</button>
-          <button onClick={toggleTheme}><span>{theme === "dark" ? "☼" : "◐"}</span>{theme === "dark" ? "Modo claro" : "Modo escuro"}</button>
-          <button onClick={() => void installApp()}><span>⌄</span>Baixar app</button>
-          {member.isAdmin ? <a href="/admin"><span>⚙</span>Painel admin</a> : null}
-          <a href="/auth/signout"><span>↗</span>Sair</a>
-          {billingError ? <small className="member-billing-error">{billingError}</small> : null}
-          <div className="member-profile"><span>{memberInitials}</span><div><strong>{member.name}</strong><small>{member.email}</small></div></div>
-        </div>
-      </aside>
-
-      <section className="member-main">
-        <header className="member-topbar">
-          <div className="mobile-member-logo"><TimeLogo variant={theme === "light" ? "blue" : "white"} /></div>
-          {schoolComingSoon ? <div className="member-search-spacer" aria-hidden="true" /> : <div className="member-search"><span>⌕</span><input aria-label="Buscar cursos" placeholder="Buscar cursos..." value={search} onChange={(event) => { setSearch(event.target.value); if (event.target.value) setSection("cursos"); }} /><kbd>TIME</kbd></div>}
-          <div className="member-top-actions"><button className="theme-toggle" aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"} onClick={toggleTheme}>{theme === "dark" ? "☼" : "◐"}</button><button className="notification-button" aria-label="Notificações" onClick={() => setNotificationsOpen((current) => !current)}>♢</button><span className="top-profile">{memberInitials}</span></div>
-          {notificationsOpen ? <div className="notification-popover"><header><strong>Notificações</strong><button onClick={() => setNotificationsOpen(false)}>×</button></header><div className="real-notification-empty"><span>✓</span><p><strong>Tudo em dia</strong>Nenhuma notificação nova.</p></div></div> : null}
-        </header>
-        <div className="member-content" data-section={sectionLabel}>
+    <MemberFrame
+      active={section}
+      member={{ name: member.name, email: member.email, isAdmin: member.isAdmin }}
+      onNavigate={(id) => navigateTo(id as Section)}
+      topbarSlot={schoolComingSoon ? null : <div className="member-search"><Icon name="search" size={18} /><input aria-label="Buscar cursos" placeholder="Buscar cursos…" value={search} onChange={(event) => { setSearch(event.target.value); if (event.target.value) setSection("cursos"); }} /></div>}
+    >
+        <div className="member-content" data-section={section}>
           {section === "inicio" ? <HomeSection member={member} courses={courses} schoolComingSoon={schoolComingSoon} posts={posts} events={events} connections={homeConnections} profileCompleteness={profileCompleteness} profileReady={profileReady} missingFields={missingFields} greeting={greeting} todayLabel={todayLabel} loading={{ courses: coursesLoading, community: communityLoading, events: eventsLoading }} errors={{ courses: coursesError, community: communityError, events: eventsError, connections: homeConnectionsError }} onOpenCourse={openCourse} onNavigate={navigateTo} /> : null}
           {section === "cursos" ? !canUse("courses") ? <><PageHeading kicker="ESCOLA TIME" title="Conteúdo que transforma conhecimento em resultado." description="A Escola TIME é exclusiva para membros ativos e cortesias válidas." /><MembershipGate area="a Escola TIME" /></> : schoolComingSoon ? <SchoolComingSoon /> : <><CoursesSection courses={courses} loading={coursesLoading} error={coursesError} search={search} onOpen={openCourse} />{!hasRequiredProfile ? <ProfileGate completeness={profileCompleteness} missingFields={missingFields} area="os cursos" /> : null}</> : null}
           {section === "podcasts" ? <PodcastsSection episodes={podcasts} loading={podcastsLoading} error={podcastsError} canListen={canUse("podcasts")} /> : null}
@@ -1436,20 +1343,9 @@ export default function MemberPlatform({ member, schoolStatus = "active", initia
           {section === "agenda" ? !canUse("events") ? <><PageHeading kicker="EVENTOS TIME" title="Presença que vira conexão." description="A agenda completa e as inscrições são exclusivas para membros." /><MembershipGate area="os eventos e inscrições" /></> : <AgendaSection member={member} events={events} loading={eventsLoading} error={eventsError} onCommunity={() => navigateTo("comunidade")} reload={async () => { setEventsLoading(true); try { await loadEvents(); } catch (requestError) { setEventsError(requestError instanceof Error ? requestError.message : "Falha ao carregar eventos."); } finally { setEventsLoading(false); } }} /> : null}
           {section === "conquistas" ? <AchievementsSection courses={courses} /> : null}
         </div>
-      </section>
-
-      {mobileMenuOpen ? <div className="mobile-more-menu" role="dialog" aria-modal="true" aria-label="Mais opções"><button className="mobile-more-backdrop" aria-label="Fechar menu" onClick={() => setMobileMenuOpen(false)} /><section><header><div><span>{memberInitials}</span><div><strong>{member.name}</strong><small>{member.email}</small></div></div><button aria-label="Fechar menu" onClick={() => setMobileMenuOpen(false)}>×</button></header><nav aria-label="Mais áreas da plataforma">{menu.slice(2).filter((item) => item.id !== "comunidade" && item.id !== "agenda").map((item) => <button className={section === item.id ? "active" : ""} key={item.id} onClick={() => navigateTo(item.id)}><span>{item.icon}</span><div><strong>{item.label}</strong><small>{item.id === "conquistas" ? "Seu progresso e conquistas" : "Ajuda baseada no conteúdo publicado"}</small></div><b>→</b></button>)}<a href="/app/beneficios"><span>◇</span><div><strong>Clube de Benefícios</strong><small>Vantagens do ecossistema TIME</small></div><b>→</b></a><a href="/app/ouvidoria"><span>○</span><div><strong>Ouvidoria</strong><small>Canal privado com a equipe TIME</small></div><b>→</b></a><button onClick={toggleTheme}><span>{theme === "dark" ? "☼" : "◐"}</span><div><strong>{theme === "dark" ? "Modo claro" : "Modo escuro"}</strong><small>Preferência salva neste aparelho</small></div><b>→</b></button><button onClick={useSystemTheme}><span>◌</span><div><strong>Usar tema do sistema</strong><small>{themePreference === "system" ? "Ativado neste aparelho" : "Acompanhar a aparência do dispositivo"}</small></div><b>→</b></button><button onClick={() => void installApp()}><span>⌄</span><div><strong>Baixar app</strong><small>Adicionar à tela inicial</small></div><b>→</b></button><button disabled={billingLoading} onClick={() => void manageSubscription()}><span>↻</span><div><strong>{billingLoading ? "Abrindo…" : "Minha assinatura"}</strong><small>Plano, pagamento e recorrência</small></div><b>→</b></button>{member.isAdmin ? <a href="/admin"><span>⚙</span><div><strong>Painel administrativo</strong><small>Gerenciar a plataforma</small></div><b>→</b></a> : null}<a href="/auth/signout"><span>↗</span><div><strong>Sair da conta</strong><small>Encerrar sessão com segurança</small></div><b>→</b></a></nav>{billingError ? <small className="member-billing-error">{billingError}</small> : null}</section></div> : null}
-
-      <nav className="mobile-bottom-nav" aria-label="Navegação mobile">
-        {mobileMenu.map((item) => <button className={section === item.id ? "active" : ""} key={item.id} onClick={() => navigateTo(item.id)} aria-current={section === item.id ? "page" : undefined}><span>{item.icon}</span>{item.id === "cursos" ? "Cursos" : item.label}</button>)}
-        <a className="mobile-bottom-nav-link" href="/app/conexoes" aria-label="Abrir conexões"><span>⌘</span>Conexões</a>
-        <button className={section === "comunidade" ? "active" : ""} onClick={() => navigateTo("comunidade")} aria-current={section === "comunidade" ? "page" : undefined}><span>◉</span>Comunidade</button>
-        <button className={section === "agenda" ? "active" : ""} onClick={() => navigateTo("agenda")} aria-current={section === "agenda" ? "page" : undefined}><span>□</span>Eventos</button>
-        <button className={section === "conquistas" || mobileMenuOpen ? "active" : ""} onClick={() => setMobileMenuOpen(true)} aria-expanded={mobileMenuOpen}><span>•••</span>Mais</button>
-      </nav>
 
       {activeCourse && !schoolComingSoon ? <CourseModal course={activeCourse} onClose={() => setActiveCourse(null)} onRefresh={async () => { try { await loadCourses(); } catch (requestError) { setCoursesError(requestError instanceof Error ? requestError.message : "Não foi possível atualizar."); } }} /> : null}
-      {membershipPromptOpen ? <div className="membership-prompt" role="dialog" aria-modal="true" aria-label="Acesso exclusivo"><button className="lesson-modal-backdrop" aria-label="Fechar" onClick={() => setMembershipPromptOpen(false)} /><section><button aria-label="Fechar" onClick={() => setMembershipPromptOpen(false)}>×</button><span>EXCLUSIVO PARA MEMBROS</span><h2>Ative sua participação na TIME</h2><p>Seu cadastro está pronto. Ao tornar-se membro, você libera cursos, networking, comunidade e eventos empresariais.</p><a href="/checkout">Ver formas de participação →</a></section></div> : null}
-    </main>
+      {membershipPromptOpen ? <div className="membership-prompt" role="dialog" aria-modal="true" aria-label="Acesso exclusivo"><button className="lesson-modal-backdrop" aria-label="Fechar" onClick={() => setMembershipPromptOpen(false)} /><section><button aria-label="Fechar" onClick={() => setMembershipPromptOpen(false)}><Icon name="close" size={18} /></button><span>EXCLUSIVO PARA MEMBROS</span><h2>Ative sua participação na TIME</h2><p>Seu cadastro está pronto. Ao tornar-se membro, você libera cursos, networking, comunidade e eventos empresariais.</p><a href="/checkout">Ver formas de participação</a></section></div> : null}
+    </MemberFrame>
   );
 }

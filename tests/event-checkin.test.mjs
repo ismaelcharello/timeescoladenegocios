@@ -116,8 +116,8 @@ test("a lista administrativa de eventos declara contraste próprio para a superf
 
 test("painéis escuros do membro mantêm texto e CTA legíveis no tema claro", () => {
   const css = readFileSync(new URL("../app/platform.css", import.meta.url), "utf8");
-  assert.match(css, /\.member-app\.theme-light :is\(\.real-continue-learning, \.member-stats article, \.upcoming-course-card\) :is\(h1, h2, h3, strong, b\)/);
-  assert.match(css, /\.member-app\.theme-light \.real-continue-learning > button \{[\s\S]*?background: #ff00e0;[\s\S]*?color: #17051a;/);
+  assert.match(css, /html\[data-resolved="light"\] \.member-app :is\(\.real-continue-learning, \.member-stats article, \.upcoming-course-card\) :is\(h1, h2, h3, strong, b\)/);
+  assert.match(css, /html\[data-resolved="light"\] \.member-app \.real-continue-learning > button \{[\s\S]*?background: #ff00e0;[\s\S]*?color: #17051a;/);
   assert.match(css, /\.member-app \.member-main,[\s\S]*?overflow-x: clip/);
 });
 
@@ -196,7 +196,7 @@ test("a comunidade aceita legenda, imagem, GIF, vídeo e link sem expor erro té
   const css = readFileSync(new URL("../app/platform.css", import.meta.url), "utf8");
 
   assert.match(screen, /Imagem ou GIF/);
-  assert.match(screen, /▶ Vídeo/);
+  assert.match(screen, /<Icon name="play" size=\{16\} \/> Vídeo/);
   assert.match(screen, /aria-label="Legenda da publicação"/);
   assert.match(screen, /<video controls playsInline preload="metadata"/);
   assert.match(screen, /Não foi possível conectar à comunidade agora/);
@@ -206,7 +206,7 @@ test("a comunidade aceita legenda, imagem, GIF, vídeo e link sem expor erro té
   assert.match(uploads, /video\/mp4/);
   assert.match(css, /\.social-post-composer/);
   assert.match(css, /\.community-post-attachments figure video/);
-  assert.match(css, /\.member-app\.theme-light \.social-post-composer/);
+  assert.match(css, /html\[data-resolved="light"\] \.member-app \.social-post-composer/);
 });
 
 test("ofertas da comunidade toleram validade opcional inválida", () => {

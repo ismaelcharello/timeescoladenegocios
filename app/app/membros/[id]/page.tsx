@@ -4,6 +4,7 @@ import { requireNetworkingAccess } from "@/lib/networking-access";
 import { getDirectoryProfile, memberInitials, safeExternalUrl } from "@/lib/member-directory";
 import MemberShell from "../../member-shell";
 import "../../directory.css";
+import { Icon } from "../../icons";
 
 export const dynamic = "force-dynamic";
 
@@ -33,8 +34,8 @@ export default async function MemberProfilePage({ params, searchParams }: { para
     ["LinkedIn", safeExternalUrl(profile.linkedin_url)],
   ].filter((item): item is [string, string] => Boolean(item[1]));
 
-  return <MemberShell active="membros" memberName={user.fullName || user.email.split("@")[0]}>
-    <Link className="member-profile-back" href="/app/membros">← Voltar para empresários</Link>
+  return <MemberShell active="membros" memberName={user.fullName || user.email.split("@")[0]} memberEmail={user.email} isAdmin={user.isAdmin}>
+    <Link className="member-profile-back" href="/app/membros"><Icon name="back" size={16} /> Voltar para empresários</Link>
     {query.contato === "indisponivel" ? <div className="directory-error" role="status">Este membro ainda não disponibilizou um WhatsApp para contato.</div> : null}
     <section className="member-profile-hero">
       <div className="member-avatar" role="img" aria-label={`Foto de ${name}`} style={profile.avatar_url ? { backgroundImage: `url(${profile.avatar_url})` } : undefined}>{profile.avatar_url ? "" : memberInitials(name)}</div>
@@ -61,7 +62,7 @@ export default async function MemberProfilePage({ params, searchParams }: { para
           </dl>
         </section>
         {(profile.desired_professionals || profile.desired_referrals || profile.desired_partnerships) ? <section className="profile-section"><h2>Conexões desejadas</h2><dl><DataItem label="Profissionais" value={profile.desired_professionals} /><DataItem label="Indicações" value={profile.desired_referrals} /><DataItem label="Parcerias" value={profile.desired_partnerships} /></dl></section> : null}
-        {links.length ? <section className="profile-section"><h2>Links oficiais</h2><div className="profile-links">{links.map(([label, href]) => <a key={label} href={href} target="_blank" rel="noreferrer">{label}<span>↗</span></a>)}</div></section> : null}
+        {links.length ? <section className="profile-section"><h2>Links oficiais</h2><div className="profile-links">{links.map(([label, href]) => <a key={label} href={href} target="_blank" rel="noreferrer">{label}<Icon name="external" size={16} /></a>)}</div></section> : null}
       </aside>
     </div>
   </MemberShell>;

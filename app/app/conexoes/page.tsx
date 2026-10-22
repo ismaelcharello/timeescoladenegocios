@@ -16,7 +16,7 @@ export default async function ConnectionsPage({ searchParams }: { searchParams: 
   const query = (params.necessidade ?? "").slice(0, 180);
   const { matches, error } = await findConnections(query);
 
-  return <MemberShell active="conexoes" memberName={user.fullName || user.email.split("@")[0]}>
+  return <MemberShell active="conexoes" memberName={user.fullName || user.email.split("@")[0]} memberEmail={user.email} isAdmin={user.isAdmin}>
     <section className="connection-hero">
       <span className="directory-kicker">MOTOR DE CONEXÕES TIME</span>
       <h1>Encontre quem pode ajudar no seu próximo passo.</h1>

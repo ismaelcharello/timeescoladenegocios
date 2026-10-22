@@ -23,8 +23,8 @@ test("autenticação e onboarding expõem foco, placeholder e estados desabilita
 });
 
 test("área de membros diferencia superfícies claras e escuras", () => {
-  assert.match(platformCss, /\.member-app\.theme-dark \.member-content :is\(p, small, label, time\)/);
-  assert.match(platformCss, /\.member-app\.theme-light \.member-content :is\(p, small, label, time\)/);
+  assert.match(platformCss, /html\[data-resolved="dark"\] \.member-app \.member-content :is\(p, small, label, time\)/);
+  assert.match(platformCss, /html\[data-resolved="light"\] \.member-app \.member-content :is\(p, small, label, time\)/);
   assert.match(platformCss, /\.member-home-next-action,[\s\S]*?\.new-post-card[\s\S]*?color: #fff/);
 });
 

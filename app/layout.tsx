@@ -5,6 +5,7 @@ import "./globals.css";
 import "./platform.css";
 import "./landing-refine.css";
 import "./member-refine.css";
+import "./app/member-frame.css";
 
 export const metadata: Metadata = {
   title: "TIME Escola de Negócios | Conhecimento que vira movimento",
@@ -36,8 +37,9 @@ export const viewport: Viewport = {
   ],
 };
 
-// Aplica o tema salvo antes da primeira pintura, evitando o flash de tema errado.
-const themeScript = `try{var t=localStorage.getItem("time-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}`;
+// Resolve o tema (claro, escuro ou automático) antes da primeira pintura: sem flash.
+// data-theme só existe com preferência explícita; data-resolved é sempre light|dark.
+const themeScript = `try{var d=document.documentElement,m=matchMedia("(prefers-color-scheme: dark)"),a=function(){var p=localStorage.getItem("time-theme");if(p==="light"||p==="dark"){d.setAttribute("data-theme",p);d.setAttribute("data-resolved",p)}else{d.removeAttribute("data-theme");d.setAttribute("data-resolved",m.matches?"dark":"light")}};a();m.addEventListener("change",a);addEventListener("storage",a);addEventListener("time-theme-change",a)}catch(e){}`;
 
 export default function RootLayout({
   children,

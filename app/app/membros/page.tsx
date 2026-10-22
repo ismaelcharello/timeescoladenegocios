@@ -38,7 +38,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Sear
   const { members, error } = await searchDirectory(filters);
   const hasFilters = Object.values(filters).some(Boolean);
 
-  return <MemberShell active="membros" memberName={user.fullName || user.email.split("@")[0]}>
+  return <MemberShell active="membros" memberName={user.fullName || user.email.split("@")[0]} memberEmail={user.email} isAdmin={user.isAdmin}>
     <section className="directory-hero">
       <span className="directory-kicker">DIRETÓRIO EMPRESARIAL</span>
       <h1>Quem pode ajudar no seu próximo passo?</h1>

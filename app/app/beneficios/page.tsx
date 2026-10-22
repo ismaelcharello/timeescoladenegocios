@@ -14,7 +14,7 @@ export default async function BenefitsPage() {
     .where(or(eq(benefits.status, "active"), eq(benefits.status, "coming_soon")))
     .orderBy(asc(benefits.category), asc(benefits.title));
 
-  return <MemberShell active="beneficios" memberName={access.identity.fullName || access.identity.email.split("@")[0]}>
+  return <MemberShell active="beneficios" memberName={access.identity.fullName || access.identity.email.split("@")[0]} memberEmail={access.identity.email} isAdmin={access.identity.isAdmin}>
     <section className="simple-member-page">
       <header><span>CLUBE DE BENEFÍCIOS TIME</span><h1>Vantagens para quem cresce com a TIME.</h1><p>Condições exclusivas para membros do ecossistema TIME, com regras de elegibilidade e validade em cada benefício.</p></header>
       <BenefitsCatalog items={items.filter((item) => item.status === "active" || item.status === "coming_soon")} />

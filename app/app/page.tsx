@@ -5,6 +5,7 @@ import { calculateProfileCompleteness, getMissingRequiredProfileFields, isNetwor
 import { buildHomeConnectionQuery, getHomeDateLabel, getHomeGreeting } from "@/lib/member-home";
 import { findConnections } from "@/lib/connection-matching";
 import { getSchoolStatus } from "@/lib/school-status";
+import { SPA_SECTIONS } from "./member-nav";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,11 @@ export const metadata = {
   description: "Cursos, conexões e experiências da TIME Escola de Negócios.",
 };
 
-export default async function MemberAreaPage() {
+const DEEP_LINK_SECTIONS = ["podcasts", "tutor", "conquistas"] as const;
+
+export default async function MemberAreaPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
+  const requested = (await searchParams)?.secao;
+  const initialSection = DEEP_LINK_SECTIONS.find((id) => id === requested && SPA_SECTIONS.has(id));
   const access = await requireMemberAccess("/app");
   const user = access.identity;
   const supabase = await createServerSupabaseClient();
@@ -48,6 +53,7 @@ export default async function MemberAreaPage() {
     }));
 
   return <MemberPlatform
+    initialSection={initialSection}
     schoolStatus={getSchoolStatus()}
     profileCompleteness={profileCompleteness}
     profileReady={networkingProfileReady}
