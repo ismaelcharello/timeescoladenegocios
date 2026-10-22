@@ -4,6 +4,7 @@ import "./design-tokens.css";
 import "./globals.css";
 import "./platform.css";
 import "./landing-refine.css";
+import "./member-refine.css";
 
 export const metadata: Metadata = {
   title: "TIME Escola de Negócios | Conhecimento que vira movimento",

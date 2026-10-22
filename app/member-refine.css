@@ -1,0 +1,7 @@
+/* Refinamentos da área interna sobre o sistema de design (docs/DESIGN-SYSTEM.md).
+   Carregado depois de platform.css. */
+
+/* Mantém a barra superior alinhada quando a busca de cursos está oculta (Escola em breve) */
+.member-search-spacer {
+  flex: 1;
+}

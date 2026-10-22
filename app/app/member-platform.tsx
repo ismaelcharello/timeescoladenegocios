@@ -1423,7 +1423,7 @@ export default function MemberPlatform({ member, schoolStatus = "active", initia
       <section className="member-main">
         <header className="member-topbar">
           <div className="mobile-member-logo"><TimeLogo variant={theme === "light" ? "blue" : "white"} /></div>
-          <div className="member-search"><span>⌕</span><input aria-label="Buscar cursos" placeholder="Buscar cursos..." value={search} onChange={(event) => { setSearch(event.target.value); if (event.target.value) setSection("cursos"); }} /><kbd>TIME</kbd></div>
+          {schoolComingSoon ? <div className="member-search-spacer" aria-hidden="true" /> : <div className="member-search"><span>⌕</span><input aria-label="Buscar cursos" placeholder="Buscar cursos..." value={search} onChange={(event) => { setSearch(event.target.value); if (event.target.value) setSection("cursos"); }} /><kbd>TIME</kbd></div>}
           <div className="member-top-actions"><button className="theme-toggle" aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"} onClick={toggleTheme}>{theme === "dark" ? "☼" : "◐"}</button><button className="notification-button" aria-label="Notificações" onClick={() => setNotificationsOpen((current) => !current)}>♢</button><span className="top-profile">{memberInitials}</span></div>
           {notificationsOpen ? <div className="notification-popover"><header><strong>Notificações</strong><button onClick={() => setNotificationsOpen(false)}>×</button></header><div className="real-notification-empty"><span>✓</span><p><strong>Tudo em dia</strong>Nenhuma notificação nova.</p></div></div> : null}
         </header>
