@@ -3,6 +3,7 @@ import PwaRegister from "./pwa-register";
 import "./design-tokens.css";
 import "./globals.css";
 import "./platform.css";
+import "./landing-refine.css";
 
 export const metadata: Metadata = {
   title: "TIME Escola de Negócios | Conhecimento que vira movimento",

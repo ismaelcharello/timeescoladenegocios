@@ -10,6 +10,7 @@
     "binding": "ASSETS"
   },
   "images": { "binding": "IMAGES" },
+  "vars": { "SCHOOL_STATUS": "coming_soon" },
   "d1_databases": [
     {
       "binding": "DB",

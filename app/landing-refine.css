@@ -1,0 +1,101 @@
+/* Refinamento da landing sobre o sistema de design (docs/DESIGN-SYSTEM.md).
+   Remove brilhos e gradientes decorativos do hero, mantendo o gradiente da marca
+   só como fio fino. Carregado depois de globals.css; escopo em .time-landing. */
+
+.time-landing .hero {
+  background: var(--time-ink);
+}
+
+/* Sem grade, brilhos nem órbitas: decoração que não carrega informação */
+.time-landing :is(.hero-grid, .hero-glow, .orbit) {
+  display: none;
+}
+
+.time-landing .eyebrow-dot {
+  box-shadow: none;
+}
+.time-landing .eyebrow-dot::after {
+  display: none;
+}
+
+/* Título: a segunda linha ganha cor sólida, não texto em gradiente */
+.time-landing .hero-copy h1 {
+  letter-spacing: var(--track-display);
+  text-wrap: balance;
+}
+.time-landing .hero-copy h1 span {
+  background: none;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  -webkit-text-fill-color: currentColor;
+  color: #c9bcff;
+}
+
+/* Botões: violeta sólido, raio do sistema, resposta no toque */
+.time-landing .button {
+  min-height: 52px;
+  border-radius: var(--r-md);
+  transition:
+    transform var(--dur-press) var(--ease-out),
+    background-color var(--dur-hover) var(--ease-out),
+    border-color var(--dur-hover) var(--ease-out);
+}
+.time-landing .button:hover,
+.time-landing .button:focus-visible {
+  transform: none;
+}
+.time-landing .button:active {
+  transform: scale(0.97);
+}
+.time-landing .button-primary {
+  background: var(--time-violet);
+  box-shadow: none;
+}
+.time-landing .button-secondary {
+  background: transparent;
+  backdrop-filter: none;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.time-landing .header-signup {
+  border-radius: var(--r-md);
+  border-color: rgba(255, 255, 255, 0.28);
+  background: transparent;
+  transition:
+    transform var(--dur-press) var(--ease-out),
+    background-color var(--dur-hover) var(--ease-out),
+    border-color var(--dur-hover) var(--ease-out);
+}
+.time-landing .header-login {
+  border-radius: var(--r-md);
+}
+.time-landing .header-signup:hover,
+.time-landing .header-signup:focus-visible {
+  transform: none;
+}
+.time-landing .header-signup:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .time-landing .button-primary:hover {
+    background: var(--primary-hover);
+    box-shadow: none;
+  }
+  .time-landing .button-secondary:hover,
+  .time-landing .header-signup:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .time-landing .button,
+  .time-landing .header-signup {
+    transition: none;
+  }
+  .time-landing .button:active,
+  .time-landing .header-signup:active {
+    transform: none;
+  }
+}
