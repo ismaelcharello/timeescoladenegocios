@@ -45,5 +45,84 @@ export function LandingMotion() {
     };
   }, []);
 
+  useEffect(() => {
+    const stage = document.querySelector<HTMLElement>(".product-stage");
+    const query = stage?.querySelector<HTMLElement>(".motion-search-query");
+    if (!stage || !query) return;
+
+    const fullText = query.textContent ?? "";
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (reduced.matches) {
+      stage.classList.add("demo-results-in");
+      return;
+    }
+
+    // Demonstração em laço: digita a busca, mostra os resultados, apaga e recomeça.
+    // Só roda com o painel visível e a aba em primeiro plano.
+    stage.classList.add("demo-results-in");
+    let timer = 0;
+    let running = false;
+    let visible = false;
+    let index = 0;
+
+    const later = (fn: () => void, ms: number) => {
+      timer = window.setTimeout(fn, ms);
+    };
+
+    const step = () => {
+      if (!running) return;
+      if (index === 0) stage.classList.remove("demo-results-in");
+      if (index < fullText.length) {
+        index += 1;
+        query.textContent = fullText.slice(0, index);
+        later(step, 34);
+        return;
+      }
+      later(() => {
+        stage.classList.add("demo-results-in");
+        later(() => {
+          stage.classList.remove("demo-results-in");
+          later(() => {
+            index = 0;
+            query.textContent = "";
+            later(step, 500);
+          }, 400);
+        }, 5200);
+      }, 450);
+    };
+
+    const sync = () => {
+      const shouldRun = visible && document.visibilityState === "visible";
+      if (shouldRun && !running) {
+        running = true;
+        index = 0;
+        query.textContent = "";
+        later(step, 700);
+      } else if (!shouldRun && running) {
+        running = false;
+        window.clearTimeout(timer);
+        query.textContent = fullText;
+        stage.classList.add("demo-results-in");
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        visible = entries.some((entry) => entry.isIntersecting);
+        sync();
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(stage);
+    document.addEventListener("visibilitychange", sync);
+
+    return () => {
+      window.clearTimeout(timer);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", sync);
+      query.textContent = fullText;
+    };
+  }, []);
+
   return null;
 }

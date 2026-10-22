@@ -99,3 +99,49 @@
     transform: none;
   }
 }
+
+/* Demonstração da busca no hero: a digitação e os resultados são conduzidos por
+   LandingMotion (laço, só com o painel visível). Neutraliza a animação de uma vez só. */
+html .time-landing .motion-search-query {
+  display: inline;
+  max-width: none;
+  overflow: visible;
+  animation: none;
+}
+html .time-landing .motion-search-query::after {
+  content: "";
+  display: inline-block;
+  width: 1.5px;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--time-magenta);
+  animation: demo-caret 1s step-end infinite;
+}
+html .time-landing .motion-search-preview {
+  animation: none;
+}
+html.landing-motion-ready .time-landing .motion-result-preview article {
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+  animation: none;
+  transition:
+    opacity var(--dur-panel) var(--ease-out),
+    transform var(--dur-panel) var(--ease-out);
+}
+html.landing-motion-ready .time-landing .product-stage.demo-results-in .motion-result-preview article {
+  opacity: 1;
+  transform: none;
+}
+html.landing-motion-ready .time-landing .product-stage.demo-results-in .motion-result-preview article:nth-child(2) {
+  transition-delay: 90ms;
+}
+
+@keyframes demo-caret {
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html .time-landing .motion-search-query::after { animation: none; }
+  html.landing-motion-ready .time-landing .motion-result-preview article { transition: none; }
+}
