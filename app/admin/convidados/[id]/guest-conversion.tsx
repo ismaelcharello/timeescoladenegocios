@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Icon } from "@/app/app/icons";
 
 type Candidate = { id: number; fullName: string; email: string };
 
@@ -21,5 +22,5 @@ export default function GuestConversion({ guestId, candidates, convertedMemberId
     finally { setSaving(false); }
   }
 
-  return <section className="guest-conversion"><div><span>CONVERSÃO</span><h2>Vincular a um membro oficial</h2><p>Os eventos já registrados permanecem no histórico da mesma pessoa.</p></div><label><span>Membro correspondente</span><select value={memberId} onChange={(event) => setMemberId(event.target.value)}><option value="">Selecionar membro</option>{candidates.map((candidate) => <option value={candidate.id} key={candidate.id}>{candidate.fullName || candidate.email}</option>)}</select></label><button type="button" className="event-checkin-confirm" onClick={() => void submit()} disabled={saving || !memberId}>{saving ? "Salvando…" : "Vincular histórico"}</button>{notice ? <p className="event-checkin-notice" role="status">✓ {notice}</p> : null}{error ? <p className="event-checkin-error" role="alert">{error}</p> : null}</section>;
+  return <section className="guest-conversion"><div><span>CONVERSÃO</span><h2>Vincular a um membro oficial</h2><p>Os eventos já registrados permanecem no histórico da mesma pessoa.</p></div><label><span>Membro correspondente</span><select value={memberId} onChange={(event) => setMemberId(event.target.value)}><option value="">Selecionar membro</option>{candidates.map((candidate) => <option value={candidate.id} key={candidate.id}>{candidate.fullName || candidate.email}</option>)}</select></label><button type="button" className="event-checkin-confirm" onClick={() => void submit()} disabled={saving || !memberId}>{saving ? "Salvando…" : "Vincular histórico"}</button>{notice ? <p className="event-checkin-notice" role="status"><Icon name="check" size={16} /> {notice}</p> : null}{error ? <p className="event-checkin-error" role="alert">{error}</p> : null}</section>;
 }

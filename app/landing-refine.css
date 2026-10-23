@@ -178,3 +178,17 @@ html.landing-motion-ready .time-landing .product-stage.demo-results-in .motion-r
     transform: translate3d(0, -4px, 0);
   }
 }
+
+/* Separadores do letreiro: ponto fino no lugar do glifo de texto */
+.time-landing .hero-marquee i {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--time-magenta);
+  vertical-align: middle;
+}
+.time-landing :is(.dashboard-search, .admin-preview-search) svg,
+.time-landing .connection-search-preview svg {
+  vertical-align: -2px;
+}

@@ -10,6 +10,7 @@ import {
 } from "@stripe/react-stripe-js/checkout";
 import { getSupportWhatsappHref } from "@/lib/support-contact";
 import TimeLogo from "@/app/time-logo";
+import { Icon } from "@/app/app/icons";
 
 type Offer = {
   id: number; name: string; description: string; amountCents: number; currency: string;
@@ -70,7 +71,7 @@ function Payment({ buyer, onBack }: { buyer: Buyer; onBack: () => void }) {
       </div>
       {error ? <p className="checkout-error" role="alert">{error}</p> : null}
       <button className="checkout-submit" type="submit" disabled={submitting}>
-        {submitting ? "Confirmando…" : "Confirmar pagamento seguro"} {!submitting ? <span>→</span> : null}
+        {submitting ? "Confirmando…" : "Confirmar pagamento seguro"} {!submitting ? <span><Icon name="arrow" size={16} /></span> : null}
       </button>
       <div className="secure-note"><Shield />Seus dados são criptografados e processados com segurança pela Stripe.</div>
     </form>
@@ -205,7 +206,7 @@ export default function CheckoutClient() {
               </label>
               {error ? <p className="checkout-error" role="alert">{error}</p> : null}
               <button className="checkout-submit" type="submit" disabled={starting || !offers.length}>
-                {starting ? "Preparando pagamento…" : "Continuar para pagamento"} {!starting ? <span>→</span> : null}
+                {starting ? "Preparando pagamento…" : "Continuar para pagamento"} {!starting ? <span><Icon name="arrow" size={16} /></span> : null}
               </button>
             </form>
           ) : stripePromise ? (

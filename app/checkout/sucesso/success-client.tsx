@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getSupportWhatsappHref } from "@/lib/support-contact";
 import TimeLogo from "@/app/time-logo";
+import { Icon } from "@/app/app/icons";
 type Status = {
   id: string; status: "open" | "complete" | "expired";
   paymentStatus: "paid" | "unpaid" | "no_payment_required";
@@ -38,11 +39,11 @@ export default function SuccessClient() {
   return (
     <section className="success-card">
       <Link href="/" aria-label="TIME Escola de Negócios"><TimeLogo variant="white" priority /></Link>
-      <div className="success-icon">{confirmed ? "✓" : displayError ? "!" : "↗"}</div>
+      <div className="success-icon">{confirmed ? <Icon name="check" size={28} /> : displayError ? <Icon name="flag" size={28} /> : <Icon name="external" size={28} />}</div>
       <h1>{confirmed ? "Você agora faz parte da TIME." : displayError ? "Precisamos conferir seu pagamento." : "Pagamento em processamento."}</h1>
       <p>{confirmed ? "Sua inscrição foi confirmada. Entre usando o mesmo e-mail da compra; a liberação ocorre quando o webhook da Stripe concluir a atualização." : displayError || "Algumas formas de pagamento levam alguns instantes para confirmar."}</p>
       {session?.customerEmail ? <div className="success-detail"><span>RESUMO DA INSCRIÇÃO</span><strong>{session.customerEmail}</strong></div> : null}
-      <Link className="checkout-submit" href={confirmed ? "/app" : "/checkout"}>{confirmed ? "Entrar com o e-mail da compra" : "Voltar ao checkout"} <span>→</span></Link>
+      <Link className="checkout-submit" href={confirmed ? "/app" : "/checkout"}>{confirmed ? "Entrar com o e-mail da compra" : "Voltar ao checkout"} <span><Icon name="arrow" size={16} /></span></Link>
       {supportWhatsappHref ? <a className="success-help" href={supportWhatsappHref} target="_blank" rel="noreferrer">Precisa de ajuda? Fale com a TIME</a> : <span className="success-help">Canal de atendimento em configuração.</span>}
     </section>
   );

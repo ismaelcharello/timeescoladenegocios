@@ -3,6 +3,7 @@ import { CourseCarousel } from "./course-carousel";
 import { getSupportWhatsappHref } from "@/lib/support-contact";
 import { getSchoolStatus } from "@/lib/school-status";
 import TimeLogo from "./time-logo";
+import { Icon } from "./app/icons";
 
 const ORATORIA_URL =
   "https://timeescoladenegocios.com.br/wp-content/uploads/2026/05/oratoria.png";
@@ -65,7 +66,7 @@ export default function Home() {
 
           <a className="header-login" href="/entrar">
             Entrar
-            <span aria-hidden="true">↗</span>
+            <span aria-hidden="true"><Icon name="external" size={14} /></span>
           </a>
           <a className="header-signup" href="/criar-conta">
             Criar conta
@@ -100,7 +101,7 @@ export default function Home() {
                 </span>
                 Já sou membro
               </a>
-              <a className="hero-text-link" href="#experiencia">Conhecer a TIME <span aria-hidden="true">↓</span></a>
+              <a className="hero-text-link" href="#experiencia">Conhecer a TIME <span aria-hidden="true"><Icon name="down" size={16} /></span></a>
             </div>
 
             <div className="hero-pillars hero-enter hero-enter-five" aria-label="Pilares da TIME" data-motion-item="copy">
@@ -116,7 +117,7 @@ export default function Home() {
                 <div className="mini-brand">
                   <TimeLogo variant="white" alt="" />
                 </div>
-                <div className="dashboard-search">⌕&nbsp;&nbsp; Buscar na TIME</div>
+                <div className="dashboard-search"><Icon name="search" size={14} /> Buscar na TIME</div>
                 <div className="dashboard-user">
                   <span>•</span>
                   <b>IC</b>
@@ -125,11 +126,11 @@ export default function Home() {
 
               <div className="dashboard-body">
                 <aside className="dashboard-sidebar" aria-hidden="true">
-                  <span className="active">⌂</span>
-                  <span>▶</span>
-                  <span>◉</span>
-                  <span>◇</span>
-                  <span>⚙</span>
+                  <span className="active"><Icon name="home" size={16} /></span>
+                  <span><Icon name="courses" size={16} /></span>
+                  <span><Icon name="community" size={16} /></span>
+                  <span><Icon name="benefits" size={16} /></span>
+                  <span><Icon name="sliders" size={16} /></span>
                 </aside>
 
                 <div className="dashboard-content">
@@ -146,7 +147,7 @@ export default function Home() {
                   </div>
 
                   <div className="connection-search-preview motion-search-preview">
-                    <span>⌕</span>
+                    <span><Icon name="search" size={16} /></span>
                     <p><span className="motion-search-query">Preciso de uma empresa de marketing para clínicas odontológicas.</span></p>
                     <button aria-label="Buscar uma conexão">Buscar</button>
                   </div>
@@ -177,19 +178,19 @@ export default function Home() {
         <div className="hero-marquee" aria-label="Pilares da TIME">
           <div>
             <span>CURSOS PRÁTICOS</span>
-            <i>✦</i>
+            <i aria-hidden="true"></i>
             <span>COMUNIDADE PRÓPRIA</span>
-            <i>✦</i>
+            <i aria-hidden="true"></i>
             <span>NETWORKING</span>
-            <i>✦</i>
+            <i aria-hidden="true"></i>
             <span>EXPERIÊNCIAS PRESENCIAIS</span>
-            <i>✦</i>
+            <i aria-hidden="true"></i>
             <span>CURSOS PRÁTICOS</span>
-            <i>✦</i>
+            <i aria-hidden="true"></i>
             <span>COMUNIDADE PRÓPRIA</span>
-            <i>✦</i>
+            <i aria-hidden="true"></i>
             <span>NETWORKING</span>
-            <i>✦</i>
+            <i aria-hidden="true"></i>
             <span>EXPERIÊNCIAS PRESENCIAIS</span>
           </div>
         </div>
@@ -226,7 +227,7 @@ export default function Home() {
                 <i />
               </div>
               <div className="lesson-ui-bottom">
-                <button>▶</button>
+                <button><Icon name="play" size={14} /></button>
                 <div>
                   <strong>Dominando objeções</strong>
                   <span>Vendas e Persuasão</span>
@@ -237,7 +238,7 @@ export default function Home() {
 
           <article className="bento-card bento-card-streak reveal-on-scroll" data-motion-item="card">
             <div className="bento-orbit">
-              <span>✓</span>
+              <span><Icon name="check" size={16} /></span>
               <i>ritmo</i>
             </div>
             <div>
@@ -381,7 +382,7 @@ export default function Home() {
             <div className="ecosystem-chat">
               <div className="ecosystem-chat-user">Como aplico isso na minha empresa esta semana?</div>
               <div className="ecosystem-chat-ai">
-                <b>✦</b>
+                <b><Icon name="tutor" size={16} /></b>
                 <p>Vamos criar um plano prático em 3 movimentos, usando a aula que você acabou de assistir.</p>
               </div>
             </div>
@@ -466,14 +467,14 @@ export default function Home() {
               </div>
             </div>
             <nav>
-              <span>⌂</span>
-              <span>▶</span>
-              <span>◉</span>
-              <span>◇</span>
+              <span><Icon name="home" size={16} /></span>
+              <span><Icon name="courses" size={16} /></span>
+              <span><Icon name="community" size={16} /></span>
+              <span><Icon name="benefits" size={16} /></span>
             </nav>
           </div>
           <div className="phone-floating phone-floating-xp">
-            <span>✦</span>
+            <span><Icon name="tutor" size={16} /></span>
             <div>
               <small>PROGRESSO</small>
               <strong>SALVO</strong>
@@ -607,16 +608,16 @@ export default function Home() {
               <TimeLogo variant="white" alt="" />
               <span>ADMIN</span>
             </div>
-            <div className="admin-preview-search">⌕ Buscar na administração...</div>
+            <div className="admin-preview-search"><Icon name="search" size={14} /> Buscar na administração...</div>
             <b>IC</b>
           </header>
           <div className="admin-preview-body">
             <aside>
-              <span className="active">▦</span>
-              <span>▶</span>
-              <span>◉</span>
-              <span>◇</span>
-              <span>↗</span>
+              <span className="active"><Icon name="admin" size={16} /></span>
+              <span><Icon name="courses" size={16} /></span>
+              <span><Icon name="connections" size={16} /></span>
+              <span><Icon name="community" size={16} /></span>
+              <span><Icon name="subscription" size={16} /></span>
             </aside>
             <div>
               <small>PAINEL ADMINISTRATIVO</small>
@@ -690,7 +691,7 @@ export default function Home() {
             Se ainda restar alguma dúvida, nossa equipe está pronta para conversar
             com você.
           </p>
-          {supportWhatsappHref ? <a href={supportWhatsappHref} target="_blank" rel="noreferrer">Falar com a equipe →</a> : <span>Canal de atendimento em configuração.</span>}
+          {supportWhatsappHref ? <a href={supportWhatsappHref} target="_blank" rel="noreferrer">Falar com a equipe</a> : <span>Canal de atendimento em configuração.</span>}
         </div>
         <div className="faq-list">
           {[
@@ -759,7 +760,7 @@ export default function Home() {
         </div>
         <div className="footer-bottom">
           <span>© 2026 TIME Escola de Negócios. Todos os direitos reservados.</span>
-          <a href="#inicio">Voltar ao topo ↑</a>
+          <a href="#inicio">Voltar ao topo <Icon name="up" size={14} /></a>
         </div>
       </footer>
     </main>

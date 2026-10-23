@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { TIME_MEMBERSHIP_ACCESS_KEY } from "@/lib/access-policy";
+import { Icon } from "@/app/app/icons";
 
 type Offer = {
   id: number; name: string; description: string; amountCents: number; currency: string;
@@ -120,17 +121,17 @@ export default function StripeFinanceAdmin() {
     <>
       <header className="admin-heading stripe-heading">
         <div><span>PAGAMENTOS E RECORRÊNCIA</span><h1>Stripe</h1><p>Checkout próprio da TIME, cobranças, acessos e assinaturas em um só lugar.</p></div>
-        <a className="admin-primary-button" href="/checkout" target="_blank">Ver checkout ↗</a>
+        <a className="admin-primary-button" href="/checkout" target="_blank">Ver checkout <Icon name="external" size={14} /></a>
       </header>
       {error ? <div className="stripe-message error">{error}</div> : null}
-      {notice ? <div className="stripe-message">✓ {notice}</div> : null}
+      {notice ? <div className="stripe-message"><Icon name="check" size={16} /> {notice}</div> : null}
 
       <section className={data?.connection.ready ? "stripe-connection ready" : "stripe-connection"}>
         <div className="stripe-mark">S</div>
         <div><span>CONEXÃO STRIPE</span><h3>{data?.connection.ready ? "Pagamentos conectados" : "Aguardando credenciais seguras"}</h3><p>{data?.connection.ready ? "Checkout, recorrência e liberação automática estão prontos para operar." : "Cadastre as chaves da conta Stripe no ambiente seguro do projeto para ativar cobranças reais."}</p></div>
         <aside>
           {[["Chave secreta",data?.connection.secretKey],["Chave pública",data?.connection.publishableKey],["Webhook",data?.connection.webhookSecret]].map(([label, ok]) => (
-            <span className={ok ? "connected" : ""} key={String(label)}>{ok ? "✓" : "○"} {label}</span>
+            <span className={ok ? "connected" : ""} key={String(label)}>{ok ? <Icon name="check" size={14} /> : <Icon name="clock" size={14} />} {label}</span>
           ))}
         </aside>
       </section>
@@ -165,7 +166,7 @@ export default function StripeFinanceAdmin() {
               <button onClick={() => edit(offer)}>Editar</button>
               <button onClick={() => void toggle(offer)}>{offer.active ? "Pausar" : "Ativar"}</button>
             </article>
-          )) : <div className="stripe-empty"><span>◇</span><strong>Nenhuma oferta criada</strong><p>Crie a primeira condição para exibi-la no checkout.</p></div>}
+          )) : <div className="stripe-empty"><span><Icon name="tag" size={20} /></span><strong>Nenhuma oferta criada</strong><p>Crie a primeira condição para exibi-la no checkout.</p></div>}
         </div>
       </section>
 

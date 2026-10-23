@@ -15,7 +15,7 @@ export default function LegalPage({
         <aside>
           <span>{kicker}</span><h1>{title}</h1>
           <p>Última atualização: 31 de julho de 2026</p>
-          <Link href="/checkout">Ir para a inscrição →</Link>
+          <Link href="/checkout">Ir para a inscrição</Link>
         </aside>
         <article>
           <p className="legal-intro">{introduction}</p>

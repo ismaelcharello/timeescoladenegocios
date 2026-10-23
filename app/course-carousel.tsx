@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState, type KeyboardEvent, type UIEvent } from "react";
+import { Icon } from "./app/icons";
 
 type FeaturedCourse = {
   category: string;
@@ -161,8 +162,8 @@ export function CourseCarousel({ schoolStatus = "active" }: { schoolStatus?: "ac
         <div className="course-carousel-actions">
           <span>FORMAÇÃO QUE<br />GERA RESULTADOS</span>
           <div>
-            <button type="button" onClick={() => goTo(activeIndex - 1)} aria-label="Curso anterior">←</button>
-            <button type="button" onClick={() => goTo(activeIndex + 1)} aria-label="Próximo curso">→</button>
+            <button type="button" onClick={() => goTo(activeIndex - 1)} aria-label="Curso anterior"><Icon name="back" size={18} /></button>
+            <button type="button" onClick={() => goTo(activeIndex + 1)} aria-label="Próximo curso"><Icon name="arrow" size={18} /></button>
           </div>
         </div>
       </header>
@@ -205,7 +206,7 @@ export function CourseCarousel({ schoolStatus = "active" }: { schoolStatus?: "ac
                   </div>
                   <a href="/entrar?retorno=/app/cursos">
                     {isComingSoon ? "Ver próximas formações" : "Conhecer o curso"}
-                    <span aria-hidden="true">↗</span>
+                    <span aria-hidden="true"><Icon name="external" size={16} /></span>
                   </a>
                 </div>
               </article>

@@ -243,6 +243,9 @@ const paths = {
       <path d="M13 5v2M13 17v2M13 11v2" />
     </>
   ),
+  sliders: <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" />,
+  up: <path d="m5 12 7-7 7 7M12 19V5" />,
+  down: <path d="M12 5v14m7-7-7 7-7-7" />,
   back: (
     <>
       <path d="m12 19-7-7 7-7" />
