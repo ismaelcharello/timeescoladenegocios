@@ -8509,8 +8509,7 @@ html[data-resolved="light"] .member-app :is(
   .member-home-learning,
   .real-continue-learning,
   .upcoming-course-card,
-  .reference-network-card,
-  .new-post-card
+  .reference-network-card
 ) :is(p, small, label) {
   color: #e8e5ef !important;
   opacity: 1;
@@ -8520,8 +8519,7 @@ html[data-resolved="light"] .member-app :is(
   .member-home-learning,
   .real-continue-learning,
   .upcoming-course-card,
-  .reference-network-card,
-  .new-post-card
+  .reference-network-card
 ) :is(h1, h2, h3, strong, b) {
   color: #fff !important;
   opacity: 1;

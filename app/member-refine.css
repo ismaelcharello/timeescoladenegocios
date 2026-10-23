@@ -345,3 +345,315 @@ html[data-resolved] .mf .member-home-quick-actions > :is(button, a) > span:first
   background: color-mix(in srgb, var(--primary) 12%, transparent);
   color: var(--link);
 }
+
+/* ---------- Cursos, Comunidade, Eventos e demais módulos ----------
+   Regras do sistema de design (docs/DESIGN-SYSTEM.md): sem gradientes decorativos,
+   sem brilhos, uma cor de ação sólida. Destaques escuros usam o navy da marca em
+   cor sólida; o restante usa superfície + borda. Gradientes sobre imagem (para
+   legibilidade do texto) permanecem. */
+
+/* Destaques escuros: navy sólido, texto claro herdado */
+html[data-resolved] .member-app.mf :is(
+  .school-coming-soon,
+  .real-progress-summary,
+  .member-level-card,
+  .reference-learning-summary,
+  .reference-network-card,
+  .next-event,
+  .learning-path,
+  .finance-highlight,
+  .stripe-connection,
+  .access-gate,
+  .access-gate-grid,
+  .real-continue-learning:not(:has(> img))
+) {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: var(--time-ink);
+  background-image: none;
+  box-shadow: none;
+}
+html[data-resolved] .member-app.mf :is(.school-coming-soon-glow, .fake-chart, .fake-chart i) {
+  display: none;
+}
+
+/* Superfícies comuns */
+html[data-resolved] .member-app.mf :is(.real-empty-state, .course-hierarchy-note) {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  background-image: none;
+  box-shadow: none;
+  color: var(--text);
+}
+html[data-resolved] .member-app.mf :is(.real-empty-state, .course-hierarchy-note) :is(h1, h2, h3, strong) {
+  color: var(--text);
+}
+html[data-resolved] .member-app.mf :is(.real-empty-state, .course-hierarchy-note) :is(p, small) {
+  color: var(--text-muted);
+}
+html[data-resolved] .member-app.mf .real-empty-state > span {
+  display: inline-grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--link);
+}
+
+/* Barras de filtro e abas */
+html[data-resolved] .member-app.mf :is(.reference-community-tabs, .reference-event-filters) {
+  background: var(--surface-2);
+  background-image: none;
+  border-color: var(--border);
+  box-shadow: none;
+}
+html[data-resolved] .member-app.mf :is(
+  .reference-category-rail button.active,
+  .reference-community-tabs button.active,
+  .reference-event-filters button.active,
+  .reference-intent-picker button.active,
+  .reference-lesson-tabs button.active,
+  .course-streaming-filter-rail button.active,
+  .course-player-outline .course-module-group > button.active
+) {
+  background: var(--primary);
+  background-image: none;
+  border-color: var(--primary);
+  box-shadow: none;
+  color: var(--on-primary);
+}
+
+/* Ações primárias: violeta sólido */
+html[data-resolved] .member-app.mf :is(
+  .member-primary-button,
+  .membership-prompt a,
+  .real-lesson-copy .complete-lesson,
+  .social-post-composer .publish-button,
+  .reference-event-actions .primary,
+  .profile-access-gate > a,
+  .access-gate-actions a,
+  .reference-lesson-notes footer button
+) {
+  background: var(--primary);
+  background-image: none;
+  border-color: var(--primary);
+  box-shadow: none;
+  color: var(--on-primary);
+  font-weight: 650;
+  transition: transform var(--dur-press) var(--ease-out), background-color var(--dur-hover) var(--ease-out);
+}
+html[data-resolved] .member-app.mf :is(
+  .member-primary-button,
+  .membership-prompt a,
+  .real-lesson-copy .complete-lesson,
+  .social-post-composer .publish-button,
+  .reference-event-actions .primary,
+  .profile-access-gate > a,
+  .access-gate-actions a
+):active {
+  transform: scale(0.97);
+}
+
+/* Barras de progresso: cor sólida */
+html[data-resolved] .member-app.mf :is(
+  .member-level-progress i,
+  .real-progress-summary .member-level-progress i,
+  .course-streaming-hero-progress i,
+  .member-home-learning-progress i,
+  .profile-gate-progress i,
+  .course-streaming-shell .member-course-progress i,
+  .course-outline-heading > i::after
+) {
+  background: var(--primary);
+  background-image: none;
+}
+
+/* Placeholders decorativos: superfície lisa */
+html[data-resolved] .member-app.mf :is(
+  .real-course-placeholder,
+  .real-video-empty,
+  .course-streaming-hero-placeholder,
+  .upcoming-course-art-violet,
+  .upcoming-course-art-magenta,
+  .upcoming-course-art-blue,
+  .upcoming-course-art-plum,
+  .upcoming-course-art-teal,
+  .upcoming-course-art-sunset
+) {
+  background: var(--time-ink);
+  background-image: none;
+}
+html[data-resolved] .member-app.mf :is(.real-loading-grid i, .real-loading-grid span, .member-home-card-loading) {
+  background: var(--surface-2);
+  background-image: none;
+}
+
+/* Marcadores e avatares pequenos: tom sólido da marca */
+html[data-resolved] .member-app.mf :is(
+  .member-home-avatar,
+  .attachment-draft > span,
+  .community-link-card > span,
+  .official-real-post header > b,
+  .reference-comments > article > span,
+  .real-course-card .member-course-image > b,
+  .reference-learning-ring
+) {
+  background: color-mix(in srgb, var(--primary) 14%, var(--surface));
+  background-image: none;
+  color: var(--link);
+}
+
+/* Imersão do catálogo: segue o tema, sem brilho de fundo */
+html[data-resolved] .member-app.mf .course-streaming-shell,
+html[data-resolved] .member-app.mf .course-streaming-shell::before {
+  background-image: none;
+}
+
+/* Rótulos e títulos de seção coerentes em todos os módulos */
+html[data-resolved] .member-app.mf .member-page-heading > span,
+html[data-resolved] .member-app.mf .member-page-heading .kicker {
+  color: var(--link);
+  letter-spacing: var(--track-label);
+}
+html[data-resolved] .member-app.mf .member-page-heading h1 {
+  font-size: var(--fs-2xl);
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: var(--track-display);
+  text-wrap: balance;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-resolved] .member-app.mf :is(
+    .member-primary-button,
+    .membership-prompt a,
+    .real-lesson-copy .complete-lesson,
+    .social-post-composer .publish-button,
+    .reference-event-actions .primary,
+    .profile-access-gate > a,
+    .access-gate-actions a
+  ):hover:not(:disabled) {
+    background: var(--primary-hover);
+  }
+}
+
+/* ---------- Comunidade: superfícies e leitura nos dois temas ---------- */
+html[data-resolved] .member-app.mf :is(
+  .social-post-composer,
+  .new-post-card,
+  .network-card,
+  .real-safety-card,
+  .reference-social-post,
+  .official-real-post,
+  .online-members,
+  .community-offer-details,
+  .community-link-card,
+  .reference-comments
+) {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  background-image: none;
+  box-shadow: none;
+  color: var(--text);
+}
+html[data-resolved] .member-app.mf .official-real-post {
+  border-left: 3px solid var(--primary);
+}
+html[data-resolved] .member-app.mf :is(
+  .social-post-composer,
+  .new-post-card,
+  .network-card,
+  .real-safety-card,
+  .reference-social-post,
+  .official-real-post,
+  .online-members,
+  .community-offer-details,
+  .community-link-card,
+  .reference-comments
+) :is(h1, h2, h3, h4, strong, b) {
+  color: var(--text) !important;
+}
+html[data-resolved] .member-app.mf :is(
+  .social-post-composer,
+  .new-post-card,
+  .network-card,
+  .real-safety-card,
+  .reference-social-post,
+  .official-real-post,
+  .online-members,
+  .community-offer-details,
+  .community-link-card,
+  .reference-comments
+) :is(p, small, label, time, li) {
+  color: var(--text-muted) !important;
+}
+html[data-resolved] .member-app.mf :is(.community-composer-label, .rail-title span, .network-card > span) {
+  color: var(--link);
+  font-weight: 700;
+  letter-spacing: var(--track-label);
+}
+html[data-resolved] .member-app.mf .social-post-composer textarea {
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: max(16px, 1rem);
+}
+html[data-resolved] .member-app.mf .social-post-composer textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.85;
+}
+html[data-resolved] .member-app.mf .social-post-composer :is(.community-composer-tools > button, .community-link-input > button) {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text);
+}
+html[data-resolved] .member-app.mf .social-post-composer .community-link-input input {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text);
+  font-size: max(16px, 1rem);
+}
+html[data-resolved] .member-app.mf .social-post-composer .new-post-actions {
+  border-color: var(--border);
+}
+html[data-resolved] .member-app.mf .reference-post-actions button {
+  color: var(--text-muted);
+}
+html[data-resolved] .member-app.mf .reference-post-actions button.active {
+  color: var(--link);
+}
+html[data-resolved] .member-app.mf .reference-post-actions button svg {
+  vertical-align: -3px;
+}
+html[data-resolved] .member-app.mf .reference-community-tabs button svg,
+html[data-resolved] .member-app.mf .reference-intent-picker button svg {
+  vertical-align: -3px;
+}
+
+/* Esqueletos de carregamento: superfície lisa com pulso suave (só opacidade) */
+html[data-resolved] .member-app.mf .real-loading-grid > div {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+html[data-resolved] .member-app.mf .real-loading-grid :is(i, span) {
+  background: var(--surface-2);
+  background-image: none;
+  animation: mf-pulse 1.4s var(--ease-out) infinite alternate;
+}
+@keyframes mf-pulse {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-resolved] .member-app.mf .real-loading-grid :is(i, span) {
+    animation: none;
+  }
+}
+html[data-resolved] .member-app.mf .online-members > div {
+  color: var(--text) !important;
+}
