@@ -5893,10 +5893,6 @@ html[data-resolved="light"] .member-app .theme-toggle { border-color: #e2e1eb; c
    baixo contraste ou larguras de desktop no celular. */
 .member-app,
 .member-app *,
-.time-app,
-.time-app * {
-  min-width: 0;
-}
 
 html[data-resolved="light"] .member-app {
   --time-readable-ink: #171629;
@@ -5988,14 +5984,6 @@ html[data-resolved="light"] .member-app :is(button, a, input, textarea, select):
   outline: 3px solid #3700f0;
   outline-offset: 3px;
 }
-
-.time-app { color: #142520; background: #f5f7f6; }
-.time-app :is(.directory-hero p, .connection-hero > p, .time-home-main p, .member-profile-hero p) { color: rgba(255,255,255,.88); }
-.time-app :is(.directory-kicker, .connection-search label, .member-profile-location) { color: #8ff5e3; }
-.time-app :is(.directory-results-header p, .member-card .member-role, .member-card .member-description, .directory-empty p, .profile-section p, .connection-card-top p, .connection-reason, .connection-empty-state article p, .time-home-profile p, .time-home-card p) { color: #42564f; }
-.time-app :is(.directory-field span, .time-app-account > span) { color: #314a43; }
-.time-app :is(.directory-search input::placeholder, .directory-field input::placeholder, .connection-search textarea::placeholder) { color: #5c6e68; opacity: 1; }
-
 @media (max-width: 620px) {
   html, body { max-width: 100%; overflow-x: clip; }
 
@@ -6008,8 +5996,6 @@ html[data-resolved="light"] .member-app :is(button, a, input, textarea, select):
   .mobile-bottom-nav { padding-bottom: calc(7px + env(safe-area-inset-bottom)); }
   .mobile-bottom-nav :is(button, .mobile-bottom-nav-link) { min-height: 52px; font-size: 9px; font-weight: 780; }
   .mobile-bottom-nav-link { padding-inline: 1px; }
-  .time-app > main { padding-bottom: calc(112px + env(safe-area-inset-bottom)); }
-  .time-app-mobile-nav { bottom: max(10px, env(safe-area-inset-bottom)); }
 }
 
 /* Biblioteca em preparação + contraste de superfícies de destaque.
@@ -6417,22 +6403,6 @@ html[data-resolved="light"] .member-app .profile-access-gate :is(h2, strong) { c
 html[data-resolved="light"] .member-app .profile-access-gate :is(p, small, li) { color: #4d4a60; opacity: 1; }
 html[data-resolved="light"] .member-app .profile-gate-score { border-color: #f1a7eb; color: #c500a8; }
 html[data-resolved="light"] .member-app .profile-gate-score span { color: #4d4a60; }
-
-.time-app,
-.time-app > main { background: #f4f7f6; color: #17332d; }
-.time-app :is(input, textarea, select) { min-height: 48px; color: #16332c; background: #fff; border-color: #91a29d; font-size: 16px; }
-.time-app :is(input, textarea)::placeholder { color: #536762; opacity: 1; }
-.time-app :is(.directory-hero, .connection-hero, .member-profile-hero) :is(h1, h2, h3, p, label) { opacity: 1; }
-.time-app :is(.directory-hero, .connection-hero, .member-profile-hero) h1 { color: #fff; }
-.time-app :is(.directory-hero, .connection-hero, .member-profile-hero) p { color: #e3f4ef; }
-.time-app-mobile-nav {
-  min-height: calc(66px + env(safe-area-inset-bottom));
-  padding-bottom: calc(8px + env(safe-area-inset-bottom));
-  box-shadow: 0 -8px 25px rgba(18, 51, 44, .14);
-}
-.time-app-mobile-nav a { min-height: 50px; color: #435750; font-size: 11px; font-weight: 750; }
-.time-app-mobile-nav a.active { background: #dff3ed; color: #087563; }
-
 .admin-app :is(
   p, small, label, .admin-muted, .admin-table td, .admin-table th
 ) { opacity: 1; }
@@ -6489,8 +6459,6 @@ html[data-resolved="light"] .member-app .profile-gate-score span { color: #4d4a6
   .member-app .profile-access-gate p { font-size: 15px; line-height: 1.55; }
   .member-app .profile-gate-score { width: 94px; height: 94px; min-width: 94px; max-width: 94px; }
   .member-app .mobile-bottom-nav :is(button, .mobile-bottom-nav-link) { font-size: 10px; }
-  .time-app > main { padding-bottom: calc(136px + env(safe-area-inset-bottom)); }
-  .time-app-mobile-nav a { font-size: 10px; }
   .course-editor { width: calc(100vw - 20px); max-height: calc(100dvh - 20px); }
   .course-editor-body { padding: 18px; }
   .course-editor > footer { gap: 10px; padding: 15px 18px; }
@@ -8657,11 +8625,6 @@ html[data-resolved="dark"] .member-app button:disabled,
 }
 
 html[data-resolved="light"] .member-app button:disabled,
-.time-app button:disabled {
-  border-color: #c4c0cb;
-  background-color: #dedbe3;
-  color: #5d5968;
-}
 
 .real-inline-error,
 .member-home-inline-state.error {
@@ -8683,14 +8646,6 @@ html[data-resolved="light"] .member-app :is(.real-inline-error, .member-home-inl
 html[data-resolved="light"] .member-app .real-form-success {
   color: #087044 !important;
 }
-
-/* As áreas de networking/perfil usam superfície clara própria. */
-.time-app :is(.directory-results-header p, .member-card .member-role, .member-card .member-description, .directory-empty p, .profile-section p, .connection-card-top p, .connection-reason, .connection-empty-state article p, .time-home-profile p, .time-home-card p) {
-  color: #354b44;
-}
-.time-app :is(input, textarea, select) { border-color: #859791; }
-.time-app :is(input, textarea)::placeholder { color: #4d625c; opacity: 1; }
-
 @media (prefers-contrast: more) {
   .member-app,
   .admin-app {
