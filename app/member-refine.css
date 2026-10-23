@@ -178,3 +178,170 @@ html[data-resolved] .member-app {
     background: var(--primary-hover);
   }
 }
+
+/* ---------- Home do membro sobre os tokens ----------
+   Cartões sóbrios (superfície + borda de 1px), uma única ação primária por bloco,
+   sem gradientes, brilhos nem sombras coloridas. Funciona nos dois temas. */
+html[data-resolved] .mf .member-home {
+  gap: var(--s-7);
+  color: var(--text);
+}
+html[data-resolved] .mf .member-home :is(button, a):focus-visible {
+  outline-color: var(--focus);
+}
+
+html[data-resolved] .mf .member-home :is(
+  .member-home-intro > span,
+  .member-home-section > header span,
+  .member-home-event > header > span,
+  .member-home-community > header span,
+  .member-home-business > div:first-child > span,
+  .member-home-profile > div:first-child > span,
+  .member-home-next-action > div > span
+) {
+  color: var(--link);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+html[data-resolved] .mf .member-home-intro h1 {
+  margin: var(--s-2) 0 var(--s-1);
+  color: var(--text);
+  font-size: var(--fs-2xl);
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: var(--track-display);
+}
+html[data-resolved] .mf .member-home-intro h1 em {
+  color: var(--link);
+}
+html[data-resolved] .mf .member-home-intro p {
+  color: var(--text-muted);
+  font-size: var(--fs-md);
+}
+
+/* Próxima ação: o bloco principal da Home */
+html[data-resolved] .mf .member-home-next-action {
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: none;
+  color: var(--text);
+}
+html[data-resolved] .mf .member-home-next-action h2 {
+  margin: var(--s-2) 0;
+  color: var(--text);
+  font-size: var(--fs-xl);
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: var(--track-title);
+  text-wrap: balance;
+}
+html[data-resolved] .mf .member-home-next-action p {
+  color: var(--text-muted);
+  font-size: var(--fs-md);
+}
+html[data-resolved] .mf .member-home-next-action > :is(button, a) {
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--primary);
+  box-shadow: none;
+  color: var(--on-primary);
+  font-weight: 650;
+  transition: transform var(--dur-press) var(--ease-out), background-color var(--dur-hover) var(--ease-out);
+}
+html[data-resolved] .mf .member-home-next-action > :is(button, a):active {
+  transform: scale(0.97);
+}
+
+/* Cartões comuns */
+html[data-resolved] .mf .member-home :is(
+  .member-home-profile,
+  .member-home-quick-actions > :is(button, a),
+  .member-home-connections article,
+  .member-home-event,
+  .member-home-posts article,
+  .member-home-business,
+  .member-home-inline-state,
+  .school-coming-soon-home
+) {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: none;
+  color: var(--text);
+}
+html[data-resolved] .mf .member-home :is(
+  .member-home-profile,
+  .member-home-quick-actions > :is(button, a),
+  .member-home-connections article,
+  .member-home-event,
+  .member-home-posts article,
+  .member-home-business,
+  .member-home-inline-state,
+  .school-coming-soon-home
+) :is(h1, h2, h3, h4, strong, b) {
+  color: var(--text);
+}
+html[data-resolved] .mf .member-home :is(
+  .member-home-profile,
+  .member-home-quick-actions > :is(button, a),
+  .member-home-connections article,
+  .member-home-event,
+  .member-home-posts article,
+  .member-home-business,
+  .member-home-inline-state,
+  .school-coming-soon-home
+) :is(p, small, time, li) {
+  color: var(--text-muted);
+}
+html[data-resolved] .mf .member-home .member-home-inline-state.error {
+  border-color: var(--error-border);
+  background: var(--error-bg);
+}
+html[data-resolved] .mf .member-home .member-home-inline-state.error :is(strong, p) {
+  color: var(--error-text);
+}
+
+/* Perfil: barra de progresso em cor sólida */
+html[data-resolved] .mf .member-home-profile-progress {
+  background: var(--surface-2);
+}
+html[data-resolved] .mf .member-home-profile-progress i {
+  background: var(--primary);
+}
+html[data-resolved] .mf .member-home-profile > a {
+  border-radius: var(--r-md);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 650;
+}
+
+/* Links "Ver ..." dos cabeçalhos de seção */
+html[data-resolved] .mf .member-home-section > header :is(a, button),
+html[data-resolved] .mf .member-home-event > header :is(a, button),
+html[data-resolved] .mf .member-home-community > header :is(a, button) {
+  color: var(--link);
+  font-weight: 650;
+}
+html[data-resolved] .mf .member-home :is(b[aria-hidden="true"]) svg {
+  vertical-align: -3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-resolved] .mf .member-home-next-action > :is(button, a):hover,
+  html[data-resolved] .mf .member-home-profile > a:hover {
+    background: var(--primary-hover);
+  }
+  html[data-resolved] .mf .member-home-quick-actions > :is(button, a):hover {
+    border-color: var(--border-strong);
+  }
+}
+
+html[data-resolved] .mf .member-home-quick-actions > :is(button, a) > span:first-child {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--link);
+}

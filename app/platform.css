@@ -8506,7 +8506,6 @@ html[data-resolved="light"] .member-app :is(
 }
 
 html[data-resolved="light"] .member-app :is(
-  .member-home-next-action,
   .member-home-learning,
   .real-continue-learning,
   .upcoming-course-card,
@@ -8518,7 +8517,6 @@ html[data-resolved="light"] .member-app :is(
 }
 
 html[data-resolved="light"] .member-app :is(
-  .member-home-next-action,
   .member-home-learning,
   .real-continue-learning,
   .upcoming-course-card,
