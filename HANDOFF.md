@@ -1,31 +1,33 @@
-# HANDOFF – colocar o PWA TIME no ar (atualizado 2026-10-22 02:30 BRT)
+# HANDOFF – TIME Escola de Negócios (atualizado 2026-10-24)
 
-Dono: Ismael (fala português; está sem tempo, quer que o Code faça as configs sozinho).
-Meta: app no ar em **https://app.timeescoladenegocios.com.br** (PWA).
+Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objetivos). Autorizou seguir sem perguntar nas etapas abaixo. Continua proibido: digitar senhas/chaves, criar contas, mexer em DNS/nameservers sem o login dele, pagamentos.
 
-## Estado atual (feito)
-- Worker Cloudflare `timeescoladenegocios` no ar em https://timeescoladenegocios.icschool-contato.workers.dev (conta icschool.contato@gmail.com, account id a879ae0bd5f8a15414c47fbae59073fd). Deploy automático a cada push na `main` (Workers Builds).
-- Bindings OK: D1 `DB` (time-escola-db, id 312a978a-4e4f-494c-ac0d-b2c248cfa37f), R2 `BUCKET` (time-escola-uploads), `IMAGES`, `ASSETS`. Fonte da verdade: `wrangler.jsonc`.
-- Supabase (projeto "TIME Escola de Negócios", akjulbskcbuljakormst): schema aplicado, Auth Site URL/redirects configurados, SUPABASE_SERVICE_ROLE_KEY já cadastrada como secret do Worker.
-- Variáveis públicas em `.env.production` (commitado). Nunca colocar segredos ali.
-- Build/lint/tsc passam (`npm run build`).
+## Estado atual (no ar)
+- Worker Cloudflare `timeescoladenegocios` em https://timeescoladenegocios.icschool-contato.workers.dev (deploy automático a cada push na `main`; leva ~100 s).
+- `main` = `7dae148` (ou mais novo). Push funciona do Mac com o token pessoal salvo no Keychain.
+- D1 completo (benefits e ombudsman_messages criadas só com schema; NÃO rodar migrações 0014/0015/0016 inteiras: têm seed de staging). Secret `SUPABASE_SERVICE_ROLE_KEY` regravado; diretório de conexões OK.
+- `SCHOOL_STATUS=coming_soon` em `wrangler.jsonc` (cursos ainda não prontos).
+- Design system: `docs/DESIGN-SYSTEM.md` (contrato), `app/design-tokens.css`, tema Automático/Claro/Escuro (`data-resolved`), shell único `app/app/member-frame.tsx`, ícones SVG `app/app/icons.tsx`, camadas de override `app/member-refine.css` e `app/landing-refine.css`.
+- Feito: landing (hero sóbrio, demo de busca em loop, revelação por IntersectionObserver), login/cadastro, área interna (Início, Cursos, Conexões, Empresários, Comunidade, Eventos, Benefícios, Ouvidoria), ícones SVG em todo o app.
 
-## Pendências
-1. **Domínio**: hoje `app.timeescoladenegocios.com.br` é CNAME na HostGator → `custom-domains.chatgpt.site` (publicação ORIGINAL antiga, com banco próprio). O DNS do domínio está na HostGator (ns00124/ns00125). Para usar Worker em domínio próprio o DNS precisa estar na Cloudflare:
-   - Zona `timeescoladenegocios.com.br` já adicionada na Cloudflare (tela "confirm-scanned-records"; ainda NÃO ativada).
-   - Antes de ativar: adicionar TXT `titan2._domainkey` (valor em DNS antigo da HostGator: `v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQClKsvDZbJLPLfj8LrLx9V+xmcEqttStT0oj4G3m0jQFiqQsonxunwDFsROvMoH/qzHIdozh9BnENr3s8u/gEdt4Zy+mPhXo2iRsGsydidbQRWY7nGzHdCveqNuR5KCbUnmo9i1FF9Wi8AyhEzafRXryCld6pQ1vy+eYzP6lRL6twIDAQAB`).
-   - Colocar em **DNS only (nuvem cinza)**: A apex, www, mail, webmail, cpanel, ftp, webdisk, whm, autoconfig, autodiscover, cpcalendars, cpcontacts (senão quebra site/e-mail HostGator/Titan). NÃO mexer em MX/SPF/DKIM.
-   - Continuar para ativação, trocar nameservers no registrador, esperar ativar.
-   - Depois: remover CNAME `app` antigo (e TXT `_cf-custom-hostname.app` / `_openai-site-verification.app`) e adicionar Custom domain `app.timeescoladenegocios.com.br` no Worker (Settings → Domains & Routes).
-   - Atualizar no Supabase Auth: Site URL e redirects para o novo domínio (já inclui o domínio? conferir).
-   - **ANTES de trocar**: confirmar com o Ismael se o app antigo tem alunos/dados reais. Se tiver, exportar do banco antigo e importar no D1 novo. (Pergunta ainda sem resposta.)
-2. Confirmar D1 com ≥28 tabelas: `npx wrangler d1 execute time-escola-db --remote --command "select count(*) from sqlite_master where type='table'"` (NÃO rodar migrations de novo: 0003 já aplicada).
-3. `SCHOOL_STATUS` (runtime var): usar `coming_soon` se cursos não estão prontos. Ismael não respondeu.
-4. Stripe depois do lançamento: STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET (webhook em /api/billing/webhook). Ismael precisa colar os valores.
-5. Teste em celular real: cadastro, confirmação de e-mail, Adicionar à Tela de Início (iPhone/Android).
-6. Frontend: Ismael ainda não disse o que mudar; perguntar depois do domínio.
+## FILA DE ETAPAS (fazer na ordem; marcar [x] e commitar a cada etapa)
+- [ ] 1. **Admin** (`app/admin/*`, `admin-platform.tsx`, CSS `.admin-*` em platform.css): redesign sobre tokens, mesmo shell/tema da área interna (barra lateral + barra inferior no celular, claro/escuro/automático), sem gradientes. Manter funções e rotas. Testes: `npm run test:critical` + `tests/event-checkin.test.mjs` etc.
+- [ ] 2. **Onboarding/cadastro de perfil** (`app/app/cadastro/*`, `onboarding.css`): tokens, tema, ícones; revisar fluxo de campos.
+- [ ] 3. **Checkout e páginas legais** (`app/checkout/*`, `app/legal-page.tsx`, `app/legal.css`): tokens e tema. NÃO mexer na lógica do Stripe.
+- [ ] 4. **Landing**: decidir/reativar seções ocultas (ecossistema, plataforma, clube, admin = `display:none`); revisar mobile; manter motion.
+- [ ] 5. **Acessibilidade e responsivo**: rodar `npm run test:viewports` se o Playwright subir; contraste, foco, alvos de 44px; `prefers-reduced-motion`.
+- [ ] 6. **Limpeza de CSS legado** em `platform.css`/`globals.css`: remover regras mortas, sem mudar o visual; manter testes verdes.
+- [ ] 7. **Pendências do dono (só lembrar, não fazer)**: Stripe (3 chaves: STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET; ele cola), domínio `app.timeescoladenegocios.com.br` (precisa login na Cloudflare e troca de nameservers na HostGator; app antigo é só teste, sem dados reais), teste em celular real.
 
-## Notas
-- Mac: pasta `/Users/ismaellucas/Documents/Time/time-escola-negocios-mobile-final` (fazer `git pull`).
-- Worker se chama `timeescoladenegocios` no painel (wrangler.jsonc diz `time-escola-negocios`; o Workers Builds sobrescreve).
-- Um agente em nuvem foi bloqueado por classificador ao editar DNS/Auth; no Code local use as permissões do Ismael.
+## Como validar cada etapa (sempre)
+1. `npx tsc --noEmit`
+2. `npm run test:critical` e `node --test tests/event-checkin.test.mjs tests/rendered-html.test.mjs tests/course-experience.test.mjs tests/school-coming-soon.test.mjs tests/landing-course-carousel.test.mjs`
+3. `SITES_ENV_READY=1 npx vinext build` (o `npm run build` exige `timeout` GNU, ausente no macOS)
+4. Commit na branch `design/<etapa>`, merge `--ff-only` na `main`, `git push origin main`, esperar o CSS novo no ar (`curl` do hash do CSS) e conferir ao vivo (navegador do app já está logado como o dono).
+5. Atualizar esta fila, o cofre (`~/Documents/Segundo Cerebro`, nota do projeto) e `node ~/.segundo-cerebro/cerebro.js log ... && reindexar`.
+
+## Regras de trabalho
+- Servidor local não sobe (workerd): validar com renderização estática (esbuild + renderToStaticMarkup) e/ou a landing publicada.
+- Painel do navegador do app fica oculto: transições e `visibilityState` congelam.
+- Patch em arquivo grande: use marcadores a partir de índice já achado; em caso de erro, `git checkout <arquivo>`.
+- Retomada automática: ao voltar de um limite de uso, abrir esta fila e continuar do primeiro item `[ ]`.
