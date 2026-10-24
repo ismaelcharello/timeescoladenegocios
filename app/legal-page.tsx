@@ -8,7 +8,7 @@ export default function LegalPage({
   return (
     <main className="legal-page">
       <header className="legal-header">
-        <Link href="/" aria-label="TIME Escola de Negócios"><TimeLogo variant="white" priority /></Link>
+        <Link href="/" aria-label="TIME Escola de Negócios"><TimeLogo variant="blue" className="legal-logo-light" priority /><TimeLogo variant="white" className="legal-logo-dark" /></Link>
         <Link href="/">Voltar ao início</Link>
       </header>
       <div className="legal-layout">

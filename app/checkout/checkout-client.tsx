@@ -162,7 +162,7 @@ export default function CheckoutClient() {
   }
 
   return (
-    <main className="checkout-page">
+    <main className="checkout-page dark-lock">
       <div className="checkout-grid" aria-hidden="true" />
       <header className="checkout-header">
         <Link href="/" aria-label="Voltar ao início"><TimeLogo variant="white" priority /></Link>
@@ -218,13 +218,13 @@ export default function CheckoutClient() {
                 appearance: {
                   theme: "night",
                   variables: {
-                    colorPrimary: "#ff00e0", colorBackground: "#0a0b1b", colorText: "#f6f5fb",
-                    colorDanger: "#ff7676", fontFamily: "Geist, Inter, system-ui, sans-serif",
-                    borderRadius: "10px", spacingUnit: "5px",
+                    colorPrimary: "#6a45ff", colorBackground: "#0d1033", colorText: "#f4f4fb",
+                    colorDanger: "#ff7676", fontFamily: "system-ui, -apple-system, Segoe UI, sans-serif",
+                    borderRadius: "12px", spacingUnit: "5px",
                   },
                   rules: {
-                    ".Input": { border: "1px solid rgba(255,255,255,.12)", boxShadow: "none" },
-                    ".Input:focus": { border: "1px solid #ff00e0", boxShadow: "0 0 0 3px rgba(255,0,224,.1)" },
+                    ".Input": { border: "1px solid #3d4283", boxShadow: "none" },
+                    ".Input:focus": { border: "1px solid #a58bff", boxShadow: "0 0 0 3px rgba(165,139,255,.28)" },
                   },
                 },
               },
