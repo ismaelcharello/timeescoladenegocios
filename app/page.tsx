@@ -745,7 +745,6 @@ export default function Home() {
             <div>
               <strong>TIME</strong>
               <a href="https://timeescoladenegocios.com.br/">Sobre nós</a>
-              <a href="#resultados">Para empresas</a>
               <a href="#faq">Dúvidas</a>
               <a href="https://www.instagram.com/time.escola/">Instagram</a>
             </div>
@@ -753,8 +752,7 @@ export default function Home() {
               <strong>LEGAL</strong>
               <a href="/termos">Termos de uso</a>
               <a href="/privacidade">Privacidade</a>
-              <a href="#faq">Cookies</a>
-              <a href="#faq">Suporte</a>
+              {supportWhatsappHref ? <a href={supportWhatsappHref} target="_blank" rel="noreferrer">Suporte</a> : null}
             </div>
           </nav>
         </div>

@@ -192,3 +192,20 @@ html.landing-motion-ready .time-landing .product-stage.demo-results-in .motion-r
 .time-landing .connection-search-preview svg {
   vertical-align: -2px;
 }
+
+/* Rodapé compacto no celular: listas em duas colunas, sem blocos altos */
+@media (max-width: 700px) {
+  .time-landing .footer-main nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-5) var(--s-4);
+  }
+  .time-landing .footer-main nav > div:first-child {
+    grid-column: 1 / -1;
+  }
+  .time-landing .footer-main nav a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+  }
+}
