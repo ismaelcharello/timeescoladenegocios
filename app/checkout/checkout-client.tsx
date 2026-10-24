@@ -223,7 +223,7 @@ export default function CheckoutClient() {
                     borderRadius: "12px", spacingUnit: "5px",
                   },
                   rules: {
-                    ".Input": { border: "1px solid #3d4283", boxShadow: "none" },
+                    ".Input": { border: "1px solid #6068b0", boxShadow: "none" },
                     ".Input:focus": { border: "1px solid #a58bff", boxShadow: "0 0 0 3px rgba(165,139,255,.28)" },
                   },
                 },

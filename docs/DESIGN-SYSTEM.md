@@ -17,12 +17,14 @@ Pilares do produto: **Aprender · Conectar · Fazer negócios**. Personalidade: 
 | Texto | `--text` | `#0B0D26` | `#F4F4FB` |
 | Texto secundário | `--text-muted` | `#555874` | `#B4B6D0` |
 | Borda | `--border` | `#DCDCEA` | `#262A5C` |
+| Borda de controle (inputs, botões de contorno) | `--border-strong` | `#8587A6` | `#6068B0` |
 | Anel de foco | `--focus` | `#5A33FF` | `#A58BFF` |
 
 Regras de cor:
 - Magenta aparece só em detalhes (marcador, ponto de estado, fim de um filete). Nunca em fundo grande nem em gradiente de superfície. (apple-design §16 Simplicidade; briefing: evitar excesso de gradiente e neon.)
 - Gradiente violeta→magenta existe somente em um elemento por tela (o CTA principal da landing). Formulários usam violeta sólido.
 - Texto sobre fundo precisa de contraste mínimo 4,5:1 (7:1 para texto pequeno em `prefers-contrast: more`).
+- Bordas de controles e anel de foco: mínimo 3:1 contra o fundo (WCAG 1.4.11). Medido: texto 6,0–19,1:1; foco 5,9–7,2:1; borda de controle 3,05–4,06:1 nos dois temas.
 
 ## Tipografia (apple-design §15)
 - Fonte: pilha do sistema (`system-ui`), já com optical sizing.

@@ -46,7 +46,7 @@
   --text: #0b0d26;
   --text-muted: #555874;
   --border: #dcdcea;
-  --border-strong: #b7b8cf;
+  --border-strong: #8587a6;
   --focus: #5a33ff;
   --primary: var(--time-violet);
   --primary-hover: #2c00c5;
@@ -74,7 +74,7 @@
   --text: #f4f4fb;
   --text-muted: #b4b6d0;
   --border: #262a5c;
-  --border-strong: #3d4283;
+  --border-strong: #6068b0;
   --focus: #a58bff;
   --primary-hover: #4d1fff;
   --link: #b9a7ff;
@@ -101,7 +101,7 @@
     --text: #f4f4fb;
     --text-muted: #b4b6d0;
     --border: #262a5c;
-    --border-strong: #3d4283;
+    --border-strong: #6068b0;
     --focus: #a58bff;
     --primary-hover: #4d1fff;
     --link: #b9a7ff;
@@ -156,7 +156,7 @@ button,
   --text: #f4f4fb;
   --text-muted: #b4b6d0;
   --border: #262a5c;
-  --border-strong: #3d4283;
+  --border-strong: #6068b0;
   --focus: #a58bff;
   --primary-hover: #4d1fff;
   --link: #b9a7ff;
