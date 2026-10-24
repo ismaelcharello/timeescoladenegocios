@@ -12,7 +12,7 @@ Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objet
 
 ## FILA DE ETAPAS (fazer na ordem; marcar [x] e commitar a cada etapa)
 - [x] 1. (FEITO em 2026-10-24, main 8afd624; shell único em modo escuro travado; NÃO conferido ao vivo: sessão do navegador expirou, o dono precisa logar no painel para eu ver `/admin`. Opcional futuro: tema claro no admin exigiria reescrever ~680 regras `.admin-*`) **Admin** (`app/admin/*`, `admin-platform.tsx`, CSS `.admin-*` em platform.css): redesign sobre tokens, mesmo shell/tema da área interna (barra lateral + barra inferior no celular, claro/escuro/automático), sem gradientes. Manter funções e rotas. Testes: `npm run test:critical` + `tests/event-checkin.test.mjs` etc.
-- [ ] 2. **Onboarding/cadastro de perfil** (`app/app/cadastro/*`, `onboarding.css`): tokens, tema, ícones; revisar fluxo de campos.
+- [x] 2. (FEITO em 2026-10-24) **Onboarding/cadastro de perfil** (`app/app/cadastro/*`, `onboarding.css`): tokens, tema, ícones; revisar fluxo de campos.
 - [ ] 3. **Checkout e páginas legais** (`app/checkout/*`, `app/legal-page.tsx`, `app/legal.css`): tokens e tema. NÃO mexer na lógica do Stripe.
 - [ ] 4. **Landing**: decidir/reativar seções ocultas (ecossistema, plataforma, clube, admin = `display:none`); revisar mobile; manter motion.
 - [ ] 5. **Acessibilidade e responsivo**: rodar `npm run test:viewports` se o Playwright subir; contraste, foco, alvos de 44px; `prefers-reduced-motion`.

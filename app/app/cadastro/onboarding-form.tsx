@@ -203,7 +203,7 @@ export default function OnboardingForm({ user, initialProfile, supabaseConfig }:
   return (
     <main className="onboarding-page">
       <header className="onboarding-topbar">
-        <Link href="/" className="onboarding-logo" aria-label="TIME Escola de Negócios"><TimeLogo variant="blue" priority /></Link>
+        <Link href="/" className="onboarding-logo" aria-label="TIME Escola de Negócios"><TimeLogo variant="blue" className="onboarding-logo-light" priority /><TimeLogo variant="white" className="onboarding-logo-dark" /></Link>
         <div><span>Cadastro empresarial</span><a href="/auth/signout">Sair</a></div>
       </header>
 
