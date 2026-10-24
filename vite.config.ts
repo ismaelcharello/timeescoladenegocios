@@ -17,7 +17,11 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const hasWranglerConfig = existsSync(new URL("./wrangler.jsonc", import.meta.url));
 
 const localBindingConfig = hasWranglerConfig
-  ? { main: "./worker/index.ts", compatibility_flags: ["nodejs_compat"] }
+  ? // wrangler.jsonc already declares compatibility_date and
+    // compatibility_flags; repeating nodejs_compat here makes the plugin merge
+    // it twice and the Workers runtime refuses to boot ("Compatibility flag
+    // specified multiple times"). Only `main` is needed on this path.
+    { main: "./worker/index.ts" }
   : {
   main: "./worker/index.ts",
   compatibility_flags: ["nodejs_compat"],

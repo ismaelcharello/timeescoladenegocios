@@ -6,6 +6,8 @@ import StripeFinanceAdmin from "./stripe-finance";
 import { courseThumbnailLibrary } from "@/lib/course-thumbnails";
 import TimeLogo from "@/app/time-logo";
 import { Icon, type IconName } from "@/app/app/icons";
+import MemberFrame from "@/app/app/member-frame";
+import type { NavItem } from "@/app/app/member-nav";
 
 type AdminSection = "visao" | "cursos" | "membros" | "eventos" | "comunidade" | "beneficios" | "ouvidoria" | "tutor" | "financeiro" | "config";
 type AdminIdentity = { email: string; name: string };
@@ -102,7 +104,6 @@ const adminMenu: Array<{ id: AdminSection; icon: IconName; label: string }> = [
   { id: "config", icon: "sliders", label: "Configurações" },
 ];
 
-const adminMobileMenu = adminMenu.filter((item) => ["visao", "cursos", "eventos", "membros"].includes(item.id));
 
 const benefitCategories = ["Alimentação", "Farmácias", "Saúde", "Academias", "Combustível", "Viagens", "Educação", "Varejo", "Serviços", "Entretenimento"] as const;
 
@@ -793,8 +794,6 @@ export default function AdminPlatform({ admin }: { admin: AdminIdentity }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingCourse, setEditingCourse] = useState<AdminCourse | "new" | null>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const adminInitials = useMemo(() => initials(admin.name), [admin.name]);
 
   async function loadData() {
     setError("");
@@ -820,8 +819,24 @@ export default function AdminPlatform({ admin }: { admin: AdminIdentity }) {
     return () => { active = false; };
   }, []);
 
-  function navigateTo(nextSection: AdminSection) { setSection(nextSection); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  function navigateTo(nextSection: AdminSection) { setSection(nextSection); window.scrollTo({ top: 0, behavior: "smooth" }); }
   const date = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" }).format(new Date()).toUpperCase();
 
-  return <main className="admin-app real-admin-app"><aside className="admin-sidebar"><a href="/" className="admin-logo" aria-label="TIME Escola de Negócios"><TimeLogo variant="white" priority /><span>ADMIN</span></a><nav aria-label="Navegação administrativa"><small>GESTÃO</small>{adminMenu.slice(0, 8).map((item) => <button className={section === item.id ? "active" : ""} key={item.id} onClick={() => navigateTo(item.id)} aria-current={section === item.id ? "page" : undefined}><span><Icon name={item.icon} size={18} /></span>{item.label}{item.id === "membros" && data ? <i>{data.stats.members}</i> : null}</button>)}<small>SISTEMA</small>{adminMenu.slice(8).map((item) => <button className={section === item.id ? "active" : ""} key={item.id} onClick={() => navigateTo(item.id)} aria-current={section === item.id ? "page" : undefined}><span><Icon name={item.icon} size={18} /></span>{item.label}</button>)}</nav><div className="admin-sidebar-footer"><a href="/app"><span><Icon name="external" size={16} /></span>Ver área de membros</a><div><span>{adminInitials}</span><div><strong>{admin.name}</strong><small>Administrador autorizado</small></div></div></div></aside><section className="admin-main"><header className="admin-topbar"><label><span><Icon name="search" size={16} /></span><input placeholder="Buscar na administração..." /><kbd>TIME</kbd></label><div><span>{date}</span><b>{adminInitials}</b></div></header><div className="admin-content">{loading ? <AdminLoading /> : error || !data ? <AdminError message={error || "Dados indisponíveis."} retry={() => { setLoading(true); void loadData().catch((requestError) => setError(requestError instanceof Error ? requestError.message : "Falha ao carregar.")).finally(() => setLoading(false)); }} /> : <>{section === "visao" ? <Overview data={data} admin={admin} onNewCourse={() => setEditingCourse("new")} /> : null}{section === "cursos" ? <CoursesAdmin courses={data.courses} onNewCourse={() => setEditingCourse("new")} onEditCourse={setEditingCourse} /> : null}{section === "membros" ? <MembersAdmin data={data} /> : null}{section === "eventos" ? <EventsAdmin /> : null}{section === "comunidade" ? <CommunityAdmin data={data} onReload={loadData} /> : null}{section === "beneficios" ? <BenefitsAdmin /> : null}{section === "ouvidoria" ? <OmbudsmanAdmin /> : null}{section === "tutor" ? <TutorAdmin data={data} /> : null}{section === "financeiro" ? <StripeFinanceAdmin /> : null}{section === "config" ? <SettingsAdmin admin={admin} /> : null}</>}</div></section>{mobileMenuOpen ? <div className="mobile-more-menu admin-more-menu" role="dialog" aria-modal="true" aria-label="Mais opções administrativas"><button className="mobile-more-backdrop" aria-label="Fechar menu" onClick={() => setMobileMenuOpen(false)} /><section><header><div><span>{adminInitials}</span><div><strong>Administração TIME</strong><small>{admin.email}</small></div></div><button aria-label="Fechar menu" onClick={() => setMobileMenuOpen(false)}><Icon name="close" size={18} /></button></header><nav>{adminMenu.filter((item) => ["comunidade", "beneficios", "ouvidoria", "tutor", "financeiro", "config"].includes(item.id)).map((item) => <button className={section === item.id ? "active" : ""} key={item.id} onClick={() => navigateTo(item.id)}><span><Icon name={item.icon} size={18} /></span><div><strong>{item.label}</strong><small>{item.id === "comunidade" ? "Avisos e moderação" : item.id === "beneficios" ? "Catálogo e disponibilidade" : item.id === "ouvidoria" ? "Mensagens privadas" : item.id === "tutor" ? "Fontes, prompt e segurança" : item.id === "financeiro" ? "Assinaturas e pagamentos" : "Estado do sistema"}</small></div><b aria-hidden="true"><Icon name="arrow" size={14} /></b></button>)}<a href="/app"><span><Icon name="external" size={18} /></span><div><strong>Ver área de membros</strong><small>Abrir experiência do aluno</small></div><b aria-hidden="true"><Icon name="arrow" size={14} /></b></a></nav></section></div> : null}<nav className="admin-mobile-nav" aria-label="Navegação administrativa mobile">{adminMobileMenu.map((item) => <button className={section === item.id ? "active" : ""} key={item.id} onClick={() => navigateTo(item.id)} aria-current={section === item.id ? "page" : undefined}><span><Icon name={item.icon} size={18} /></span>{item.label.split(" ")[0]}</button>)}<button className={["comunidade", "beneficios", "ouvidoria", "tutor", "financeiro", "config"].includes(section) || mobileMenuOpen ? "active" : ""} onClick={() => setMobileMenuOpen(true)} aria-expanded={mobileMenuOpen}><span>•••</span>Mais</button></nav>{editingCourse ? <CourseModal key={editingCourse === "new" ? "new" : editingCourse.id} course={editingCourse === "new" ? null : editingCourse} onClose={() => setEditingCourse(null)} onSaved={loadData} /> : null}</main>;
+  const adminHints: Record<string, string> = {
+    visao: "Resumo da plataforma",
+    cursos: "Conteúdos, módulos e aulas",
+    membros: "Pessoas e acessos",
+    eventos: "Agenda, inscritos e check-in",
+    comunidade: "Avisos e moderação",
+    beneficios: "Catálogo e disponibilidade",
+    ouvidoria: "Mensagens privadas",
+    tutor: "Fontes, prompt e segurança",
+    financeiro: "Assinaturas e pagamentos",
+    config: "Estado do sistema",
+  };
+  const adminNavItems: NavItem[] = adminMenu.map((item) => ({ id: item.id, label: item.label, hint: adminHints[item.id] ?? "", href: "/admin", icon: item.icon, badge: item.id === "membros" && data ? data.stats.members : undefined }));
+  const adminNav = { primary: adminNavItems.slice(0, 5), more: adminNavItems.slice(5) };
+  const adminIds = new Set<string>(adminMenu.map((item) => item.id));
+
+  return <MemberFrame variant="admin" active={section} member={{ name: admin.name, email: admin.email, isAdmin: true }} nav={adminNav} spaIds={adminIds} onNavigate={(id) => navigateTo(id as AdminSection)} brandBadge="ADMIN" accountLinks={[{ label: "Ver área de membros", href: "/app", icon: "external" }]} showBilling={false} sheetTitle="Mais áreas administrativas" topbarSlot={<span className="mf-topbar-date">{date}</span>}><div className="admin-content">{loading ? <AdminLoading /> : error || !data ? <AdminError message={error || "Dados indisponíveis."} retry={() => { setLoading(true); void loadData().catch((requestError) => setError(requestError instanceof Error ? requestError.message : "Falha ao carregar.")).finally(() => setLoading(false)); }} /> : <>{section === "visao" ? <Overview data={data} admin={admin} onNewCourse={() => setEditingCourse("new")} /> : null}{section === "cursos" ? <CoursesAdmin courses={data.courses} onNewCourse={() => setEditingCourse("new")} onEditCourse={setEditingCourse} /> : null}{section === "membros" ? <MembersAdmin data={data} /> : null}{section === "eventos" ? <EventsAdmin /> : null}{section === "comunidade" ? <CommunityAdmin data={data} onReload={loadData} /> : null}{section === "beneficios" ? <BenefitsAdmin /> : null}{section === "ouvidoria" ? <OmbudsmanAdmin /> : null}{section === "tutor" ? <TutorAdmin data={data} /> : null}{section === "financeiro" ? <StripeFinanceAdmin /> : null}{section === "config" ? <SettingsAdmin admin={admin} /> : null}</>}</div>{editingCourse ? <CourseModal key={editingCourse === "new" ? "new" : editingCourse.id} course={editingCourse === "new" ? null : editingCourse} onClose={() => setEditingCourse(null)} onSaved={loadData} /> : null}</MemberFrame>;
 }

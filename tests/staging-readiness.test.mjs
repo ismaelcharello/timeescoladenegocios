@@ -50,7 +50,6 @@ test("a marca TIME usa versões oficiais com contraste adequado nos shells princ
     "../app/(auth)/auth-shell.tsx",
     "../app/app/cadastro/onboarding-form.tsx",
     "../app/app/member-frame.tsx",
-    "../app/admin/admin-platform.tsx",
     "../app/checkout/checkout-client.tsx",
     "../app/checkout/sucesso/success-client.tsx",
     "../app/legal-page.tsx",

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import TimeLogo from "../time-logo";
 import { Icon, type IconName } from "./icons";
-import { ALL_NAV, MORE_NAV, PRIMARY_NAV, SPA_SECTIONS, type NavId, type NavItem } from "./member-nav";
+import { MORE_NAV, PRIMARY_NAV, SPA_SECTIONS, type NavItem } from "./member-nav";
 
 type ThemePreference = "system" | "light" | "dark";
 type BeforeInstallPromptEvent = Event & { prompt: () => Promise<void> };
@@ -32,6 +32,10 @@ function initialsOf(name: string) {
 }
 
 export type FrameMember = { name: string; email: string; isAdmin: boolean };
+export type FrameNav = { primary: NavItem[]; more: NavItem[] };
+export type AccountLink = { label: string; href: string; icon: IconName };
+
+const MEMBER_NAV: FrameNav = { primary: PRIMARY_NAV, more: MORE_NAV };
 
 /**
  * Estrutura única da área interna (docs/DESIGN-SYSTEM.md): barra lateral no desktop,
@@ -45,13 +49,29 @@ export default function MemberFrame({
   onNavigate,
   topbarSlot,
   children,
+  nav = MEMBER_NAV,
+  spaIds = SPA_SECTIONS,
+  variant = "member",
+  brandBadge,
+  accountLinks,
+  showBilling = true,
+  sheetTitle = "Mais áreas",
 }: {
-  active: NavId;
+  active: string;
   member: FrameMember;
-  onNavigate?: (id: NavId) => void;
+  onNavigate?: (id: string) => void;
   topbarSlot?: ReactNode;
   children: ReactNode;
+  nav?: FrameNav;
+  spaIds?: ReadonlySet<string>;
+  variant?: "member" | "admin";
+  brandBadge?: string;
+  accountLinks?: AccountLink[];
+  showBilling?: boolean;
+  sheetTitle?: string;
 }) {
+  const { primary: PRIMARY, more: MORE } = nav;
+  const ALL = [...PRIMARY, ...MORE];
   const [preference, setPreference] = useState<ThemePreference>("system");
   const [accountOpen, setAccountOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -63,8 +83,8 @@ export default function MemberFrame({
   const notificationsRef = useRef<HTMLDivElement>(null);
 
   const initials = initialsOf(member.name);
-  const activeItem = ALL_NAV.find((item) => item.id === active) ?? PRIMARY_NAV[0];
-  const moreActive = MORE_NAV.some((item) => item.id === active);
+  const activeItem = ALL.find((item) => item.id === active) ?? PRIMARY[0];
+  const moreActive = MORE.some((item) => item.id === active);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setPreference(readPreference()), 0);
@@ -116,7 +136,7 @@ export default function MemberFrame({
   function go(item: NavItem, event: MouseEvent<HTMLElement>) {
     setMoreOpen(false);
     setAccountOpen(false);
-    if (onNavigate && SPA_SECTIONS.has(item.id)) {
+    if (onNavigate && spaIds.has(item.id)) {
       event.preventDefault();
       onNavigate(item.id);
     }
@@ -162,23 +182,25 @@ export default function MemberFrame({
       >
         <Icon name={item.icon} />
         <span>{item.label}</span>
+        {item.badge !== undefined ? <em className="mf-badge">{item.badge}</em> : null}
       </Link>
     </li>
   );
 
   return (
-    <div className="member-app mf" data-active={active}>
+    <div className={variant === "admin" ? "admin-app real-admin-app mf mf-dark" : "member-app mf"} data-active={active}>
       <a className="mf-skip" href="#conteudo">Pular para o conteúdo</a>
 
       <aside className="mf-sidebar">
-        <Link className="mf-brand" href="/app" aria-label="TIME Escola de Negócios">
+        <Link className="mf-brand" href={variant === "admin" ? "/admin" : "/app"} aria-label="TIME Escola de Negócios">
           <TimeLogo variant="blue" className="mf-logo mf-logo-light" priority />
           <TimeLogo variant="white" className="mf-logo mf-logo-dark" />
+          {brandBadge ? <span className="mf-brand-badge">{brandBadge}</span> : null}
         </Link>
         <nav className="mf-nav-wrap" aria-label="Navegação principal">
-          <ul className="mf-nav">{PRIMARY_NAV.map(renderNavItem)}</ul>
-          <p className="mf-nav-label">Mais</p>
-          <ul className="mf-nav">{MORE_NAV.map(renderNavItem)}</ul>
+          <ul className="mf-nav">{PRIMARY.map(renderNavItem)}</ul>
+          <p className="mf-nav-label">{variant === "admin" ? "Sistema" : "Mais"}</p>
+          <ul className="mf-nav">{MORE.map(renderNavItem)}</ul>
         </nav>
         <button
           type="button"
@@ -264,20 +286,24 @@ export default function MemberFrame({
                       </button>
                     ))}
                   </div>
-                  <button type="button" role="menuitem" className="mf-menu-item" disabled={billingLoading} onClick={() => void manageSubscription()}>
-                    <Icon name="subscription" size={18} />
-                    {billingLoading ? "Abrindo…" : "Minha assinatura"}
-                  </button>
-                  <button type="button" role="menuitem" className="mf-menu-item" onClick={() => void installApp()}>
-                    <Icon name="install" size={18} />
-                    Baixar app
-                  </button>
-                  {member.isAdmin ? (
-                    <a role="menuitem" className="mf-menu-item" href="/admin">
-                      <Icon name="admin" size={18} />
-                      Painel admin
-                    </a>
+                  {showBilling ? (
+                    <>
+                      <button type="button" role="menuitem" className="mf-menu-item" disabled={billingLoading} onClick={() => void manageSubscription()}>
+                        <Icon name="subscription" size={18} />
+                        {billingLoading ? "Abrindo…" : "Minha assinatura"}
+                      </button>
+                      <button type="button" role="menuitem" className="mf-menu-item" onClick={() => void installApp()}>
+                        <Icon name="install" size={18} />
+                        Baixar app
+                      </button>
+                    </>
                   ) : null}
+                  {(accountLinks ?? (member.isAdmin ? [{ label: "Painel admin", href: "/admin", icon: "admin" as IconName }] : [])).map((link) => (
+                    <a key={link.href} role="menuitem" className="mf-menu-item" href={link.href}>
+                      <Icon name={link.icon} size={18} />
+                      {link.label}
+                    </a>
+                  ))}
                   <form action="/auth/signout" method="post">
                     <button type="submit" role="menuitem" className="mf-menu-item">
                       <Icon name="signout" size={18} />
@@ -295,7 +321,7 @@ export default function MemberFrame({
       </div>
 
       <nav className="mf-tabbar" aria-label="Navegação no celular">
-        {PRIMARY_NAV.map((item) => (
+        {PRIMARY.map((item) => (
           <Link
             key={item.id}
             href={item.href}
@@ -321,17 +347,17 @@ export default function MemberFrame({
       </nav>
 
       {moreOpen ? (
-        <div className="mf-sheet" role="dialog" aria-modal="true" aria-label="Mais áreas">
+        <div className="mf-sheet" role="dialog" aria-modal="true" aria-label={sheetTitle}>
           <button type="button" className="mf-sheet-backdrop" aria-label="Fechar" onClick={() => setMoreOpen(false)} />
           <section>
             <header>
-              <strong>Mais áreas</strong>
+              <strong>{sheetTitle}</strong>
               <button type="button" className="mf-icon-button" aria-label="Fechar" onClick={() => setMoreOpen(false)}>
                 <Icon name="close" />
               </button>
             </header>
             <ul>
-              {MORE_NAV.map((item) => (
+              {MORE.map((item) => (
                 <li key={item.id}>
                   <Link
                     href={item.href}

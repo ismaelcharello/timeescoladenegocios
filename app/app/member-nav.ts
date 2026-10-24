@@ -14,10 +14,10 @@ export type NavId =
   | "conquistas"
   | "perfil";
 
-export type NavItem = { id: NavId; label: string; hint: string; href: string; icon: IconName };
+export type NavItem = { id: string; label: string; hint: string; href: string; icon: IconName; badge?: string | number };
 
 /** Seções que a plataforma (member-platform) troca sem recarregar a página. */
-export const SPA_SECTIONS: ReadonlySet<NavId> = new Set(["inicio", "cursos", "comunidade", "agenda", "podcasts", "tutor", "conquistas"]);
+export const SPA_SECTIONS: ReadonlySet<string> = new Set(["inicio", "cursos", "comunidade", "agenda", "podcasts", "tutor", "conquistas"]);
 
 /** Navegação principal: igual no desktop (barra lateral) e no celular (barra inferior). */
 export const PRIMARY_NAV: NavItem[] = [

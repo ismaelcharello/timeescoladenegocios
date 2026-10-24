@@ -574,3 +574,70 @@ html:not([data-resolved="dark"]) .mf-logo-dark {
     transform: none;
   }
 }
+
+/* ---------- Variante administrativa ----------
+   O painel admin mantém o modo escuro travado: o CSS dos módulos dele foi escrito
+   para fundo escuro. Os tokens abaixo valem só dentro da estrutura do admin. */
+.mf-dark {
+  --bg: #050829;
+  --surface: #0d1033;
+  --surface-2: #151945;
+  --text: #f4f4fb;
+  --text-muted: #b4b6d0;
+  --border: #262a5c;
+  --border-strong: #3d4283;
+  --focus: #a58bff;
+  --primary-hover: #4d1fff;
+  --link: #b9a7ff;
+  --success-bg: #0c2a22;
+  --success-text: #8be0b8;
+  --error-bg: #34121a;
+  --error-text: #ffb4b4;
+  --shadow-1: none;
+  --shadow-2: 0 16px 40px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+html[data-resolved] .mf.mf-dark .mf-logo-light {
+  display: none;
+}
+html[data-resolved] .mf.mf-dark .mf-logo-dark {
+  display: block;
+}
+.mf-brand-badge {
+  margin-left: var(--s-2);
+  padding: 2px var(--s-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  color: var(--text-muted);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: var(--track-label);
+}
+.mf-badge {
+  min-width: 22px;
+  margin-left: auto;
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-style: normal;
+  font-weight: 650;
+  text-align: center;
+}
+.mf-topbar-date {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  letter-spacing: var(--track-label);
+}
+.mf .admin-content {
+  width: min(1200px, calc(100% - var(--s-5) * 2));
+  margin: 0 auto;
+  padding: var(--s-5) 0 var(--s-7);
+}
+@media (min-width: 1024px) {
+  .mf .admin-content {
+    padding-top: var(--s-6);
+  }
+}
