@@ -145,6 +145,25 @@ test("cadastro novo sempre segue para onboarding e login preserva o retorno", ()
   assert.doesNotMatch(browserClient, /process\.env|getSupabasePublicConfig/);
 });
 
+test("acesso administrativo por link não é barrado pela validação de senha", () => {
+  const form = source("../app/(auth)/auth-form.tsx");
+
+  // O fluxo admin é por link sem senha e não renderiza o campo. Enquanto a
+  // validação gateava em `mode === "login"` puro, `password` ficava sempre
+  // vazio, o erro de 8 caracteres aparecia sempre e o signInWithOtp era
+  // inalcançável: o painel não abria por nenhum caminho.
+  assert.match(form, /const adminFlow = mode === "login" && returnTo === "\/admin"/);
+  assert.match(form, /requiresPassword =\s*\(mode === "login" && !adminFlow\)/);
+  assert.match(form, /if \(requiresPassword && password\.length < 8\)/);
+
+  // A guarda de senha nunca pode voltar a depender de `mode` sozinho.
+  assert.doesNotMatch(form, /\(mode === "login" \|\| mode === "signup" \|\| mode === "reset"\) && password\.length/);
+
+  // A condição de validação tem de espelhar a que renderiza o campo.
+  assert.match(form, /\(mode === "login" && !adminFlow\) \|\| mode === "signup" \|\| mode === "reset" \?/);
+  assert.match(form, /if \(adminFlow\)[\s\S]*?signInWithOtp\(\{/);
+});
+
 test("curso bloqueado não serializa videoKey, videoUrl nem progresso privado", () => {
   const privateVideo = "https://youtu.be/abcdefghijk";
   const lesson = {

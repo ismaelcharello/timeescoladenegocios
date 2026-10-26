@@ -119,7 +119,13 @@ export function AuthForm({ mode, supabaseConfig }: { mode: Mode; supabaseConfig:
       setError("Informe um e-mail válido.");
       return;
     }
-    if ((mode === "login" || mode === "signup" || mode === "reset") && password.length < 8) {
+    // A condição espelha a que renderiza o campo de senha mais abaixo: o acesso
+    // administrativo é por link sem senha e não tem esse campo, então validar
+    // `password` ali deixava `password` sempre vazio, o erro sempre na tela e o
+    // `signInWithOtp` inalcançável — o painel ficava impossível de abrir.
+    const requiresPassword =
+      (mode === "login" && !adminFlow) || mode === "signup" || mode === "reset";
+    if (requiresPassword && password.length < 8) {
       setError("A senha precisa ter pelo menos 8 caracteres.");
       return;
     }
