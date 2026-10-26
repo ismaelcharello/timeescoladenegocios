@@ -1,0 +1,202 @@
+/* Refinamentos do painel administrativo sobre o sistema de design
+   (docs/DESIGN-SYSTEM.md). Carregado depois de platform.css.
+
+   Contexto: o shell do admin já é renderizado dentro de `.mf-dark`
+   (app/app/member-frame.tsx), que redefine --bg, --surface, --surface-2,
+   --text, --text-muted e --border para o conjunto escuro. Os tokens já estão
+   em escopo — o que faltava é as regras legadas passarem a consumi-los.
+
+   Como isto está organizado, e por quê:
+
+   platform.css (~linha 5969) define um segundo conjunto de tokens só do admin
+   (--time-dark-text, --time-dark-muted, --time-dark-subtle,
+   --time-dark-border) e o aplica através de blocos `.admin-app :is(...)` com
+   22 e 33 argumentos. Esses blocos têm especificidade (0,2,1) a (0,2,3),
+   porque argumentos como `.admin-kpis article` carregam um elemento — então
+   eles vencem qualquer override escrito como `.admin-app .classe` (0,2,0).
+
+   Em vez de disputar especificidade seletor a seletor, a Parte 1 reaponta o
+   conjunto legado para os tokens do design system. Uma atribuição de variável
+   conserta todos os seletores que dependem dela de uma vez, e o CSS legado
+   continua funcionando sem ser editado. A Parte 2 cobre só o que os blocos
+   legados não tocam (fundos, raios, estados e foco).
+
+   Tudo é escopado em `.admin-app` porque a definição legada é compartilhada
+   com `.member-*`, que já foi refeito em member-refine.css. */
+
+/* =================================================================
+   Parte 1 — o conjunto legado passa a ser derivado dos tokens
+   ================================================================= */
+
+.admin-app {
+  /* Era #fbfaff / #d5d2df / #aaa7b8 / rgba(255,255,255,.18): quatro valores
+     fixos que não acompanhavam a paleta. */
+  --time-dark-text: var(--text);
+  --time-dark-muted: var(--text-muted);
+  /* O legado mantinha dois degraus de texto secundário (muted e subtle). O
+     design system tem um só, então o terceiro degrau é derivado do token em
+     vez de inventado: um passo mais apagado em direção à superfície. */
+  --time-dark-subtle: color-mix(in srgb, var(--text-muted) 78%, var(--surface));
+  --time-dark-border: var(--border);
+
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* =================================================================
+   Parte 2 — o que os blocos legados não cobrem
+   ================================================================= */
+
+/* ---------- Superfícies ----------
+   Os blocos `:is()` só declaram color e border-color; os fundos continuam
+   fixos nas regras base (#0a0b1b, #08091c, #0c0d22 — três tons para a mesma
+   elevação). Aqui a especificidade (0,2,x) já basta. */
+
+.admin-app .admin-kpis article,
+.admin-app .ai-admin-kpis article,
+.admin-app .ai-config-card,
+.admin-app .ai-knowledge-card,
+.admin-app .ai-unresolved-card,
+.admin-app .engagement-chart,
+.admin-app .admin-live-activity,
+.admin-app .admin-course-performance,
+.admin-app .members-table-card {
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.admin-app .admin-course-cover,
+.admin-app .real-admin-thumb {
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.admin-app .admin-kpis article > i {
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--time-magenta) 8%, transparent);
+}
+
+/* ---------- Semântica de variação ----------
+   Roxo (#a100ff) para "positivo" era leitura ambígua: positivo e negativo têm
+   tokens próprios, e cor não deve ser o único indicador. */
+.admin-app .admin-kpis article small.positive {
+  color: var(--success-text);
+}
+
+.admin-app .admin-kpis article small.negative {
+  color: var(--error-text);
+}
+
+/* ---------- Busca e campos ---------- */
+
+.admin-app .admin-toolbar > label,
+.admin-app .members-table-card .admin-toolbar label,
+.admin-app .admin-topbar > label {
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+}
+
+.admin-app .admin-toolbar > label:focus-within,
+.admin-app .admin-topbar > label:focus-within {
+  border-color: var(--focus);
+}
+
+.admin-app .admin-toolbar input,
+.admin-app .admin-topbar input {
+  color: var(--text);
+}
+
+.admin-app .admin-toolbar input::placeholder,
+.admin-app .admin-topbar input::placeholder {
+  color: var(--time-dark-subtle);
+}
+
+.admin-app .admin-topbar kbd {
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+
+/* ---------- Filtros em pílula ---------- */
+
+.admin-app .admin-toolbar > div > button {
+  border-radius: var(--r-pill);
+  transition:
+    border-color var(--dur-hover) var(--ease-out),
+    background-color var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out);
+}
+
+.admin-app .admin-toolbar > div > button.active {
+  border-color: color-mix(in srgb, var(--time-magenta) 30%, transparent);
+  background: color-mix(in srgb, var(--time-magenta) 8%, transparent);
+  color: var(--text);
+}
+
+/* ---------- Novo curso ----------
+   Especificidade de três classes para passar do bloco `:is()` de 22
+   argumentos (0,2,1), que fixa a borda deste cartão. */
+.admin-app .admin-course-cards .new-course-card {
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-lg);
+  background: transparent;
+  transition:
+    border-color var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out);
+}
+
+/* ---------- Estados ---------- */
+
+.admin-app .real-admin-loading,
+.admin-app .real-admin-empty {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.admin-app .real-admin-error,
+.admin-app .real-inline-error {
+  border-radius: var(--r-md);
+  background: var(--error-bg);
+  color: var(--error-text);
+}
+
+/* ---------- Toque e foco ---------- */
+
+/* O legado trocava de estado sem retorno físico. 120ms (--dur-press) fica na
+   faixa de resposta a toque do contrato. */
+.admin-app .admin-toolbar > div > button:active,
+.admin-app .admin-primary-button:active,
+.admin-app .admin-course-cards .new-course-card:active {
+  transform: scale(0.98);
+  transition-duration: var(--dur-press);
+}
+
+.admin-app :is(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Hover só onde há ponteiro fino: no toque ele gruda depois do tap. */
+@media (hover: hover) and (pointer: fine) {
+  .admin-app .admin-toolbar > div > button:hover {
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+  .admin-app .admin-course-cards .new-course-card:hover {
+    border-color: var(--primary);
+    color: var(--text);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-app .admin-toolbar > div > button,
+  .admin-app .admin-primary-button,
+  .admin-app .admin-course-cards .new-course-card {
+    transition: none;
+  }
+  .admin-app .admin-toolbar > div > button:active,
+  .admin-app .admin-primary-button:active,
+  .admin-app .admin-course-cards .new-course-card:active {
+    transform: none;
+  }
+}

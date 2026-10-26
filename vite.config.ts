@@ -16,12 +16,22 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 // (D1, R2, IMAGES); the simulated placeholders below are only for Sites/local use.
 const hasWranglerConfig = existsSync(new URL("./wrangler.jsonc", import.meta.url));
 
+// The pinned local runtime (workerd 1.20260515.x, via the lockfile) only
+// understands compatibility dates up to 2026-05-22, while wrangler.jsonc
+// declares 2026-10-21 for production. Without this override `npm run dev`
+// cannot boot at all. Deploys read wrangler.jsonc and keep the October date —
+// this applies to the local Miniflare runtime only. Remove it once the
+// Cloudflare toolchain is upgraded past the production date.
+const LOCAL_COMPATIBILITY_DATE = "2026-05-22";
+
 const localBindingConfig = hasWranglerConfig
-  ? // wrangler.jsonc already declares compatibility_date and
-    // compatibility_flags; repeating nodejs_compat here makes the plugin merge
-    // it twice and the Workers runtime refuses to boot ("Compatibility flag
-    // specified multiple times"). Only `main` is needed on this path.
-    { main: "./worker/index.ts" }
+  ? // wrangler.jsonc already declares compatibility_flags; repeating
+    // nodejs_compat here makes the plugin merge it twice and the runtime
+    // refuses to boot ("Compatibility flag specified multiple times").
+    {
+      main: "./worker/index.ts",
+      compatibility_date: LOCAL_COMPATIBILITY_DATE,
+    }
   : {
   main: "./worker/index.ts",
   compatibility_flags: ["nodejs_compat"],
