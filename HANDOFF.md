@@ -71,6 +71,22 @@ Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objet
          em 2026-10-28; só vale retomar se o vinext passar a dividir CSS por rota ou se o CSS legado
          for podado de fato (etapa 6 já removeu 519 regras mortas);
       e) LCP real: o ~80 ms medido é de localhost e não vale como número de campo.
+- [~] 13. **Match inteligente entre membros** (motor FEITO em 2026-10-28, commit 5080a2f; falta ligar).
+      `lib/match-score.ts` + 11 testes em `tests/match-score.test.ts` (dentro do `test:critical`).
+      Regras transparentes (decisão do dono): encaixe necessidade×oferta 55%, reciprocidade 30%,
+      público 15%, alcance 15%; IDF; sem piso/teto; cada motivo cita palavras reais do membro.
+      O match ANTIGO (`lib/connection-matching.ts`) segue em uso nas telas: só conta palavras da busca
+      e prende a nota entre 52% e 96%. FALTA, nesta ordem:
+      a) ligar: em `/app/conexoes` e `/app` ler o perfil de quem busca (tabela `member_profiles`, linha
+         própria — a página `/app/cadastro` já faz esse select) e chamar `scoreMatches`; mostrar nota,
+         motivos, confiança e os `notEvaluated`. Exige sessão para ver. Manter a busca por texto;
+      b) DECISÃO DO DONO: o RPC `search_member_directory` expõe só 12 campos e NÃO inclui as
+         necessidades dos outros membros (privacidade por desenho). Sem isso a reciprocidade (30% do
+         peso) não é calculável. Expor exige migração no Supabase de PRODUÇÃO + decisão de privacidade
+         (o membro sabe que a necessidade dele fica visível a outros?). O motor já aceita `needs`;
+      c) feedback de quem conectou (útil / não útil) para calibrar pesos — não existe tabela ainda;
+      d) lista de espera de perfil incompleto: hoje sem `looking_for` o motor devolve a mensagem
+         "Preencha o que você procura" em vez de sugestão.
 - [ ] 11. **Pendências do dono (só lembrar, não fazer)**: Stripe (3 chaves: STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET; ele cola), domínio `app.timeescoladenegocios.com.br` (precisa login na Cloudflare e troca de nameservers na HostGator; app antigo é só teste, sem dados reais), teste em celular real.
 
 ## Como validar cada etapa (sempre)
