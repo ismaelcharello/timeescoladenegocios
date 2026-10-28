@@ -209,3 +209,53 @@ html.landing-motion-ready .time-landing .product-stage.demo-results-in .motion-r
     align-items: center;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Alvos de toque medidos no DOM renderizado (não por token), 2026-10-27.
+   A conferência anterior foi estática e não pegou nada disto.
+--------------------------------------------------------------------------- */
+
+/* Pontos do carrossel: mediam 8x8 no celular (10x10 no desktop) — o breakpoint
+   de celular os deixava MENORES, ao contrário do que o toque pede. O passo
+   entre eles sobe para 24px (cabe: a coluna tem 269px e os pontos usavam 132px)
+   e cada um ganha uma área de toque de 24x44 que ladrilha com a do vizinho sem
+   sobrepor. O ponto visível não muda de tamanho. */
+.time-landing .course-carousel-dots {
+  gap: 14px;
+}
+.time-landing .course-carousel-dots button {
+  position: relative;
+}
+.time-landing .course-carousel-dots button::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(100% + 14px);
+  height: 44px;
+  content: "";
+  transform: translate(-50%, -50%);
+}
+
+/* Link de âncora do hero: 40px medidos, 4px abaixo do alvo. */
+.time-landing .hero-text-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Logo do cabeçalho: 33px de altura clicável. */
+.time-landing .brand {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+@media (max-width: 700px) {
+  .time-landing .course-carousel-dots {
+    gap: 16px;
+  }
+  .time-landing .course-carousel-dots button::after {
+    width: calc(100% + 16px);
+  }
+}

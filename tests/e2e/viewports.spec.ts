@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { aguardarControleHidratado, aguardarPaginaEstavel } from "./estabilidade";
 
 /**
  * Contrato responsivo das telas públicas, nos cinco viewports de
@@ -20,9 +21,13 @@ import { expect, test } from "@playwright/test";
  *    para cada intenção, não a palavra usada.
  */
 
-/** O clique precisa de JS ligado; sem isto o teste mede o HTML inerte. */
+/**
+ * O clique precisa de JS ligado; sem isto o teste mede o HTML inerte. E
+ * `networkidle` sozinho não basta: o dev server ainda recarrega a página
+ * depois dele (ver `estabilidade.ts`), então a espera é pelo silêncio.
+ */
 async function aguardarHidratacao(page: import("@playwright/test").Page) {
-  await page.waitForLoadState("networkidle");
+  await aguardarPaginaEstavel(page);
 }
 
 /** Primeiro elemento de fato visível entre os que casam com o padrão. */
@@ -63,6 +68,7 @@ for (const route of ["/", "/entrar", "/criar-conta"] as const) {
 
     const passwordToggle = page.getByRole("button", { name: "Mostrar" });
     await expect(passwordToggle).toBeVisible();
+    await aguardarControleHidratado(page, ".auth-password-field button");
     await passwordToggle.click();
     await expect(page.locator('input[name="password"]')).toHaveAttribute("type", "text");
 

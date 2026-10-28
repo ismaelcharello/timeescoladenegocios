@@ -335,19 +335,6 @@ a {
   background: rgba(255, 255, 255, 0.07);
 }
 
-.button-play {
-  display: grid;
-  width: 28px;
-  height: 28px;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-}
-
-.play-icon {
-  width: 18px;
-  height: 18px;
-}
 .product-stage {
   position: relative;
   min-height: 600px;
@@ -725,7 +712,7 @@ a {
   align-items: center;
 }
 
-.lesson-ui-bottom button {
+.lesson-ui-bottom > span {
   display: grid;
   width: 42px;
   height: 42px;

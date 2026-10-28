@@ -33,14 +33,6 @@ function ArrowIcon() {
   );
 }
 
-function PlayIcon() {
-  return (
-    <svg aria-hidden="true" className="play-icon" viewBox="0 0 24 24">
-      <path d="M9 7.5v9l7-4.5-7-4.5Z" fill="currentColor" />
-    </svg>
-  );
-}
-
 export default function Home() {
   const supportWhatsappHref = getSupportWhatsappHref("Gostaria de fazer parte da TIME");
   const schoolStatus = getSchoolStatus();
@@ -66,7 +58,6 @@ export default function Home() {
 
           <a className="header-login" href="/entrar">
             Entrar
-            <span aria-hidden="true"><Icon name="external" size={14} /></span>
           </a>
           <a className="header-signup" href="/criar-conta">
             Criar conta
@@ -92,14 +83,11 @@ export default function Home() {
 
             <div className="hero-actions hero-enter hero-enter-four" data-motion-item="copy">
               <a className="button button-primary" href="/criar-conta">
-                Criar minha conta na TIME
+                Criar conta
                 <ArrowIcon />
               </a>
               <a className="button button-secondary" href="/entrar">
-                <span className="button-play">
-                  <PlayIcon />
-                </span>
-                Já sou membro
+                Entrar
               </a>
               <a className="hero-text-link" href="#experiencia">Conhecer a TIME <span aria-hidden="true"><Icon name="down" size={16} /></span></a>
             </div>
@@ -227,7 +215,7 @@ export default function Home() {
                 <i />
               </div>
               <div className="lesson-ui-bottom">
-                <button><Icon name="play" size={14} /></button>
+                <span><Icon name="play" size={14} /></span>
                 <div>
                   <strong>Dominando objeções</strong>
                   <span>Vendas e Persuasão</span>
@@ -568,8 +556,8 @@ export default function Home() {
             <strong>Até 50% de desconto em cursos e eventos da TIME</strong>
             <p>Para você e para os funcionários da sua empresa.</p>
           </div>
-          <a className="button button-primary" href="/checkout">
-            Quero fazer parte
+          <a className="button button-primary" href="/criar-conta">
+            Criar conta
             <ArrowIcon />
           </a>
         </div>
@@ -671,8 +659,8 @@ export default function Home() {
             Entre para uma escola feita para quem decidiu crescer de verdade.
           </p>
           <div>
-            <a className="button button-primary" href="/checkout">
-              Quero fazer parte da TIME
+            <a className="button button-primary" href="/criar-conta">
+              Criar conta
               <ArrowIcon />
             </a>
             <a className="button button-secondary" href="#faq">

@@ -206,7 +206,7 @@ export function CourseCarousel({ schoolStatus = "active" }: { schoolStatus?: "ac
                   </div>
                   <a href="/entrar?retorno=/app/cursos">
                     {isComingSoon ? "Ver próximas formações" : "Conhecer o curso"}
-                    <span aria-hidden="true"><Icon name="external" size={16} /></span>
+                    <span aria-hidden="true"><Icon name="arrow" size={16} /></span>
                   </a>
                 </div>
               </article>

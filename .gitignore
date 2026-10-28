@@ -53,3 +53,4 @@ android/.idea/
 *.jks
 *.keystore
 *.mobileprovision
+test-results/
