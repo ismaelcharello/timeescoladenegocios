@@ -53,8 +53,12 @@ Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objet
       build de produção servido pelo workerd, nunca contra o dev server:
       `npx wrangler dev --config dist/server/wrangler.json --port 8788 --local --compatibility-date 2026-05-22`.
       (`vinext start` não serve: roda bundle de Workers no Node e morre em `cloudflare:`.)
-      FEITO: as 5 seções em `display:none` baixavam suas imagens — marcadas como lazy, 825 KB -> 250 KB
-      no celular. CLS 0,000. FALTA, por ordem de valor:
+      FEITO: (a) as 5 seções em `display:none` baixavam suas imagens — marcadas como lazy,
+      825 KB -> 250 KB no celular; (b) toda PRIMEIRA visita carregava o documento duas vezes porque
+      `pwa-register.tsx` recarregava no `controllerchange` do service worker mesmo na primeira
+      instalação, quando não há nada a atualizar (medido 6/6, dev e produção, 2º documento 213-459 ms
+      depois do 1º) — guarda `jaTinhaControlador` adicionada, agora 1 carga, SW segue ativo.
+      CLS 0,000. FALTA, por ordem de valor:
       a) as imagens vêm do WordPress externo (`timeescoladenegocios.com.br`), sem otimização
          (PNG de 182 KB, JPG de 172 KB) — é dependência de disponibilidade de outro site;
       b) imagens superdimensionadas: 1080x1436 exibidas a 337x446;

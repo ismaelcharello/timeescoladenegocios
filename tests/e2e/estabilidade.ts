@@ -3,34 +3,46 @@ import type { Page } from "@playwright/test";
 /**
  * Esperar a página estar de fato pronta antes de medir ou interagir.
  *
- * O que foi medido, e o que a medição desmentiu:
+ * A história completa, porque duas conclusões minhas pelo caminho estavam
+ * erradas e o erro é instrutivo:
  *
  * 1. `networkidle` dispara cedo demais — entre 35 e 104 ms em 9 execuções
- *    sobre `/`, `/entrar` e `/termos`. Depois dele ainda chegam 6 eventos
+ *    sobre `/`, `/entrar` e `/termos`. Depois dele ainda chegavam eventos
  *    `framenavigated`, o último por volta de 320-720 ms.
  *
- * 2. Esses eventos NÃO são recargas, ao contrário do que esta nota dizia
- *    antes. Verificado com um marcador de `addInitScript` e
- *    `performance.getEntriesByType("navigation")`: em dev e em produção,
- *    3 execuções cada, sempre 1 documento só e o mesmo documento vivo os
- *    4,5 s inteiros. São navegações no mesmo documento — o router
- *    hidratando. Coerente com o experimento de neutralizar o cliente de HMR,
- *    que fez os eventos sumirem E a página nunca hidratar (4/4 sem fibra do
- *    React): sem cliente, o app não hidrata, então o router nunca roda.
+ * 2. Primeiro escrevi que o dev server recarregava a página cinco vezes.
+ *    Errado: eram 6 eventos, não 6 recargas.
  *
- * 3. Esperar silêncio de navegação não prova hidratação. Sob a suíte completa
- *    o servidor fica mais lento e o bundle termina de executar depois da
- *    janela de silêncio: o clique cai num botão sem `onClick` e some sem erro
- *    — 1 falha a cada 5 execuções, verde em isolamento.
+ * 3. Depois escrevi que NENHUM deles era recarga. Também errado — e pior,
+ *    porque eu disse ter medido. Os dois instrumentos que usei eram incapazes
+ *    de ver uma recarga precoce: uma variável em `window` é reiniciada pelo
+ *    `addInitScript` a cada documento, e
+ *    `performance.getEntriesByType("navigation").length` vale 1 em qualquer
+ *    documento, recarregado ou não. Ambos devolviam "1 documento" tanto se
+ *    houvesse recarga quanto se não houvesse.
  *
- * Daí o sinal usado aqui ser causal e não cronométrico: a fibra do React no
- * próprio nó, que só existe depois que o React anexou àquele elemento.
+ * Com `sessionStorage`, que sobrevive à recarga na mesma aba, o fenômeno
+ * apareceu de primeira: eram **2 documentos**, e o segundo vinha de
+ * `app/pwa-register.tsx` recarregando no `controllerchange` do service worker
+ * mesmo na primeira instalação. Essa era a recarga que destruía o contexto de
+ * execução no meio das medições — e, muito mais importante que o teste, fazia
+ * todo primeiro visitante baixar a landing duas vezes. Corrigido lá.
  *
- * As falhas "Execution context was destroyed" eram reais mas raras, e a causa
- * exata continua em aberto (não há recarga que as explique). Como medir é
- * barato e repetir é seguro, medir virou operação com retentativa — que
- * também cobre o resultado vazio, porque zero controles numa rota pública é
- * página que ainda não estava lá, não reprovação do app.
+ * Hoje: 3 eventos `framenavigated`, 1 documento, 2 navegações no mesmo
+ * documento (o router hidratando). Medido 3/3.
+ *
+ * O que fica como prática, independente daquele bug:
+ *
+ * - O sinal de prontidão é causal, não cronométrico: a fibra do React no
+ *   próprio nó, que só existe depois que o React anexou àquele elemento.
+ *   Silêncio de rede ou de navegação não prova hidratação — sob a suíte
+ *   completa o bundle terminava de executar depois da janela de silêncio e o
+ *   clique sumia (1 falha a cada 5, verde em isolamento).
+ * - Medir é operação com retentativa, inclusive quando o resultado volta
+ *   vazio: zero controles numa rota pública é página que ainda não estava
+ *   lá, não defeito do app.
+ * - E a lição mais cara: antes de afirmar que mediu, conferir se o
+ *   instrumento conseguiria ver o fenômeno caso ele existisse.
  */
 
 /** Espera a página ficar interativa: React anexado e nada mais navegando. */
