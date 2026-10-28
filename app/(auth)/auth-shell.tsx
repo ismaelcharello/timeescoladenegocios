@@ -23,9 +23,12 @@ export default function AuthShell({
         </Link>
         <div className="auth-brand-copy">
           <span>ECOSSISTEMA TIME</span>
-          <h1>
+          {/* Texto de marca, não o assunto da página: quem navega por títulos
+              precisa ouvir a tarefa ("Crie sua conta"), que é o h1 no cartão.
+              Antes este slogan era o h1 de TODAS as rotas de autenticação. */}
+          <p className="auth-brand-headline">
             Conhecimento que gera conexões. <em>Conexões que geram negócios.</em>
-          </h1>
+          </p>
           <p>
             Entre para acessar empresários, oportunidades, conteúdos e eventos
             da comunidade TIME.
@@ -46,7 +49,7 @@ export default function AuthShell({
         <div className="auth-card">
           <header>
             <span>{eyebrow}</span>
-            <h2>{title}</h2>
+            <h1>{title}</h1>
             <p>{description}</p>
           </header>
           {children}

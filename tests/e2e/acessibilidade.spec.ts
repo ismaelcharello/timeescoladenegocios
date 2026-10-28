@@ -173,3 +173,31 @@ test("/entrar mostra erro acessível quando o e-mail é inválido", async ({ pag
   await expect(erro, "o erro de validação não foi anunciado por role=alert").toBeVisible();
   await expect(erro).toContainText(/e-mail/i);
 });
+
+test("cada rota pública tem um h1 só, e ele diz do que a página trata", async ({ page }) => {
+  // As rotas de autenticação usavam o slogan da marca como h1 — o mesmo em
+  // todas elas. Quem navega por títulos ouvia "Conhecimento que gera
+  // conexões." no lugar de "Crie sua conta", e o h1 não distinguia uma página
+  // da outra. O slogan agora é um <p>; o h1 é a tarefa.
+  const titulos = new Map<string, string[]>();
+
+  for (const rota of ROTAS_PUBLICAS) {
+    await page.goto(rota, { waitUntil: "domcontentloaded" });
+    const h1s = await medirComRetentativa(
+      page,
+      () => [...document.querySelectorAll("h1")].map((h) => (h as HTMLElement).innerText.trim().replace(/\s+/g, " ")),
+      undefined,
+      { valido: (lista) => lista.length > 0 }
+    );
+    expect(h1s, `${rota} deveria ter exatamente um h1, tem ${h1s.length}: ${h1s.join(" | ")}`).toHaveLength(1);
+    titulos.set(rota, h1s);
+  }
+
+  const repetidos = [...titulos.entries()].filter(([rota, [h1]]) =>
+    [...titulos.entries()].some(([outra, [outroH1]]) => outra !== rota && outroH1 === h1)
+  );
+  expect(
+    repetidos.map(([rota, [h1]]) => `${rota}: "${h1}"`),
+    "rotas diferentes com o mesmo h1 — o título não identifica a página"
+  ).toEqual([]);
+});

@@ -47,7 +47,7 @@
   height: 1px;
   background: linear-gradient(90deg, currentColor, var(--time-magenta));
 }
-.auth-brand-copy h1 {
+.auth-brand-copy .auth-brand-headline {
   margin: var(--s-5) 0 var(--s-4);
   font-size: clamp(2.25rem, 3.6vw, 3.5rem);
   line-height: 1.05;
@@ -55,8 +55,10 @@
   font-weight: 650;
   text-wrap: balance;
 }
-.auth-brand-copy h1 em { display: block; color: #c9bcff; font-style: normal; }
-.auth-brand-copy p { max-width: 52ch; margin: 0; color: #d2d3ea; font-size: var(--fs-md); line-height: 1.55; }
+.auth-brand-copy .auth-brand-headline em { display: block; color: #c9bcff; font-style: normal; }
+/* :not() impede que a regra do parágrafo de apoio pinte o título da marca,
+   que virou <p> para liberar o h1 para a tarefa da página. */
+.auth-brand-copy p:not(.auth-brand-headline) { max-width: 52ch; margin: 0; color: #d2d3ea; font-size: var(--fs-md); line-height: 1.55; }
 
 .auth-brand-points { display: grid; border-top: 1px solid rgba(255, 255, 255, 0.14); }
 .auth-brand-points div {
@@ -88,7 +90,7 @@
 }
 .auth-card header { margin-bottom: var(--s-6); }
 .auth-card header > span { color: var(--link); }
-.auth-card h2 {
+.auth-card h1 {
   margin: var(--s-4) 0 var(--s-2);
   font-size: clamp(1.75rem, 2.6vw, 2.25rem);
   line-height: 1.15;
