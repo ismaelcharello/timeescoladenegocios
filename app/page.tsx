@@ -354,7 +354,7 @@ export default function Home() {
               </p>
             </div>
             <div className="ecosystem-course-preview">
-              <img src={VENDAS_URL} alt="Curso de vendas na plataforma TIME" />
+              <img src={VENDAS_URL} alt="Curso de vendas na plataforma TIME" loading="lazy" decoding="async" />
               <div>
                 <small>CONTINUE ASSISTINDO</small>
                 <strong>Dominando objeções</strong>
@@ -434,7 +434,7 @@ export default function Home() {
               <h3>Qual é o próximo movimento?</h3>
             </div>
             <div className="phone-course">
-              <img src={VENDAS_URL} alt="" />
+              <img src={VENDAS_URL} alt="" loading="lazy" decoding="async" />
               <div />
               <span>CONTINUE ASSISTINDO</span>
               <strong>Dominando objeções</strong>
@@ -446,11 +446,11 @@ export default function Home() {
             </div>
             <div className="phone-mini-cards">
               <div>
-                <img src={ORATORIA_URL} alt="" />
+                <img src={ORATORIA_URL} alt="" loading="lazy" decoding="async" />
                 <strong>Oratória</strong>
               </div>
               <div>
-                <img src={COMMUNITY_URL} alt="" />
+                <img src={COMMUNITY_URL} alt="" loading="lazy" decoding="async" />
                 <strong>Comunidade</strong>
               </div>
             </div>
@@ -539,7 +539,7 @@ export default function Home() {
             ["03", "Crescimento contínuo", "Cursos, eventos, acompanhamento e benefícios para você e os colaboradores da sua empresa.", COMMUNITY_URL_THREE],
           ].map((item) => (
             <article className="club-card reveal-on-scroll" key={item[0]}>
-              <img src={item[3]} alt="Experiência presencial da TIME Escola de Negócios" />
+              <img src={item[3]} alt="Experiência presencial da TIME Escola de Negócios" loading="lazy" decoding="async" />
               <div className="club-card-overlay" />
               <span>{item[0]}</span>
               <div>

@@ -18,19 +18,26 @@ const hasWranglerConfig = existsSync(new URL("./wrangler.jsonc", import.meta.url
 
 // The pinned local runtime (workerd 1.20260515.x, via the lockfile) only
 // understands compatibility dates up to 2026-05-22, while wrangler.jsonc
-// declares 2026-10-21 for production. Without this override `npm run dev`
-// cannot boot at all. Deploys read wrangler.jsonc and keep the October date —
-// this applies to the local Miniflare runtime only. Remove it once the
-// Cloudflare toolchain is upgraded past the production date.
+// declares 2026-10-21 for production. Without an override `npm run dev`
+// cannot boot at all.
+//
+// This MUST be applied to the dev server only. An earlier version of this file
+// applied it unconditionally, and the production build inherited it: the
+// generated `dist/server/wrangler.json` carried 2026-05-22, silently rolling
+// the deployed runtime back five months. Hence the `isDev` gate below — verify
+// after changing this by rebuilding and reading the date out of
+// `dist/server/wrangler.json`. Remove the override once the Cloudflare
+// toolchain is upgraded past the production date.
 const LOCAL_COMPATIBILITY_DATE = "2026-05-22";
 
-const localBindingConfig = hasWranglerConfig
+const bindingConfigFor = (isDev: boolean) =>
+  hasWranglerConfig
   ? // wrangler.jsonc already declares compatibility_flags; repeating
     // nodejs_compat here makes the plugin merge it twice and the runtime
     // refuses to boot ("Compatibility flag specified multiple times").
     {
       main: "./worker/index.ts",
-      compatibility_date: LOCAL_COMPATIBILITY_DATE,
+      ...(isDev ? { compatibility_date: LOCAL_COMPATIBILITY_DATE } : {}),
     }
   : {
   main: "./worker/index.ts",
@@ -54,7 +61,7 @@ const localBindingConfig = hasWranglerConfig
     : [],
 };
 
-export default defineConfig(async () => {
+export default defineConfig(async ({ command }) => {
   // Keep Wrangler and Miniflare state project-local. These are non-secret tool
   // settings; application environment belongs in ignored `.env*` files.
   process.env.WRANGLER_WRITE_LOGS ??= "false";
@@ -78,7 +85,7 @@ export default defineConfig(async () => {
       cloudflare({
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
         inspectorPort: false,
-        config: localBindingConfig,
+        config: bindingConfigFor(command === "serve"),
       }),
     ],
   };

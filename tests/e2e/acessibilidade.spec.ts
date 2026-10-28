@@ -68,7 +68,9 @@ function medirAlvos(page: Page, seletor: string): Promise<Alvo[]> {
           };
         });
     },
-    seletor
+    seletor,
+    // Uma rota pública sempre tem controles; lista vazia é página não pronta.
+    { valido: (alvos) => alvos.length > 0 }
   );
 }
 

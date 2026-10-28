@@ -80,19 +80,29 @@ export async function medirComRetentativa<T, A = undefined>(
   page: Page,
   fn: (arg: A) => T | Promise<T>,
   arg?: A,
-  tentativas = 4
+  opcoes: { tentativas?: number; valido?: (resultado: T) => boolean } = {}
 ): Promise<T> {
-  let ultimoErro: unknown;
+  const { tentativas = 4, valido } = opcoes;
+  let ultimoProblema = "nenhum";
+
   for (let i = 0; i < tentativas; i += 1) {
     try {
       await aguardarPaginaEstavel(page);
       // O tipo de `evaluate` não aceita a função genérica diretamente.
-      return (await page.evaluate(fn as never, arg as never)) as T;
+      const resultado = (await page.evaluate(fn as never, arg as never)) as T;
+
+      // Um resultado pode ser sintaticamente válido e ainda assim ser medição
+      // de uma página que não estava lá — zero controles numa rota pública, por
+      // exemplo. Isso é motivo para medir de novo, não para reprovar o app.
+      if (!valido || valido(resultado)) return resultado;
+      ultimoProblema = "a medição voltou vazia";
+      await page.waitForTimeout(400);
     } catch (erro) {
-      ultimoErro = erro;
       const texto = erro instanceof Error ? erro.message : String(erro);
       if (!/Execution context was destroyed|Target closed|navigation/i.test(texto)) throw erro;
+      ultimoProblema = texto;
     }
   }
-  throw new Error(`a página recarregou em todas as ${tentativas} tentativas de medição: ${String(ultimoErro)}`);
+
+  throw new Error(`medição não estabilizou em ${tentativas} tentativas (${ultimoProblema})`);
 }
