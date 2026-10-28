@@ -63,7 +63,13 @@ Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objet
          (PNG de 182 KB, JPG de 172 KB) — é dependência de disponibilidade de outro site;
       b) imagens superdimensionadas: 1080x1436 exibidas a 337x446;
       c) a mesma URL é baixada duas vezes em alguns casos — não investigado;
-      d) CSS de 388 KB crus (65 KB gzip) para uma landing;
+      d) CSS de 388 KB crus (65 KB gzip) para uma landing. Cobertura medida no dev: `platform.css`
+         (273 KB), `member-refine`, `member-frame` e `admin-refine` somam 312 KB com 0,0% de uso na
+         landing, no login e nas legais. Mover os imports para layouts de /app e /admin funciona no
+         DEV (provado com rota-sonda), mas NÃO no build de produção: o vinext 0.0.50 emite um bundle
+         único (`index-*.css`, 389 KB) e todas as rotas recebem o mesmo arquivo. Tentado e revertido
+         em 2026-10-28; só vale retomar se o vinext passar a dividir CSS por rota ou se o CSS legado
+         for podado de fato (etapa 6 já removeu 519 regras mortas);
       e) LCP real: o ~80 ms medido é de localhost e não vale como número de campo.
 - [ ] 11. **Pendências do dono (só lembrar, não fazer)**: Stripe (3 chaves: STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET; ele cola), domínio `app.timeescoladenegocios.com.br` (precisa login na Cloudflare e troca de nameservers na HostGator; app antigo é só teste, sem dados reais), teste em celular real.
 
