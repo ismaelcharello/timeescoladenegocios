@@ -23,8 +23,8 @@ import { aguardarControleHidratado, aguardarPaginaEstavel } from "./estabilidade
 
 /**
  * O clique precisa de JS ligado; sem isto o teste mede o HTML inerte. E
- * `networkidle` sozinho não basta: o dev server ainda recarrega a página
- * depois dele (ver `estabilidade.ts`), então a espera é pelo silêncio.
+ * `networkidle` sozinho não basta: ele dispara antes de o router terminar de
+ * hidratar (ver `estabilidade.ts`), então a espera é pela fibra do React.
  */
 async function aguardarHidratacao(page: import("@playwright/test").Page) {
   await aguardarPaginaEstavel(page);

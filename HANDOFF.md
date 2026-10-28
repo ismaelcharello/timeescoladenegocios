@@ -1,4 +1,4 @@
-# HANDOFF – TIME Escola de Negócios (atualizado 2026-10-24)
+# HANDOFF – TIME Escola de Negócios (atualizado 2026-10-28)
 
 Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objetivos). Autorizou seguir sem perguntar nas etapas abaixo. Continua proibido: digitar senhas/chaves, criar contas, mexer em DNS/nameservers sem o login dele, pagamentos.
 
@@ -27,12 +27,33 @@ Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objet
 - [ ] 8. **Varredura visual das rotas internas**: as 8 rotas de membro + admin nunca foram vistas
       renderizadas (todas as etapas 1–6 foram validadas por renderização estática). Precisa de
       sessão: o login do dono funciona no navegador dele.
-- [ ] 9. **Estados**: vazio, carregando, erro e offline por rota; teclado ponta a ponta;
-      `prefers-reduced-motion`; alvos de 44px medidos no DOM renderizado (hoje só conferidos por
-      token e estático).
-- [ ] 10. **Intenção duplicada de CTA**: a landing tem três rótulos para cadastro ("Criar conta",
-      "Criar minha conta na TIME", "Criar minha conta") e dois para entrada ("Entrar", "Já sou
-      membro"). Escolher um rótulo por intenção.
+- [~] 9. **Estados e acessibilidade** (FEITO para as rotas públicas em 2026-10-28, commit 301dbc0;
+      falta a parte que exige sessão). Virou suíte: `tests/e2e/acessibilidade.spec.ts` mede alvo de
+      toque, nome acessível, movimento reduzido, foco por teclado e o estado de erro do login, nos
+      cinco viewports. Achados corrigidos: pontos do carrossel tinham 8x8 de alvo (o breakpoint de
+      celular os deixava MENORES que no desktop) e um `<button>` decorativo sem nome acessível
+      ficava no caminho do teclado. FALTA: estados vazio/carregando/erro/offline das 8 rotas
+      internas — precisa de sessão, junto com a etapa 8.
+- [x] 10. **Intenção duplicada de CTA** (FEITO em 2026-10-28, commit 301dbc0). Era problema de
+      funil, não de redação: a barra do clube e o CTA final — os dois CTAs mais fortes da página —
+      apontavam para `/checkout`, que chama `requireUser` e manda quem não está logado para
+      `/entrar?mensagem=sessao_necessaria`. O visitante novo clicava em "Quero fazer parte" e caía
+      num login de conta que não tem. O `/checkout` ser logado é proposital; a landing é que pulava
+      a porta de entrada. Agora: "Criar conta" (4 lugares) -> `/criar-conta`, "Entrar" (2 lugares)
+      -> `/entrar`. Também corrigidos dois ícones que mentiam (glifo de "nova aba" em link interno;
+      play em círculo num link de login).
+- [~] 12. **Performance** (medida em 2026-10-28, commit 28156d1; sobrou trabalho). Medir contra o
+      build de produção servido pelo workerd, nunca contra o dev server:
+      `npx wrangler dev --config dist/server/wrangler.json --port 8788 --local --compatibility-date 2026-05-22`.
+      (`vinext start` não serve: roda bundle de Workers no Node e morre em `cloudflare:`.)
+      FEITO: as 5 seções em `display:none` baixavam suas imagens — marcadas como lazy, 825 KB -> 250 KB
+      no celular. CLS 0,000. FALTA, por ordem de valor:
+      a) as imagens vêm do WordPress externo (`timeescoladenegocios.com.br`), sem otimização
+         (PNG de 182 KB, JPG de 172 KB) — é dependência de disponibilidade de outro site;
+      b) imagens superdimensionadas: 1080x1436 exibidas a 337x446;
+      c) a mesma URL é baixada duas vezes em alguns casos — não investigado;
+      d) CSS de 388 KB crus (65 KB gzip) para uma landing;
+      e) LCP real: o ~80 ms medido é de localhost e não vale como número de campo.
 - [ ] 11. **Pendências do dono (só lembrar, não fazer)**: Stripe (3 chaves: STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET; ele cola), domínio `app.timeescoladenegocios.com.br` (precisa login na Cloudflare e troca de nameservers na HostGator; app antigo é só teste, sem dados reais), teste em celular real.
 
 ## Como validar cada etapa (sempre)
@@ -46,7 +67,11 @@ Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objet
 - **O servidor local SOBE** (corrigido em 2026-10-26/27). `npm run dev` → http://localhost:5173.
   Duas causas estavam no repositório e foram corrigidas em `vite.config.ts`: `nodejs_compat`
   declarado em dobro, e `compatibility_date` de outubro à frente do workerd de maio fixado pelo
-  lockfile (data sobrescrita só no runtime local; o deploy segue lendo o `wrangler.jsonc`).
+  lockfile. ATENÇÃO: a primeira versão dessa correção dizia que "o deploy segue lendo o
+  `wrangler.jsonc`" — era falso e ninguém tinha medido. O override entrava também no
+  `dist/server/wrangler.json` e publicaria com a data de maio. Corrigido em 2026-10-28 (commit
+  28156d1): o override só vale quando `command === "serve"`. Ao mexer nisso, conferir os dois
+  lados — reconstruir e ler a data do artefato, e subir o dev.
   Para o login funcionar em dev é preciso um `.env.local` com as duas públicas do Supabase
   (o Vite não lê `.env.production` em modo dev), e o D1 local precisa das migrações:
   `npx wrangler d1 migrations apply time-escola-db --local`.

@@ -10,8 +10,8 @@ import { aguardarControleHidratado, aguardarPaginaEstavel, medirComRetentativa }
  * decorativo sem rótulo no caminho do teclado. Tamanho de alvo e foco só
  * existem depois do layout: têm de ser medidos, nunca lidos do CSS.
  *
- * Toda medição passa por `medirComRetentativa` porque o dev server recarrega a
- * página sozinho depois do `networkidle` (ver `estabilidade.ts`).
+ * Toda medição passa por `medirComRetentativa`: o `networkidle` dispara antes
+ * de o router terminar de hidratar (ver `estabilidade.ts`).
  */
 
 const ROTAS_PUBLICAS = ["/", "/entrar", "/criar-conta", "/recuperar-senha", "/termos"] as const;
