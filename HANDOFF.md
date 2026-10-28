@@ -17,7 +17,23 @@ Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objet
 - [x] 4. (FEITO em 2026-10-24) **Landing**: seções ocultas (ecossistema, plataforma, clube, admin, fundadores) permanecem `display:none` DE PROPÓSITO: têm painéis de demonstração com dados de exemplo; só reativar com conteúdo real. Rodapé: links quebrados corrigidos, compacto no celular.
 - [x] 5. (FEITO em 2026-10-24: contraste dos tokens medido nos dois temas e `--border-strong` corrigido para 3:1; Playwright não sobe neste Mac, então viewports só foram checados na landing publicada e por renderização estática; alvos de 44px nos shells novos) **Acessibilidade e responsivo**: rodar `npm run test:viewports` se o Playwright subir; contraste, foco, alvos de 44px; `prefers-reduced-motion`.
 - [x] 6. (FEITO em 2026-10-24: 519 regras mortas removidas, ~62 KB; critério: classe que não aparece em nenhum arquivo de código nem como prefixo dinâmico) **Limpeza de CSS legado** em `platform.css`/`globals.css`: remover regras mortas, sem mudar o visual; manter testes verdes.
-- [ ] 7. **Pendências do dono (só lembrar, não fazer)**: Stripe (3 chaves: STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET; ele cola), domínio `app.timeescoladenegocios.com.br` (precisa login na Cloudflare e troca de nameservers na HostGator; app antigo é só teste, sem dados reais), teste em celular real.
+- [x] 7. (FEITO em 2026-10-27) **Suíte de viewports confiável**: `tests/e2e/viewports.spec.ts`
+      dava confiança falsa. Interagia logo após `domcontentloaded`, ou seja antes da hidratação —
+      o clique no "Mostrar" era engolido (medido: 3/3 rodadas sem efeito sem esperar, 3/3
+      funcionando com `networkidle`). Passava contra o staging por sorte de cronometragem.
+      Também afirmava o rótulo exato do CTA, que quebra no celular quando a nav colapsa e o hero
+      usa outra redação. Agora espera hidratação e afirma intenção, não redação. 15/15 nos cinco
+      viewports contra o local.
+- [ ] 8. **Varredura visual das rotas internas**: as 8 rotas de membro + admin nunca foram vistas
+      renderizadas (todas as etapas 1–6 foram validadas por renderização estática). Precisa de
+      sessão: o login do dono funciona no navegador dele.
+- [ ] 9. **Estados**: vazio, carregando, erro e offline por rota; teclado ponta a ponta;
+      `prefers-reduced-motion`; alvos de 44px medidos no DOM renderizado (hoje só conferidos por
+      token e estático).
+- [ ] 10. **Intenção duplicada de CTA**: a landing tem três rótulos para cadastro ("Criar conta",
+      "Criar minha conta na TIME", "Criar minha conta") e dois para entrada ("Entrar", "Já sou
+      membro"). Escolher um rótulo por intenção.
+- [ ] 11. **Pendências do dono (só lembrar, não fazer)**: Stripe (3 chaves: STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET; ele cola), domínio `app.timeescoladenegocios.com.br` (precisa login na Cloudflare e troca de nameservers na HostGator; app antigo é só teste, sem dados reais), teste em celular real.
 
 ## Como validar cada etapa (sempre)
 1. `npx tsc --noEmit`
@@ -27,7 +43,18 @@ Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objet
 5. Atualizar esta fila, o cofre (`~/Documents/Segundo Cerebro`, nota do projeto) e `node ~/.segundo-cerebro/cerebro.js log ... && reindexar`.
 
 ## Regras de trabalho
-- Servidor local não sobe (workerd): validar com renderização estática (esbuild + renderToStaticMarkup) e/ou a landing publicada.
+- **O servidor local SOBE** (corrigido em 2026-10-26/27). `npm run dev` → http://localhost:5173.
+  Duas causas estavam no repositório e foram corrigidas em `vite.config.ts`: `nodejs_compat`
+  declarado em dobro, e `compatibility_date` de outubro à frente do workerd de maio fixado pelo
+  lockfile (data sobrescrita só no runtime local; o deploy segue lendo o `wrangler.jsonc`).
+  Para o login funcionar em dev é preciso um `.env.local` com as duas públicas do Supabase
+  (o Vite não lê `.env.production` em modo dev), e o D1 local precisa das migrações:
+  `npx wrangler d1 migrations apply time-escola-db --local`.
+- **O Playwright RODA** (corrigido em 2026-10-27). Nunca foi limitação do Mac: faltava
+  `npx playwright install chromium`. Os cinco viewports rodam contra o local com
+  `PLAYWRIGHT_BASE_URL=http://localhost:5173 npx playwright test`.
+- Validação por renderização estática não é mais necessária — e não substitui o navegador:
+  a suíte de viewports passava contra o staging e escondia um defeito próprio (ver abaixo).
 - Painel do navegador do app fica oculto: transições e `visibilityState` congelam.
 - Patch em arquivo grande: use marcadores a partir de índice já achado; em caso de erro, `git checkout <arquivo>`.
 - Retomada automática: ao voltar de um limite de uso, abrir esta fila e continuar do primeiro item `[ ]`.
