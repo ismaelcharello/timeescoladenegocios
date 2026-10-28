@@ -7,6 +7,15 @@
 .legal-page *::after { box-sizing: border-box; }
 
 .legal-page { min-height: 100dvh; background: var(--bg); color: var(--text); font-family: var(--font-sans); }
+
+/* O navegador propaga o fundo do <body> para a área de overscroll — o "puxão"
+   além do fim da rolagem, muito visível no app iOS. O body é azul-escuro por
+   causa das páginas de marketing (`body { background: var(--ink) }` em
+   globals.css), então uma página legal em tema claro ganhava uma faixa escura
+   acima e abaixo do conteúdo. Herdar o mesmo token da página resolve.
+   Medido: em tema claro o body era rgb(5,8,41) enquanto .legal-page era
+   rgb(247,247,251). */
+body:has(.legal-page) { background: var(--bg); }
 .legal-page a { color: inherit; text-decoration: none; }
 
 .legal-header,

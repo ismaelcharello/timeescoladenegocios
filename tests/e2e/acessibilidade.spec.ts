@@ -201,3 +201,35 @@ test("cada rota pública tem um h1 só, e ele diz do que a página trata", async
     "rotas diferentes com o mesmo h1 — o título não identifica a página"
   ).toEqual([]);
 });
+
+test("em tema claro a página legal não deixa faixa escura na área de overscroll", async ({ page }) => {
+  // O navegador propaga o fundo do <body> para além do fim da rolagem. O body
+  // é azul-escuro por causa das páginas de marketing, então uma página que
+  // segue o tema claro ficava com uma faixa escura acima e abaixo — bem
+  // visível no app iOS, onde a rolagem tem rebote.
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem("time-theme", "light");
+    } catch {
+      // Sem armazenamento o teste perde o sentido, e a asserção abaixo acusa.
+    }
+  });
+  await page.goto("/termos", { waitUntil: "domcontentloaded" });
+
+  const cores = await medirComRetentativa(
+    page,
+    () => ({
+      tema: document.documentElement.getAttribute("data-resolved"),
+      body: getComputedStyle(document.body).backgroundColor,
+      pagina: getComputedStyle(document.querySelector(".legal-page")!).backgroundColor,
+    }),
+    undefined,
+    { valido: (c) => !!c.tema }
+  );
+
+  expect(cores.tema, "o tema claro não foi aplicado").toBe("light");
+  expect(
+    cores.body,
+    `o fundo do body (${cores.body}) difere do fundo da página (${cores.pagina}): aparece faixa escura ao puxar a rolagem`
+  ).toBe(cores.pagina);
+});

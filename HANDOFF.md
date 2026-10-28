@@ -27,6 +27,13 @@ Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objet
 - [ ] 8. **Varredura visual das rotas internas**: as 8 rotas de membro + admin nunca foram vistas
       renderizadas (todas as etapas 1–6 foram validadas por renderização estática). Precisa de
       sessão: o login do dono funciona no navegador dele.
+      SUSPEITA A CONFERIR NESSA VARREDURA (achada em 2026-10-28, NÃO verificada por falta de
+      sessão): `globals.css` tem `body { background: var(--ink) }` fixo, azul-escuro, e nada
+      retema o body. Em tema claro a área interna provavelmente mostra faixa escura ao puxar a
+      rolagem além do fim — o navegador propaga o fundo do body para o overscroll, e no app iOS
+      isso acontece a cada rebote. Medido e corrigido na página legal, que é pública
+      (`body:has(.legal-page) { background: var(--bg) }` em legal.css). Se a área interna tiver o
+      mesmo defeito, a correção é a mesma com `.member-app` / `.admin-app`.
 - [~] 9. **Estados e acessibilidade** (FEITO para as rotas públicas em 2026-10-28, commit 301dbc0;
       falta a parte que exige sessão). Virou suíte: `tests/e2e/acessibilidade.spec.ts` mede alvo de
       toque, nome acessível, movimento reduzido, foco por teclado e o estado de erro do login, nos
