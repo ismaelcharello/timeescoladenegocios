@@ -18,8 +18,19 @@ async function entrar(page: Page, como: "membro" | "admin", retorno: string) {
 }
 
 test.beforeEach(async ({ page }) => {
-  const sonda = await page.request.get("/dev/login", { maxRedirects: 0 });
-  test.skip(sonda.status() === 404, "identidade de teste indisponível: só existe no dev local");
+  // O dev server às vezes derruba uma conexão sob carga (ECONNRESET). Isso não
+  // diz nada sobre a existência da rota, então a sonda tenta de novo.
+  let status = 0;
+  for (let tentativa = 0; tentativa < 4; tentativa += 1) {
+    try {
+      status = (await page.request.get("/dev/login", { maxRedirects: 0 })).status();
+      break;
+    } catch {
+      await page.waitForTimeout(500);
+    }
+  }
+  test.skip(status === 404, "identidade de teste indisponível: só existe no dev local");
+  expect(status, "o servidor não respondeu à sonda de /dev/login").toBeGreaterThan(0);
 });
 
 /** Contraste WCAG entre duas cores "rgb(...)". */
@@ -80,7 +91,8 @@ test("catálogo de cursos: títulos legíveis e categorias sem slug cru", async 
 test("membro com perfil incompleto vê o motivo certo ao abrir um curso", async ({ page }) => {
   await entrar(page, "membro", "/app/cursos");
   await aguardarPaginaEstavel(page);
-  await page.getByRole("button", { name: "Começar agora" }).click();
+  // O rótulo depende de o membro já ter começado o curso: "Começar agora" ou "Continuar curso".
+  await page.getByRole("button", { name: /Começar agora|Continuar curso/ }).click();
 
   const dialogo = page.getByRole("dialog");
   await expect(dialogo).toBeVisible();
@@ -126,4 +138,66 @@ test("a autorização separa membro de admin", async ({ page }) => {
   // estável do painel é a raiz do admin, junto com a ausência da tela de bloqueio.
   await expect(page.locator(".admin-app").first()).toBeVisible();
   await expect(page.getByText("Permissão administrativa necessária")).toHaveCount(0);
+});
+
+test("a busca de cursos só aparece onde busca cursos", async ({ page }) => {
+  // O campo dizia "Buscar cursos…" em TODAS as telas internas, embora só filtre o catálogo.
+  await entrar(page, "membro", "/app/comunidade");
+  await aguardarPaginaEstavel(page);
+  await expect(page.locator(".member-search")).toHaveCount(0);
+
+  await entrar(page, "membro", "/app/cursos");
+  await aguardarPaginaEstavel(page);
+  await expect(page.locator(".member-search")).toBeVisible();
+});
+
+test("evento: inscrição pelo fluxo real aparece como 'Você está na lista', legível", async ({ page }) => {
+  await entrar(page, "membro", "/app/eventos");
+  await aguardarPaginaEstavel(page);
+  const base = new URL(page.url()).origin;
+
+  // IDEMPOTENTE: usa sempre o mesmo evento. A versão anterior criava um evento
+  // novo por execução e por viewport; depois de poucas rodadas o banco local
+  // tinha 39 eventos e a própria página de eventos ficava lenta e instável.
+  const TITULO = "Encontro de teste fixo [DEMO]";
+  const cookieAdmin = (await (await page.request.fetch(`${base}/dev/login?como=admin`, { maxRedirects: 0 })).headersArray())
+    .find((h) => h.name.toLowerCase() === "set-cookie")!.value.split(";")[0];
+  const comoAdmin = { Cookie: cookieAdmin, Origin: base };
+
+  const existentes = await page.request.get(`${base}/api/events`, { headers: { Cookie: cookieAdmin } });
+  let eventoId = ((await existentes.json()).events as Array<{ id: number; title: string }>).find((e) => e.title === TITULO)?.id;
+  if (!eventoId) {
+    const criado = await page.request.post(`${base}/api/admin/events`, {
+      headers: comoAdmin,
+      data: { title: TITULO, startsAt: new Date(Date.now() + 30 * 864e5).toISOString(), city: "Curitiba", status: "published" },
+    });
+    expect(criado.status()).toBe(201);
+    eventoId = (await criado.json()).event.id as number;
+  }
+
+  const inscricao = await page.request.post(`${base}/api/events`, {
+    headers: { Origin: base },
+    data: { eventId: eventoId, action: "register", registration: { phone: "41999990000", confirmed: true } },
+  });
+  expect(inscricao.status()).toBe(200);
+
+  await page.reload();
+  await aguardarPaginaEstavel(page);
+  const selo = page.locator(".reference-event-body > div > b", { hasText: "Você está na lista" }).first();
+  await expect(selo).toBeVisible();
+
+  const medidas = await selo.evaluate((el) => {
+    const cs = getComputedStyle(el);
+    const lum = (c: string) => {
+      const [r, g, b] = (c.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number).map((v) => {
+        const n = v / 255;
+        return n <= 0.03928 ? n / 12.92 : Math.pow((n + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const a = lum(cs.color), c = lum(cs.backgroundColor);
+    return { contraste: (Math.max(a, c) + 0.05) / (Math.min(a, c) + 0.05), px: parseFloat(cs.fontSize) };
+  });
+  expect(medidas.contraste, "selo ilegível").toBeGreaterThanOrEqual(4.5);
+  expect(medidas.px, "selo pequeno demais").toBeGreaterThanOrEqual(11);
 });

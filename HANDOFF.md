@@ -24,6 +24,25 @@ Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objet
       Também afirmava o rótulo exato do CTA, que quebra no celular quando a nav colapsa e o hero
       usa outra redação. Agora espera hidratação e afirma intenção, não redação. 15/15 nos cinco
       viewports contra o local.
+- [x] 14. **Plano de ação — Fase 0 e começo da Fase 1** (2026-10-29, commits d101a18 e ac837a7).
+      Ver `docs/PLANO-DE-ACAO.md`. FEITO: identidade de teste só no dev local (`/dev/login?como=membro|admin`,
+      `lib/dev-identity.ts`; segurança provada no build de produção, teste permanente olha o `dist`),
+      conteúdo [DEMO] só no D1 local (`node scripts/seed-demo-local.mjs`; escola ativa via `.dev.vars`
+      com `SCHOOL_STATUS=active`, no .gitignore), e `tests/e2e/area-interna.spec.ts` (logado, no navegador).
+      PRIMEIRA VEZ que a área interna foi vista rodando. Resultado da varredura:
+      * BACKEND FUNCIONA: comunidade (postar/curtir/comentar/denunciar/aviso oficial só admin), ouvidoria,
+        eventos (criar como admin, inscrição com aceite, capacidade, convidados, limite por membro,
+        relatório CSV, lista de check-in), progresso de aula, painel admin com números reais.
+      * O que travava era a EXPERIÊNCIA: contraste ilegível (cursos, selo de evento), lista de aulas sem
+        layout, motivo de bloqueio errado ("Ative sua participação" para quem só falta o perfil),
+        busca "Buscar cursos" em toda tela, categorias com slug cru. Tudo corrigido e testado.
+      * PENDENTE DE DECISÃO DO DONO — a PAREDE DO PERFIL: Cursos, Comunidade e Conexões ficam trancados
+        até o perfil ter ~17 campos ("faltam 12 campos essenciais", 5% preenchido). Para um membro novo
+        isso é "nada pega". Sugestão: liberar leitura e exigir só nome+WhatsApp+cidade+segmento para
+        publicar/conectar, completando o resto aos poucos. É regra de produto: NÃO alterei.
+      * NÃO TESTÁVEL LOCALMENTE: diretório de membros, perfil (`member_profiles`) e match — moram no
+        Supabase remoto e dependem do JWT real.
+      * SEM VÍDEO: as aulas mostram "Vídeo ainda não adicionado". Falta escolher a hospedagem (dono).
 - [ ] 8. **Varredura visual das rotas internas**: as 8 rotas de membro + admin nunca foram vistas
       renderizadas (todas as etapas 1–6 foram validadas por renderização estática). Precisa de
       sessão: o login do dono funciona no navegador dele.

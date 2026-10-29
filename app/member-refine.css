@@ -716,3 +716,13 @@ html[data-resolved="light"] .member-app .member-content .course-streaming-shell
 html[data-resolved] .member-app.mf .course-player-outline .course-module-group > button.active :is(b, strong, small) {
   color: inherit;
 }
+
+/* Selo "Você está na lista" nos eventos (2026-10-29). Estava #bfffe5 (menta
+   pálida, feita para fundo escuro) sobre fundo menta claro no tema claro, com
+   8px de fonte: invisível. Visto ao abrir /app/eventos logado e inscrito. */
+html[data-resolved="light"] .member-app .reference-event-body > div > b {
+  background: #dff5ea;
+  color: #0b5d3b;
+  font-size: var(--fs-xs, 0.75rem);
+  font-weight: 650;
+}

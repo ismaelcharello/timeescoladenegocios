@@ -1353,7 +1353,7 @@ export default function MemberPlatform({ member, schoolStatus = "active", initia
       active={section}
       member={{ name: member.name, email: member.email, isAdmin: member.isAdmin }}
       onNavigate={(id) => navigateTo(id as Section)}
-      topbarSlot={schoolComingSoon ? null : <div className="member-search"><Icon name="search" size={18} /><input aria-label="Buscar cursos" placeholder="Buscar cursos…" value={search} onChange={(event) => { setSearch(event.target.value); if (event.target.value) setSection("cursos"); }} /></div>}
+      topbarSlot={schoolComingSoon || section !== "cursos" ? null : <div className="member-search"><Icon name="search" size={18} /><input aria-label="Buscar cursos" placeholder="Buscar cursos…" value={search} onChange={(event) => { setSearch(event.target.value); if (event.target.value) setSection("cursos"); }} /></div>}
     >
         <div className="member-content" data-section={section}>
           {section === "inicio" ? <HomeSection member={member} courses={courses} schoolComingSoon={schoolComingSoon} posts={posts} events={events} connections={homeConnections} profileCompleteness={profileCompleteness} profileReady={profileReady} missingFields={missingFields} greeting={greeting} todayLabel={todayLabel} loading={{ courses: coursesLoading, community: communityLoading, events: eventsLoading }} errors={{ courses: coursesError, community: communityError, events: eventsError, connections: homeConnectionsError }} onOpenCourse={openCourse} onNavigate={navigateTo} /> : null}
