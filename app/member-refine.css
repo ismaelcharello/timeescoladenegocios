@@ -657,3 +657,62 @@ html[data-resolved] .member-app.mf .real-loading-grid :is(i, span) {
 html[data-resolved] .member-app.mf .online-members > div {
   color: var(--text) !important;
 }
+
+/* ---------------------------------------------------------------------------
+   Catálogo de cursos: texto sobre capa/destaque escuros (2026-10-29).
+   Visto pela primeira vez ao abrir /app/cursos logado: título do destaque e
+   dos cards em cinza-escuro sobre fundo escuro, ilegíveis. A regra ampla de
+   tema claro `.member-app :is(.member-content h1, … .member-content .member-stat
+   strong)` tem especificidade (0,4,2) pelo argumento mais específico do :is(),
+   e a correção original `.course-streaming-shell :is(h1,h2,h3,strong)` só
+   (0,3,2). Esta tem (0,5,2) e restringe o branco às superfícies que de fato
+   são escuras, sem mexer nos títulos de seção sobre fundo claro.
+--------------------------------------------------------------------------- */
+html[data-resolved="light"] .member-app .member-content .course-streaming-shell
+  :is(.course-streaming-hero, .member-course-card) :is(h1, h2, h3, strong) {
+  color: #fff;
+}
+/* Sem `span` genérico: o ícone de play do botão "Começar agora" é um <span>
+   dentro de um botão BRANCO, e pintá-lo de branco o fazia sumir. */
+html[data-resolved="light"] .member-app .member-content .course-streaming-shell
+  :is(.course-streaming-hero, .member-course-card) :is(p, small, li) {
+  color: rgba(255, 255, 255, 0.84);
+}
+html[data-resolved="light"] .member-app .member-content .course-streaming-shell
+  .course-streaming-hero-content > span {
+  color: rgba(255, 255, 255, 0.84);
+}
+
+/* ---------------------------------------------------------------------------
+   Lista de aulas do player (2026-10-29).
+   A linha da aula é <button><b>1.2</b><div><strong/><small/></div></button> e
+   nunca teve regra de layout desde a importação do projeto: ficava display:block
+   com o número empilhado sobre o título, tudo centralizado. Visto ao abrir o
+   player logado pela primeira vez. Também faltava herdar a cor no estado ativo,
+   que é roxo sólido: b/strong/small tinham cor escura própria e sumiam.
+--------------------------------------------------------------------------- */
+.course-player-outline .course-module-group > button {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  text-align: left;
+}
+.course-player-outline .course-module-group > button > b {
+  font-size: var(--fs-sm, 0.875rem);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.course-player-outline .course-module-group > button > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+.course-player-outline .course-module-group > button strong {
+  overflow-wrap: anywhere;
+}
+html[data-resolved] .member-app.mf .course-player-outline .course-module-group > button.active :is(b, strong, small) {
+  color: inherit;
+}

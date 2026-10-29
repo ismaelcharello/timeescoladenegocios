@@ -158,6 +158,24 @@ function firstName(name: string) {
   return name.trim().split(/\s+/)[0] || "membro";
 }
 
+const CATEGORY_LABELS: Record<string, string> = {
+  vendas: "Vendas",
+  comunicacao: "Comunicação",
+  lideranca: "Liderança",
+  financas: "Finanças",
+  negocios: "Negócios",
+  marketing: "Marketing",
+  gestao: "Gestão",
+  tecnologia: "Tecnologia",
+};
+
+/** O banco guarda o slug sem acento ("comunicacao"); a tela mostra o texto legível. */
+function courseCategoryLabel(slug: string | null | undefined) {
+  const key = (slug ?? "").trim().toLowerCase();
+  if (!key) return "";
+  return CATEGORY_LABELS[key] ?? key.charAt(0).toUpperCase() + key.slice(1);
+}
+
 function formatDuration(seconds: number) {
   if (!seconds) return "Duração não informada";
   const minutes = Math.max(1, Math.round(seconds / 60));
@@ -291,7 +309,7 @@ function CourseCard({ course, onOpen }: { course: Course; onOpen: () => void }) 
       <div className="member-course-image">
         {course.thumbnailUrl ? <img src={course.thumbnailUrl} alt="" /> : <div className="real-course-placeholder">TIME</div>}
         <div className="member-course-shade" />
-        <span>{course.category || "CURSO TIME"}</span>
+        <span>{courseCategoryLabel(course.category) || "CURSO TIME"}</span>
         <b aria-hidden="true"><Icon name="play" size={22} fill="currentColor" /></b>
         <div className="streaming-card-hover" aria-hidden="true">
           <strong>{course.title}</strong>
@@ -537,7 +555,7 @@ function CoursesSection({ courses, loading, error, search, onOpen }: { courses: 
   const completed = courses.filter((course) => course.lessonCount > 0 && course.progressPercent === 100);
   const featured = inProgress[0] ?? courses[0] ?? null;
   const featuredDuration = featured ? featured.lessons.reduce((total, lesson) => total + lesson.durationSeconds, 0) : 0;
-  const categoryRails = categories.filter((category) => category !== "Todas").map((category) => ({ category, courses: courses.filter((course) => course.category === category) }));
+  const categoryRails = categories.filter((category) => category !== "Todas").map((category) => ({ category, courses: courses.filter((course) => course.category === category) })).filter((rail) => rail.courses.length > 1);
 
   return (
     <section className="course-streaming-shell">
@@ -554,7 +572,7 @@ function CoursesSection({ courses, loading, error, search, onOpen }: { courses: 
           <h2>{featured.title}</h2>
           <p>{featured.description || "Abra o curso para conhecer a jornada, os módulos e as aulas disponíveis."}</p>
           <ul>
-            {featured.category ? <li>{featured.category}</li> : null}
+            {featured.category ? <li>{courseCategoryLabel(featured.category)}</li> : null}
             {featured.teacher ? <li>{featured.teacher}</li> : null}
             {featuredDuration ? <li>{formatDuration(featuredDuration)}</li> : null}
             <li>{featured.lessonCount} {featured.lessonCount === 1 ? "aula" : "aulas"}</li>
@@ -568,14 +586,14 @@ function CoursesSection({ courses, loading, error, search, onOpen }: { courses: 
 
       {courses.length ? <>
         <div className="course-streaming-filters">
-          {categories.length > 1 ? <div className="course-streaming-filter-rail" role="tablist" aria-label="Filtrar por categoria">{categories.map((category) => <button role="tab" aria-selected={categoryFilter === category} className={categoryFilter === category ? "active" : ""} key={category} onClick={() => setCategoryFilter(category)}>{category}</button>)}</div> : null}
+          {categories.length > 1 ? <div className="course-streaming-filter-rail" role="tablist" aria-label="Filtrar por categoria">{categories.map((category) => <button role="tab" aria-selected={categoryFilter === category} className={categoryFilter === category ? "active" : ""} key={category} onClick={() => setCategoryFilter(category)}>{category === "Todas" ? category : courseCategoryLabel(category)}</button>)}</div> : null}
           <div className="course-streaming-filter-rail status" role="tablist" aria-label="Filtrar por progresso">{["Todos", "Em andamento", "Não iniciados", "Concluídos"].map((item) => <button className={filter === item ? "active" : ""} key={item} onClick={() => setFilter(item)}>{item}</button>)}</div>
         </div>
         <CourseRail title="Continue de onde parou" eyebrow="SUA JORNADA" courses={inProgress} onOpen={onOpen} />
         <CourseRail title="Em destaque na TIME" eyebrow="CONTEÚDOS PUBLICADOS" courses={courses.slice(0, 8)} onOpen={onOpen} />
-        {categoryRails.map(({ category, courses: categoryCourses }) => <CourseRail title={category} eyebrow="EXPLORAR POR CATEGORIA" courses={categoryCourses} onOpen={onOpen} key={category} />)}
+        {categoryRails.map(({ category, courses: categoryCourses }) => <CourseRail title={courseCategoryLabel(category)} eyebrow="EXPLORAR POR CATEGORIA" courses={categoryCourses} onOpen={onOpen} key={category} />)}
         {completed.length ? <CourseRail title="Cursos concluídos" eyebrow="SUA HISTÓRIA" courses={completed} onOpen={onOpen} /> : null}
-        <section className="course-streaming-catalog"><header><div><span>CATÁLOGO COMPLETO</span><h2>{categoryFilter === "Todas" ? "Todos os cursos publicados" : categoryFilter}</h2></div><small>{filtered.length} {filtered.length === 1 ? "resultado" : "resultados"}</small></header>{loading ? <LoadingCards /> : filtered.length ? <div className="course-streaming-catalog-grid">{filtered.map((course) => <CourseCard course={course} key={course.id} onOpen={() => onOpen(course)} />)}</div> : <EmptyState icon="search" title="Nenhum curso neste filtro" text="Tente uma categoria ou status diferente." />}</section>
+        <section className="course-streaming-catalog"><header><div><span>CATÁLOGO COMPLETO</span><h2>{categoryFilter === "Todas" ? "Todos os cursos publicados" : courseCategoryLabel(categoryFilter)}</h2></div><small>{filtered.length} {filtered.length === 1 ? "resultado" : "resultados"}</small></header>{loading ? <LoadingCards /> : filtered.length ? <div className="course-streaming-catalog-grid">{filtered.map((course) => <CourseCard course={course} key={course.id} onOpen={() => onOpen(course)} />)}</div> : <EmptyState icon="search" title="Nenhum curso neste filtro" text="Tente uma categoria ou status diferente." />}</section>
       </> : null}
       <UpcomingCourseShelf />
     </section>
@@ -1195,7 +1213,7 @@ function CourseModal({ course, onClose, onRefresh }: { course: Course; onClose: 
     <div className="lesson-modal real-course-modal course-player-modal" role="dialog" aria-modal="true" aria-label={course.title}>
       <button className="lesson-modal-backdrop" aria-label="Fechar curso" onClick={() => void closeCourse()} />
       <div className="lesson-player course-player-shell">
-        <header className="course-player-header"><div><span>CURSOS / {course.category || "CURSO TIME"}</span><strong>{course.title}</strong></div><button aria-label="Voltar para a biblioteca" onClick={() => void closeCourse()}><Icon name="close" size={18} /></button></header>
+        <header className="course-player-header"><div><span>CURSOS / {courseCategoryLabel(course.category) || "CURSO TIME"}</span><strong>{course.title}</strong></div><button aria-label="Voltar para a biblioteca" onClick={() => void closeCourse()}><Icon name="close" size={18} /></button></header>
         <div className={`real-course-viewer${theaterMode ? " theater-mode" : ""}`}>
           <aside className="course-player-outline"><header className="course-outline-heading"><div><span>CONTEÚDO DO CURSO</span><strong>{course.progressPercent}% concluído</strong></div><i style={{ "--lesson-progress": `${course.progressPercent}%` } as React.CSSProperties} /></header>{modules.length ? modules.map((module, moduleIndex) => <section className="course-module-group" key={module.id}><header><b>{String(moduleIndex + 1).padStart(2, "0")}</b><div><strong>{module.title}</strong><small>{module.lessons.length} {module.lessons.length === 1 ? "aula" : "aulas"}</small></div></header>{module.description ? <p>{module.description}</p> : null}{module.lessons.length ? module.lessons.map((item, lessonIndex) => <button className={item.id === lessonId ? "active" : ""} aria-current={item.id === lessonId ? "step" : undefined} key={item.id} onClick={() => void selectLesson(item)}><b>{item.progress?.completed ? <Icon name="check" size={14} /> : item.progress?.startedAt ? <Icon name="play" size={12} fill="currentColor" /> : `${moduleIndex + 1}.${lessonIndex + 1}`}</b><div><strong>{item.title}</strong><small>{formatDuration(item.durationSeconds)}{item.videoUrl ? item.progress?.startedAt ? " · Em andamento" : " · Vídeo" : " · Em breve"}</small></div></button>) : <p className="course-module-empty">A equipe TIME adicionará as aulas deste módulo.</p>}</section>) : <p>Nenhum módulo publicado neste curso.</p>}</aside>
           <main className="course-player-stage">
@@ -1230,6 +1248,7 @@ export default function MemberPlatform({ member, schoolStatus = "active", initia
   const [podcastsError, setPodcastsError] = useState("");
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
   const [membershipPromptOpen, setMembershipPromptOpen] = useState(false);
+  const [profilePromptOpen, setProfilePromptOpen] = useState(false);
   const [search, setSearch] = useState("");
   const podcastsRequestStarted = useRef(false);
 
@@ -1316,7 +1335,9 @@ export default function MemberPlatform({ member, schoolStatus = "active", initia
 
   function openCourse(course: Course) {
     if (schoolComingSoon) return;
-    if (!canUse("courses") || !hasRequiredProfile || course.locked) { setMembershipPromptOpen(true); return; }
+    if (!canUse("courses") || course.locked) { setProfilePromptOpen(false); setMembershipPromptOpen(true); return; }
+    // Membro ativo com perfil incompleto não precisa "ativar participação": falta o perfil.
+    if (!hasRequiredProfile) { setProfilePromptOpen(true); setMembershipPromptOpen(true); return; }
     setActiveCourse(course);
   }
 
@@ -1345,7 +1366,7 @@ export default function MemberPlatform({ member, schoolStatus = "active", initia
         </div>
 
       {activeCourse && !schoolComingSoon ? <CourseModal course={activeCourse} onClose={() => setActiveCourse(null)} onRefresh={async () => { try { await loadCourses(); } catch (requestError) { setCoursesError(requestError instanceof Error ? requestError.message : "Não foi possível atualizar."); } }} /> : null}
-      {membershipPromptOpen ? <div className="membership-prompt" role="dialog" aria-modal="true" aria-label="Acesso exclusivo"><button className="lesson-modal-backdrop" aria-label="Fechar" onClick={() => setMembershipPromptOpen(false)} /><section><button aria-label="Fechar" onClick={() => setMembershipPromptOpen(false)}><Icon name="close" size={18} /></button><span>EXCLUSIVO PARA MEMBROS</span><h2>Ative sua participação na TIME</h2><p>Seu cadastro está pronto. Ao tornar-se membro, você libera cursos, networking, comunidade e eventos empresariais.</p><a href="/checkout">Ver formas de participação</a></section></div> : null}
+      {membershipPromptOpen ? <div className="membership-prompt" role="dialog" aria-modal="true" aria-label="Acesso exclusivo"><button className="lesson-modal-backdrop" aria-label="Fechar" onClick={() => setMembershipPromptOpen(false)} /><section><button aria-label="Fechar" onClick={() => setMembershipPromptOpen(false)}><Icon name="close" size={18} /></button><span>EXCLUSIVO PARA MEMBROS</span><h2>{profilePromptOpen ? "Complete seu perfil para assistir" : "Ative sua participação na TIME"}</h2><p>{profilePromptOpen ? "Para liberar os cursos, preencha os dados essenciais do seu perfil. Leva poucos minutos e melhora suas conexões." : "Seu cadastro está pronto. Ao tornar-se membro, você libera cursos, networking, comunidade e eventos empresariais."}</p>{profilePromptOpen ? <a href="/app/cadastro">Completar perfil</a> : <a href="/checkout">Ver formas de participação</a>}</section></div> : null}
     </MemberFrame>
   );
 }

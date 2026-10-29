@@ -54,3 +54,7 @@ android/.idea/
 *.keystore
 *.mobileprovision
 test-results/
+
+# Segredos e overrides locais do Wrangler/Miniflare
+.dev.vars
+.dev.vars.*
