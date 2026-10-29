@@ -726,3 +726,18 @@ html[data-resolved="light"] .member-app .reference-event-body > div > b {
   font-size: var(--fs-xs, 0.75rem);
   font-weight: 650;
 }
+
+/* Capa clicável do vídeo da aula (2026-10-29). `.video-frame button` (0,1,1),
+   feita para o botão de play decorativo da landing, vencia `.lesson-start-cover`
+   (0,1,0) e encolhia a capa inteira num círculo de 68px no topo do player, com
+   o resto preto e sem nada para clicar. Visto ao salvar um link de vídeo numa
+   aula e abrir o player. Com `.real-video-frame` a regra vale só no player. */
+.real-video-frame .lesson-start-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background: #050611;
+  font-size: inherit;
+}

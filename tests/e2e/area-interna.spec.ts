@@ -201,3 +201,48 @@ test("evento: inscrição pelo fluxo real aparece como 'Você está na lista', l
   expect(medidas.contraste, "selo ilegível").toBeGreaterThanOrEqual(4.5);
   expect(medidas.px, "selo pequeno demais").toBeGreaterThanOrEqual(11);
 });
+
+test("vídeo da aula: o admin salva um link do Vimeo não listado e o player o carrega com o hash", async ({ page }) => {
+  // Dois defeitos reais que este teste cobre: o embed descartava o hash de
+  // privacidade do Vimeo (vídeo não listado ficava em branco), e a capa clicável
+  // virava um círculo de 68px por causa de `.video-frame button`.
+  await page.route("**/player.vimeo.com/**", (rota) => rota.abort()); // determinístico: sem internet
+  await entrar(page, "admin", "/app/cursos");
+  await aguardarPaginaEstavel(page);
+  const base = new URL(page.url()).origin;
+
+  const cursos = await (await page.request.get(`${base}/api/courses`)).json();
+  const curso = cursos.courses.find((c: { slug: string }) => c.slug === "demo-vendas");
+  const aula = curso.lessons[0];
+  const salvo = await page.request.post(`${base}/api/admin/course-content`, {
+    headers: { Origin: base },
+    data: {
+      action: "lesson.upsert", id: aula.id, courseId: curso.id, moduleId: aula.moduleId ?? null, title: aula.title,
+      description: "Aula de demonstração.", videoUrl: "https://vimeo.com/76979871/8272103f6e", durationSeconds: 480, status: "published",
+    },
+  });
+  expect(salvo.status()).toBe(200);
+
+  const recusado = await page.request.post(`${base}/api/admin/course-content`, {
+    headers: { Origin: base },
+    data: { action: "lesson.upsert", id: aula.id, courseId: curso.id, moduleId: aula.moduleId ?? null, title: aula.title, videoUrl: "https://example.com/video.mp4", status: "published" },
+  });
+  expect(recusado.status(), "link de outro domínio deveria ser recusado").toBe(400);
+
+  await page.reload();
+  await aguardarPaginaEstavel(page);
+  await page.getByRole("button", { name: /Começar agora|Continuar curso/ }).click();
+  const capa = page.locator(".lesson-start-cover");
+  await expect(capa).toBeVisible();
+
+  const geometria = await page.evaluate(() => {
+    const c = document.querySelector(".lesson-start-cover")!.getBoundingClientRect();
+    const q = document.querySelector(".lesson-start-cover")!.parentElement!.getBoundingClientRect();
+    return { dw: q.width - c.width, dh: q.height - c.height, largura: c.width };
+  });
+  expect(geometria.largura, "a capa virou um botão pequeno").toBeGreaterThan(300);
+  expect(Math.max(geometria.dw, geometria.dh), "a capa não preenche o quadro do vídeo").toBeLessThanOrEqual(4);
+
+  await capa.click();
+  await expect(page.locator("iframe")).toHaveAttribute("src", /^https:\/\/player\.vimeo\.com\/video\/76979871\?h=8272103f6e/);
+});

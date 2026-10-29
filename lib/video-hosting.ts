@@ -51,8 +51,17 @@ export function getEmbedVideoUrl(value: string) {
   }
 
   if (provider === "vimeo") {
-    const id = url.pathname.split("/").filter(Boolean).find((part) => /^\d+$/.test(part));
-    return id ? `https://player.vimeo.com/video/${id}` : "";
+    const parts = url.pathname.split("/").filter(Boolean);
+    const idIndex = parts.findIndex((part) => /^\d+$/.test(part));
+    if (idIndex < 0) return "";
+    const id = parts[idIndex];
+    // Vídeo NÃO LISTADO do Vimeo precisa do hash de privacidade, senão o player
+    // recusa a exibição. Ele vem de duas formas: vimeo.com/ID/HASH (o link que
+    // o Vimeo mostra ao compartilhar) ou ?h=HASH (o link do player/incorporar).
+    // Descartar o hash deixava o vídeo não listado em branco.
+    const candidate = parts[idIndex + 1] ?? url.searchParams.get("h") ?? "";
+    const hash = /^[A-Za-z0-9]{6,}$/.test(candidate) ? candidate : "";
+    return `https://player.vimeo.com/video/${id}${hash ? `?h=${hash}` : ""}`;
   }
 
   // URLs de incorporação do Panda são fornecidas pelo próprio painel do vídeo.
