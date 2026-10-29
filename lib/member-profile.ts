@@ -151,3 +151,34 @@ export function getMissingRequiredProfileFields(draft: MemberProfileDraft) {
 export function isNetworkingProfileReady(draft: MemberProfileDraft) {
   return getMissingRequiredProfileFields(draft).length === 0;
 }
+
+/**
+ * Perfil em dois níveis (decisão do dono, 2026-10-29). Antes, Cursos, Comunidade
+ * e Conexões ficavam trancados até o membro preencher os 13 campos de
+ * `requiredProfileFields` — para um membro novo, "nada funciona". Agora o uso
+ * abre com o ESSENCIAL; o completo segue sendo pedido como lembrete e é ele que
+ * coloca a pessoa na lista que os outros membros veem (`completed_at`, que só é
+ * gravado na finalização completa).
+ */
+export const essentialProfileFields = ["full_name", "whatsapp", "city", "segment"] as const satisfies ReadonlyArray<
+  keyof MemberProfileDraft
+>;
+
+export function getEssentialProfileFieldErrors(draft: MemberProfileDraft) {
+  const errors: Partial<Record<(typeof essentialProfileFields)[number], string>> = {};
+  for (const field of essentialProfileFields) {
+    const minimum = field === "full_name" ? 3 : 2;
+    if (draft[field].trim().length < minimum) errors[field] = `Preencha ${profileFieldLabels[field]}.`;
+  }
+  if (draft.whatsapp.replace(/\D/g, "").length < 10) errors.whatsapp = "Informe um WhatsApp válido com DDD.";
+  return errors;
+}
+
+export function getMissingEssentialProfileFields(draft: MemberProfileDraft) {
+  const errors = getEssentialProfileFieldErrors(draft);
+  return essentialProfileFields.filter((field) => Boolean(errors[field])).map((field) => profileFieldLabels[field]);
+}
+
+export function isEssentialProfileReady(draft: MemberProfileDraft) {
+  return getMissingEssentialProfileFields(draft).length === 0;
+}

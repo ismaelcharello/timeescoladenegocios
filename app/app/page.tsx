@@ -1,7 +1,7 @@
 import MemberPlatform from "./member-platform";
 import { requireMemberAccess } from "@/lib/access";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { calculateProfileCompleteness, getMissingRequiredProfileFields, isNetworkingProfileReady, profileToDraft, type MemberProfile } from "@/lib/member-profile";
+import { calculateProfileCompleteness, getMissingRequiredProfileFields, isEssentialProfileReady, profileToDraft, type MemberProfile } from "@/lib/member-profile";
 import { buildHomeConnectionQuery, getHomeDateLabel, getHomeGreeting } from "@/lib/member-home";
 import { findConnections } from "@/lib/connection-matching";
 import { getSchoolStatus } from "@/lib/school-status";
@@ -33,7 +33,7 @@ export default async function MemberAreaPage({ searchParams }: { searchParams?: 
   const typedProfile = (profile as MemberProfile | null) ?? null;
   const draft = profileToDraft(typedProfile, user.fullName);
   const profileCompleteness = calculateProfileCompleteness(draft);
-  const networkingProfileReady = user.isAdmin || isNetworkingProfileReady(draft);
+  const networkingProfileReady = user.isAdmin || isEssentialProfileReady(draft);
   const connectionQuery = buildHomeConnectionQuery(draft);
   const canLoadConnections = access.permissions.includes("networking") && networkingProfileReady && Boolean(connectionQuery);
   const connectionResult = canLoadConnections

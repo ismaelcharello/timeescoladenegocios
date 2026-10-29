@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAuthorizedMember, requireMemberAccess } from "@/lib/access";
-import { isNetworkingProfileReady, profileToDraft, type MemberProfile } from "@/lib/member-profile";
+import { isEssentialProfileReady, profileToDraft, type MemberProfile } from "@/lib/member-profile";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 async function hasNetworkingProfile(user: { id: string; fullName: string; isAdmin: boolean }) {
@@ -13,7 +13,7 @@ async function hasNetworkingProfile(user: { id: string; fullName: string; isAdmi
     .eq("user_id", user.id)
     .maybeSingle();
   if (error || !data) return false;
-  return isNetworkingProfileReady(profileToDraft(data as MemberProfile, user.fullName));
+  return isEssentialProfileReady(profileToDraft(data as MemberProfile, user.fullName));
 }
 
 export async function getNetworkingMember(request?: Request) {

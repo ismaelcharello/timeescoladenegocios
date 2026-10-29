@@ -36,10 +36,15 @@ Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objet
       * O que travava era a EXPERIÊNCIA: contraste ilegível (cursos, selo de evento), lista de aulas sem
         layout, motivo de bloqueio errado ("Ative sua participação" para quem só falta o perfil),
         busca "Buscar cursos" em toda tela, categorias com slug cru. Tudo corrigido e testado.
-      * PENDENTE DE DECISÃO DO DONO — a PAREDE DO PERFIL: Cursos, Comunidade e Conexões ficam trancados
-        até o perfil ter ~17 campos ("faltam 12 campos essenciais", 5% preenchido). Para um membro novo
-        isso é "nada pega". Sugestão: liberar leitura e exigir só nome+WhatsApp+cidade+segmento para
-        publicar/conectar, completando o resto aos poucos. É regra de produto: NÃO alterei.
+      * PAREDE DO PERFIL — RESOLVIDA (decisão do dono em 2026-10-29: "liberar aos poucos"). Cursos,
+        Comunidade, Eventos, Home e Conexões ficavam trancados até 13 campos. Agora abrem com o
+        ESSENCIAL (nome, WhatsApp com DDD, cidade, segmento): `isEssentialProfileReady` em
+        `lib/member-profile.ts`. O perfil COMPLETO continua sendo pedido como lembrete e é ele que
+        põe a pessoa no diretório que os outros veem (`completed_at` só é gravado na finalização
+        completa) — conferido por teste que `isNetworkingProfileReady` NÃO foi afrouxado.
+        Testes de comportamento em `tests/essential-profile.test.ts`, com checagem de mutação.
+        DECISÕES DO DONO REGISTRADAS: escola segue em "Em breve" (falta conteúdo) e os vídeos serão
+        Vimeo ou YouTube não listado — falta construir o player/admin para isso (ver Fase 1).
       * NÃO TESTÁVEL LOCALMENTE: diretório de membros, perfil (`member_profiles`) e match — moram no
         Supabase remoto e dependem do JWT real.
       * SEM VÍDEO: as aulas mostram "Vídeo ainda não adicionado". Falta escolher a hospedagem (dono).
