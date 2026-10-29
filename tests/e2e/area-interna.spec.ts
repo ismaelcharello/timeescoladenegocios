@@ -246,3 +246,26 @@ test("vídeo da aula: o admin salva um link do Vimeo não listado e o player o c
   await capa.click();
   await expect(page.locator("iframe")).toHaveAttribute("src", /^https:\/\/player\.vimeo\.com\/video\/76979871\?h=8272103f6e/);
 });
+
+test("nenhum texto da área interna fica abaixo de 10px (legibilidade)", async ({ page }) => {
+  // platform.css tinha 265 declarações de font-size entre 5 e 10px: rótulos de
+  // status, "Publicado", "ATIVA", eyebrows. Ilegível, e não aparecia em nenhum
+  // teste de contraste, porque contraste não mede tamanho. O piso é 11px; o
+  // limite aqui é 10px para tolerar arredondamento de subpixel.
+  const rotas: Array<["membro" | "admin", string]> = [
+    ["membro", "/app"], ["membro", "/app/eventos"], ["membro", "/app/comunidade"], ["admin", "/admin"],
+  ];
+  for (const [como, rota] of rotas) {
+    await entrar(page, como, rota);
+    await aguardarPaginaEstavel(page);
+    await page.waitForTimeout(1500);
+    const pequenos = await page.evaluate(() =>
+      [...document.querySelectorAll("body *")]
+        .filter((e) => !e.children.length && (e.textContent ?? "").trim().length > 3 && e.getBoundingClientRect().width > 3)
+        .filter((e) => parseFloat(getComputedStyle(e).fontSize) < 10)
+        .map((e) => `${(e.textContent ?? "").trim().slice(0, 24)} (${getComputedStyle(e).fontSize})`)
+        .slice(0, 6),
+    );
+    expect(pequenos, `texto minúsculo em ${rota}`).toEqual([]);
+  }
+});
