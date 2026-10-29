@@ -17,6 +17,16 @@ export async function getAuthenticatedIdentity(
   _request?: Request,
 ): Promise<RequestIdentity | null> {
   void _request;
+
+  // Identidade de teste: só existe no dev local. `import.meta.env.DEV` é
+  // trocado por `false` no build e o ramo inteiro (inclusive o import) é
+  // eliminado — há um teste que procura o marcador no bundle publicado.
+  if (import.meta.env.DEV) {
+    const { getDevIdentity } = await import("@/lib/dev-identity");
+    const dev = await getDevIdentity();
+    if (dev) return dev;
+  }
+
   const supabase = await createServerSupabaseClient();
   if (!supabase) return null;
 
