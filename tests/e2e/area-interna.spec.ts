@@ -248,6 +248,7 @@ test("vídeo da aula: o admin salva um link do Vimeo não listado e o player o c
 });
 
 test("nenhum texto da área interna fica abaixo de 10px (legibilidade)", async ({ page }) => {
+  test.setTimeout(90_000); // visita 4 telas em sequência; o limite padrão de 30 s fica apertado sob carga
   // platform.css tinha 265 declarações de font-size entre 5 e 10px: rótulos de
   // status, "Publicado", "ATIVA", eyebrows. Ilegível, e não aparecia em nenhum
   // teste de contraste, porque contraste não mede tamanho. O piso é 11px; o

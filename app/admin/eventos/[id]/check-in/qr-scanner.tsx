@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { describeScan, type ScanFeedback, type ScanResult } from "@/lib/event-ticket-scan";
 import { Icon } from "@/app/app/icons";
 
@@ -19,7 +19,6 @@ const MESMO_QR_MS = 3500; // a câmera lê o mesmo QR vários quadros seguidos; 
  */
 export default function QrScanner({ eventId, onScanned }: { eventId: number; onScanned: () => void }) {
   const [cameraOn, setCameraOn] = useState(false);
-  const [cameraSupported, setCameraSupported] = useState(true);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<ScanFeedback | null>(null);
@@ -27,9 +26,14 @@ export default function QrScanner({ eventId, onScanned }: { eventId: number; onS
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const lastRef = useRef<{ token: string; at: number }>({ token: "", at: 0 });
 
-  useEffect(() => {
-    setCameraSupported("BarcodeDetector" in window && Boolean(navigator.mediaDevices?.getUserMedia));
-  }, []);
+  // Detecção de recurso do NAVEGADOR: só existe no cliente. `useSyncExternalStore`
+  // com um snapshot de servidor `false` evita o descasamento de hidratação sem
+  // chamar setState dentro de um effect, que o React 19 reprova (renders em cascata).
+  const cameraSupported = useSyncExternalStore(
+    () => () => undefined,
+    () => "BarcodeDetector" in window && Boolean(navigator.mediaDevices?.getUserMedia),
+    () => false,
+  );
 
   const submit = useCallback(async (raw: string) => {
     const token = raw.trim();

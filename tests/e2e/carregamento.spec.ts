@@ -32,9 +32,15 @@ test("a primeira visita carrega o documento uma vez só", async ({ page, context
 
   await page.goto("/", { waitUntil: "load" });
 
-  // O service worker assume alguns centenas de ms depois do load; a recarga
-  // indevida acontecia nessa janela.
-  await page.waitForTimeout(3000);
+  // Esperar o service worker ASSUMIR, por sondagem. Uma espera fixa de 3 s ficou
+  // curta quando o worker passou a pré-carregar mais arquivos, e o teste acusava
+  // "não assumiu o controle" sem que o app tivesse mudado.
+  await expect
+    .poll(() => page.evaluate(() => Boolean(navigator.serviceWorker?.controller)), { timeout: 20_000, message: "o service worker não assumiu o controle" })
+    .toBe(true);
+  // A recarga indevida do bug original vinha 213-459 ms DEPOIS de o worker assumir:
+  // esta janela cobre isso com folga.
+  await page.waitForTimeout(1500);
 
   const estado = await page.evaluate(() => ({
     cargas: Number.parseInt(sessionStorage.getItem("__cargas") ?? "0", 10),

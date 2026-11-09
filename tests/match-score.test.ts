@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 const { scoreMatches, tokens, stem } = await import(new URL("../lib/match-score.ts", import.meta.url).href);
 
+type Resultado = { member: { user_id: string }; score: number };
 const member = (id: string, over: Record<string, string | null> = {}) => ({
   user_id: id, full_name: id, job_title: null, company_name: null, segment: null, city: null,
   state: null, company_description: null, services: null, offers: null, service_area: null, ...over,
@@ -57,7 +58,7 @@ test("a cidade desempata entre quem oferece o mesmo", () => {
     member("longe", { services: "contabilidade", city: "Manaus", state: "AM" }),
     member("perto", { services: "contabilidade", city: "Curitiba", state: "PR" }),
   ]);
-  assert.deepEqual(results.map((r: any) => r.member.user_id), ["perto", "longe"]);
+  assert.deepEqual(results.map((r: Resultado) => r.member.user_id), ["perto", "longe"]);
   assert.ok(results[0].reasons.includes("Está na mesma cidade que você."));
 });
 
@@ -65,7 +66,7 @@ test("termo raro no conjunto pesa mais que termo que todos têm", () => {
   const todos = ["a", "b", "c", "d"].map((id) => member(id, { services: "vendas" }));
   const raro = member("raro", { services: "tributário" });
   const { results } = scoreMatches({ looking_for: "vendas tributário" }, [...todos, raro], { minScore: 1 });
-  const porId = Object.fromEntries(results.map((r: any) => [r.member.user_id, r.score]));
+  const porId = Object.fromEntries(results.map((r: Resultado) => [r.member.user_id, r.score]));
   assert.ok(porId.raro > porId.a, `raro ${porId.raro} deveria superar comum ${porId.a}`);
 });
 
