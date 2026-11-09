@@ -741,3 +741,59 @@ html[data-resolved="light"] .member-app .reference-event-body > div > b {
   background: #050611;
   font-size: inherit;
 }
+
+/* Convite para instalar o PWA (2026-11-08). Usa os tokens do tema, então segue
+   claro/escuro. Alvos de 44px; "Agora não" tem a mesma altura do primário. */
+.install-prompt {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--s-3, 12px) var(--s-4, 16px);
+  align-items: center;
+  margin: 0 0 var(--s-5, 20px);
+  padding: var(--s-4, 16px);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  color: var(--text);
+}
+.install-prompt-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.install-prompt-copy strong { font-size: var(--fs-md, 1rem); }
+.install-prompt-copy p {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: var(--fs-sm, 0.875rem);
+  line-height: 1.5;
+}
+.install-prompt-actions {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  gap: var(--s-2, 8px);
+}
+.install-prompt-actions button {
+  min-height: 44px;
+  padding: 0 var(--s-5, 20px);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font-weight: 650;
+  cursor: pointer;
+}
+.install-prompt-actions .install-prompt-primary {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+@media (min-width: 720px) {
+  .install-prompt { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .install-prompt-actions { grid-column: auto; }
+}

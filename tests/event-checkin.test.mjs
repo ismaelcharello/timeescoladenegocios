@@ -186,7 +186,7 @@ test("o PWA busca e assume atualizações publicadas sem reinstalação", () => 
   assert.match(register, /registration\.update\(\)/);
   assert.match(register, /controllerchange/);
   assert.match(worker, /SKIP_WAITING/);
-  assert.match(worker, /time-shell-v2/);
+  assert.match(worker, /time-shell-v\d+/);
 });
 
 test("a comunidade aceita legenda, imagem, GIF, vídeo e link sem expor erro técnico", () => {

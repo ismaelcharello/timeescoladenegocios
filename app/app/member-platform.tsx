@@ -1,6 +1,7 @@
 "use client";
 
 /* eslint-disable @next/next/no-html-link-for-pages */
+import InstallPrompt from "./install-prompt";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getEmbedVideoUrl, getExternalVideoProvider } from "@/lib/video-hosting";
 import { courseThumbnailLibrary } from "@/lib/course-thumbnails";
@@ -1356,6 +1357,7 @@ export default function MemberPlatform({ member, schoolStatus = "active", initia
       topbarSlot={schoolComingSoon || section !== "cursos" ? null : <div className="member-search"><Icon name="search" size={18} /><input aria-label="Buscar cursos" placeholder="Buscar cursos…" value={search} onChange={(event) => { setSearch(event.target.value); if (event.target.value) setSection("cursos"); }} /></div>}
     >
         <div className="member-content" data-section={section}>
+          {section === "inicio" ? <InstallPrompt /> : null}
           {section === "inicio" ? <HomeSection member={member} courses={courses} schoolComingSoon={schoolComingSoon} posts={posts} events={events} connections={homeConnections} profileCompleteness={profileCompleteness} profileReady={profileReady} missingFields={missingFields} greeting={greeting} todayLabel={todayLabel} loading={{ courses: coursesLoading, community: communityLoading, events: eventsLoading }} errors={{ courses: coursesError, community: communityError, events: eventsError, connections: homeConnectionsError }} onOpenCourse={openCourse} onNavigate={navigateTo} /> : null}
           {section === "cursos" ? !canUse("courses") ? <><PageHeading kicker="ESCOLA TIME" title="Conteúdo que transforma conhecimento em resultado." description="A Escola TIME é exclusiva para membros ativos e cortesias válidas." /><MembershipGate area="a Escola TIME" /></> : schoolComingSoon ? <SchoolComingSoon /> : <><CoursesSection courses={courses} loading={coursesLoading} error={coursesError} search={search} onOpen={openCourse} />{!hasRequiredProfile ? <ProfileGate completeness={profileCompleteness} missingFields={missingFields} area="os cursos" /> : null}</> : null}
           {section === "podcasts" ? <PodcastsSection episodes={podcasts} loading={podcastsLoading} error={podcastsError} canListen={canUse("podcasts")} /> : null}

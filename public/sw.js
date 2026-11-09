@@ -1,5 +1,6 @@
-const CACHE_NAME = "time-shell-v2";
-const SHELL = ["/", "/manifest.webmanifest", "/icons/time-192.png", "/icons/time-512.png"];
+const CACHE_NAME = "time-shell-v3";
+const OFFLINE_URL = "/offline";
+const SHELL = ["/", OFFLINE_URL, "/manifest.webmanifest", "/icons/time-192.png", "/icons/time-512.png", "/icons/time-maskable-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -21,7 +22,9 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
 
   if (request.mode === "navigate") {
-    event.respondWith(fetch(request).catch(() => caches.match("/")));
+    // Sem rede: página própria de "você está offline". Antes caía em "/", a
+    // landing de vendas, e o membro logado achava que o app tinha quebrado.
+    event.respondWith(fetch(request).catch(async () => (await caches.match(OFFLINE_URL)) ?? (await caches.match("/")) ?? Response.error()));
     return;
   }
 

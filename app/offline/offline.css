@@ -1,0 +1,43 @@
+.offline-page {
+  display: grid;
+  min-height: 100dvh;
+  padding: var(--s-5, 20px);
+  place-items: center;
+  background: var(--bg, #050829);
+  color: var(--text, #f4f4fb);
+}
+.offline-card {
+  width: min(440px, 100%);
+  padding: var(--s-7, 32px);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.14));
+  border-radius: var(--r-lg, 20px);
+  background: var(--surface, rgba(255, 255, 255, 0.04));
+  text-align: left;
+}
+.offline-kicker {
+  color: var(--link, #b9a7ff);
+  font-size: var(--fs-xs, 0.75rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+.offline-card h1 {
+  margin: var(--s-3, 12px) 0;
+  font-size: clamp(1.75rem, 6vw, 2.25rem);
+  line-height: 1.1;
+}
+.offline-card p {
+  margin: 0 0 var(--s-6, 24px);
+  color: var(--text-muted, #b4b6d0);
+  line-height: 1.55;
+}
+.offline-retry {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  padding: 0 var(--s-6, 24px);
+  border-radius: 999px;
+  background: var(--primary, #7c2cff);
+  color: var(--on-primary, #fff);
+  font-weight: 650;
+  text-decoration: none;
+}

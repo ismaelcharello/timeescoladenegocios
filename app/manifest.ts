@@ -25,7 +25,9 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "any",
       },
       {
-        src: "/icons/time-512.png",
+        // Versão com margem de segurança: o Android recorta o ícone adaptável em
+        // círculo, e o mesmo arquivo do ícone normal cortava as pontas do logo.
+        src: "/icons/time-maskable-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
