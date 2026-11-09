@@ -82,3 +82,33 @@ Domínio, app iOS/Android (Capacitor), notificações, teste em celular real.
 2. **Hospedagem de vídeo** (Cloudflare Stream, Bunny, Vimeo ou outra).
 3. **Autorizar a identidade de teste só no dev local** (Fase 0, item 1).
 4. **Privacidade do match**: expor as necessidades dos membros a outros?
+
+## Eventos no estilo Sympla (referência pedida em 2026-11-08)
+
+Lido nas páginas públicas do Sympla (app do participante, app do organizador e
+site). **Referência de funcionalidade, não de visual**, e só o que as páginas
+descrevem: não assumi lotes, cupons nem taxas, que elas não detalham.
+
+| Sympla | TIME hoje | Estado |
+|---|---|---|
+| Ingresso digital que funciona **offline** | "Meu ingresso" com QR salvo no aparelho | ✅ feito |
+| Check-in por **QR Code** | Leitor na portaria (câmera + campo de código/leitor USB) | ✅ feito |
+| Check-in pela **lista** | Já existia | ✅ |
+| Detectar ingresso **já usado** | `already` em âmbar, com quem e a que horas | ✅ feito |
+| Monitoramento da portaria (feitos/pendentes) | Painel mostra esperados/presentes/membros/convidados | ◐ falta fluxo por hora |
+| Ingresso do convidado | Anfitrião tem o QR de cada convidado | ✅ feito |
+| Apple Wallet | — | ❌ (exige certificado Apple Developer: depende do dono) |
+| Descoberta por cidade/mapa e compartilhar | — | ❌ |
+| Vendas em tempo real e pagamento por tipo de ingresso | — | ❌ depende do Stripe (chaves do dono) |
+| Controle por portaria (aparelhos por ponto de entrada) | — | ❌ |
+| Notificação push | — | ❌ |
+
+**Limite conhecido do leitor:** o Safari do iPhone não tem `BarcodeDetector`,
+então a câmera não lê QR lá. Para a portaria em iPhone é preciso uma
+biblioteca de decodificação em JS (ex.: jsQR, ~130 KB) — decisão e instalação
+pendentes. Enquanto isso o campo de código e leitores USB/Bluetooth funcionam.
+
+**Pendência do dono para produção:** o segredo `TICKET_SECRET` (mínimo 16
+caracteres) precisa existir no Worker (`wrangler secret put TICKET_SECRET`).
+Sem ele, em produção, o ingresso **recusa emitir** (503), por segurança. Em dev
+local há um valor próprio.

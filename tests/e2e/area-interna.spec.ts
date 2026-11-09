@@ -269,3 +269,70 @@ test("nenhum texto da área interna fica abaixo de 10px (legibilidade)", async (
     expect(pequenos, `texto minúsculo em ${rota}`).toEqual([]);
   }
 });
+
+test("ingresso com QR: o membro abre o ingresso, a portaria lê, relê e recusa forjado", async ({ page, request }) => {
+  // Fluxo completo do ingresso, pela interface: o QR que o membro vê é DECODIFICADO
+  // com o leitor do navegador e comparado ao token; depois a portaria o valida.
+  const TITULO = "Encontro de teste fixo [DEMO]";
+  await entrar(page, "membro", "/app/eventos");
+  await aguardarPaginaEstavel(page);
+  const base = new URL(page.url()).origin;
+
+  // garante inscrição no evento fixo (idempotente)
+  const lista = await (await page.request.get(`${base}/api/events`)).json();
+  const evento = (lista.events as Array<{ id: number; title: string }>).find((e) => e.title === TITULO);
+  test.skip(!evento, "evento fixo de teste ainda não existe: rode o teste de inscrição antes");
+  await page.request.post(`${base}/api/events`, { headers: { Origin: base }, data: { eventId: evento!.id, action: "register", registration: { phone: "41999990000", confirmed: true } } });
+
+  await page.reload();
+  await aguardarPaginaEstavel(page);
+  await page.getByRole("button", { name: /Meu ingresso/ }).first().click();
+  const qr = page.locator(".ticket-qr");
+  await expect(qr).toBeVisible();
+
+  // O QR precisa LER de verdade e valer exatamente o token da API.
+  const lido = await page.evaluate(async () => {
+    if (!("BarcodeDetector" in window)) return null;
+    const svg = document.querySelector(".ticket-qr")!;
+    const img = new Image();
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+    await img.decode();
+    const c = document.createElement("canvas");
+    c.width = c.height = 600;
+    const g = c.getContext("2d")!;
+    g.fillStyle = "#fff";
+    g.fillRect(0, 0, 600, 600);
+    g.drawImage(img, 0, 0, 600, 600);
+    // @ts-expect-error BarcodeDetector não está nos tipos do TypeScript
+    const achados = await new BarcodeDetector({ formats: ["qr_code"] }).detect(c);
+    return achados[0]?.rawValue ?? "";
+  });
+  if (lido !== null) {
+    const esperado = (await (await page.request.get(`${base}/api/events/${evento!.id}/ticket`)).json()).tickets[0].token;
+    expect(lido, "o QR desenhado não lê como o token assinado").toBe(esperado);
+  }
+  expect(await page.evaluate((id) => Boolean(localStorage.getItem(`time-ticket-v1-${id}`)), evento!.id), "o ingresso não ficou salvo para uso offline").toBe(true);
+
+  // Portaria. O admin usa o contexto `request`, SEPARADO da página: `page.request`
+  // divide o cookie com o navegador, e logar como admin por ele transformaria a
+  // chamada "de membro" abaixo em chamada de admin sem ninguém perceber.
+  await request.get(`${base}/dev/login?como=admin`, { maxRedirects: 0 });
+  const token = (await (await page.request.get(`${base}/api/events/${evento!.id}/ticket`)).json()).tickets[0].token as string;
+  const comoAdmin = (t: string) =>
+    request.post(`${base}/api/admin/events/${evento!.id}/check-in`, { headers: { Origin: base }, data: { action: "scan", token: t } });
+
+  const primeira = await (await comoAdmin(token)).json();
+  expect(["ok", "already"], "ingresso válido deveria liberar ou acusar já usado").toContain(primeira.result);
+  const segunda = await (await comoAdmin(token)).json();
+  expect(segunda.result, "ler o mesmo QR de novo precisa acusar 'already'").toBe("already");
+
+  const [v, e, a, sig] = token.split(".");
+  const forjado = await comoAdmin(`${v}.${e}.${Number(a) + 1}.${sig}`);
+  expect(forjado.status()).toBe(422);
+  expect((await forjado.json()).result).toBe("invalid");
+
+  const comoMembro = await page.request.post(`${base}/api/admin/events/${evento!.id}/check-in`, {
+    headers: { Origin: base }, data: { action: "scan", token },
+  });
+  expect(comoMembro.status(), "membro comum não pode usar a leitura de portaria").toBe(403);
+});

@@ -6487,3 +6487,21 @@ html[data-resolved="dark"] .member-app .school-coming-soon .school-coming-soon-h
 @media (prefers-reduced-motion: reduce) {
   .school-coming-soon .upcoming-course-rail { scroll-behavior: auto; }
 }
+
+/* Leitor de ingressos da portaria (2026-11-08). Tom verde SÓ para entrada liberada. */
+.qr-scanner { display: grid; gap: 12px; margin: 16px 0; padding: 16px; border: 1px solid rgba(120,120,160,.28); border-radius: 16px; background: rgba(255,255,255,.04); }
+.qr-scanner > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.qr-scanner > header span { font-size: 11px; font-weight: 700; letter-spacing: .14em; opacity: .75; }
+.qr-scanner h2 { margin: 2px 0 0; font-size: 18px; }
+.qr-scanner button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border: 0; border-radius: 999px; background: #6a2cff; color: #fff; font-weight: 650; cursor: pointer; }
+.qr-scanner button:disabled { opacity: .5; cursor: not-allowed; }
+.qr-scanner-video { width: 100%; max-height: 320px; border-radius: 12px; background: #000; object-fit: cover; }
+.qr-scanner-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+.qr-scanner-form label { display: grid; flex: 1 1 220px; gap: 4px; font-size: 12px; }
+.qr-scanner-form input { min-height: 44px; padding: 0 12px; border: 1px solid rgba(120,120,160,.4); border-radius: 12px; background: transparent; color: inherit; font: inherit; }
+.qr-scanner-hint, .qr-scanner-error { margin: 0; font-size: 13px; opacity: .85; }
+.qr-scanner-result { display: grid; gap: 4px; padding: 16px; border-radius: 14px; color: #fff; }
+.qr-scanner-result strong { font-size: 20px; }
+.qr-scanner-result.go { background: #0a7a4b; }
+.qr-scanner-result.warn { background: #8a5a00; }
+.qr-scanner-result.stop { background: #b42318; }

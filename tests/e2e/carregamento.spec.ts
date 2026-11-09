@@ -17,6 +17,9 @@ import { expect, test } from "@playwright/test";
  * documento, recarregado ou não. `sessionStorage` sobrevive à recarga na
  * mesma aba, e por isso é o instrumento certo aqui.
  */
+// Este é o teste que existe por causa do service worker: reativa o que a configuração bloqueia.
+test.use({ serviceWorkers: "allow" });
+
 test("a primeira visita carrega o documento uma vez só", async ({ page, context }) => {
   await context.addInitScript(() => {
     try {

@@ -11,6 +11,13 @@ export default defineConfig({
   reporter: "line",
   use: {
     baseURL,
+    // Medido: com o service worker ativo, cada contexto novo faz o worker
+    // pré-carregar "/" e "/offline" no dev server, competindo com a hidratação
+    // — 4 falhas em 420 execuções, contra 0 em 390 com ele bloqueado. Em produção
+    // isso não existe (build estático). O teste que PRECISA do worker
+    // (carregamento.spec.ts) o reativa; o comportamento offline é coberto por
+    // tests/sw-offline.test.mjs.
+    serviceWorkers: "block",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },

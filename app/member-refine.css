@@ -797,3 +797,27 @@ html[data-resolved="light"] .member-app .reference-event-body > div > b {
   .install-prompt { grid-template-columns: auto minmax(0, 1fr) auto; }
   .install-prompt-actions { grid-column: auto; }
 }
+
+/* Ingresso com QR (2026-11-08). O QR é SEMPRE preto sobre branco, em qualquer
+   tema: leitores esperam esse contraste, e inverter (claro sobre escuro) faz
+   muitos aparelhos não lerem. O entorno segue os tokens. */
+.ticket-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: var(--s-4, 16px); }
+.ticket-scrim { position: absolute; inset: 0; border: 0; background: rgba(5, 8, 41, 0.62); cursor: pointer; }
+.ticket-sheet {
+  position: relative; display: grid; width: min(380px, 100%); max-height: 92dvh; gap: var(--s-3, 12px);
+  overflow: auto; padding: var(--s-5, 20px); border: 1px solid var(--border); border-radius: var(--r-lg);
+  background: var(--surface); color: var(--text); text-align: center;
+}
+.ticket-sheet > header { display: flex; align-items: center; justify-content: space-between; }
+.ticket-sheet > header span { color: var(--link); font-size: var(--fs-xs, 0.75rem); font-weight: 700; letter-spacing: 0.14em; }
+.ticket-sheet > header button { display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid var(--border); border-radius: 50%; background: transparent; color: var(--text); cursor: pointer; }
+.ticket-sheet h2 { margin: 0; font-size: var(--fs-lg, 1.25rem); line-height: 1.2; }
+.ticket-when { margin: 0; color: var(--text-muted); font-size: var(--fs-sm, 0.875rem); }
+.ticket-qr { width: min(260px, 100%); height: auto; margin: var(--s-2, 8px) auto; border-radius: 12px; }
+.ticket-name { font-size: var(--fs-md, 1rem); }
+.ticket-status, .ticket-offline, .ticket-loading { color: var(--text-muted); font-size: var(--fs-sm, 0.875rem); }
+.ticket-offline { color: var(--success-text, #0b5d3b); font-weight: 650; }
+.ticket-error { margin: 0; color: var(--error-text, #b42318); }
+.ticket-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2, 8px); }
+.ticket-tabs button { min-height: 44px; padding: 0 var(--s-4, 16px); border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--text); font-weight: 650; cursor: pointer; }
+.ticket-tabs button.active { border-color: var(--primary); background: var(--primary); color: var(--on-primary); }
