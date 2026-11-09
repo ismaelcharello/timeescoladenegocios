@@ -48,6 +48,23 @@ Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objet
       * NÃO TESTÁVEL LOCALMENTE: diretório de membros, perfil (`member_profiles`) e match — moram no
         Supabase remoto e dependem do JWT real.
       * SEM VÍDEO: as aulas mostram "Vídeo ainda não adicionado". Falta escolher a hospedagem (dono).
+- [~] 15. **PWA e eventos estilo Sympla** (2026-11-08, commits 10b0c05, 9ecfb78 e o do manifest). Estratégia
+      passou a ser PWA primeiro (sem lojas). FEITO: guia de instalação (iPhone: Compartilhar > Adicionar
+      à Tela de Início; Android: botão Instalar), página /offline servida pelo service worker v3, ícone
+      adaptável com margem de segurança, manifest completo (id, lang, atalhos), e testes de
+      instalabilidade. Eventos: ingresso com QR que abre offline, leitor de portaria, detecção de
+      ingresso já usado. Ver `docs/PLANO-DE-ACAO.md` (seção Sympla).
+      FALTA, e depende de terceiros ou do dono:
+      a) `TICKET_SECRET` (>=16 chars) como secret do Worker; sem ele produção recusa emitir ingresso;
+      b) iPhone na portaria: Safari não tem BarcodeDetector; precisa jsQR (~130 KB, npm) — decisão;
+      c) teste do ciclo offline real e da instalação em aparelho (o navegador embutido não desliga rede);
+      d) Lighthouse não rodado (exige baixar o pacote); os critérios de instalação foram verificados por
+         teste próprio (`tests/pwa-manifest.test.mjs`);
+      e) Apple Wallet (certificado Apple Developer), push, pagamento por ingresso (Stripe).
+      NOTA DE TESTE: o Playwright agora BLOQUEIA o service worker (`serviceWorkers: "block"` na config) porque
+      com ele ativo havia 4 falhas em 420 execuções no dev server, contra 0 em 390 sem ele; só
+      `carregamento.spec.ts` o reativa. O Chromium do Playwright precisou ser baixado de novo
+      (`npx playwright install chromium`) porque o cache do Mac foi zerado.
 - [ ] 8. **Varredura visual das rotas internas**: as 8 rotas de membro + admin nunca foram vistas
       renderizadas (todas as etapas 1–6 foram validadas por renderização estática). Precisa de
       sessão: o login do dono funciona no navegador dele.

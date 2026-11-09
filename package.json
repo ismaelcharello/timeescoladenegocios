@@ -12,7 +12,7 @@
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "test": "npm run build && npm run test:critical && node --test tests/rendered-html.test.mjs tests/event-checkin.test.mjs tests/course-experience.test.mjs",
     "test:viewports": "playwright test tests/e2e/viewports.spec.ts",
-    "test:critical": "node --experimental-strip-types --test tests/access-policy.test.ts tests/access-routes.test.mjs tests/critical-flows.test.mjs tests/course-block4.test.mjs tests/block5-events-community.test.ts tests/block6-billing.test.mjs tests/block7-member-home.test.ts tests/contrast-accessibility.test.mjs tests/staging-readiness.test.mjs tests/landing-course-carousel.test.mjs tests/match-score.test.ts tests/dev-identity-seguranca.test.mjs tests/essential-profile.test.ts tests/video-hosting.test.ts tests/pwa-install.test.ts tests/sw-offline.test.mjs tests/event-ticket.test.ts tests/event-ticket-scan.test.ts",
+    "test:critical": "node --experimental-strip-types --test tests/access-policy.test.ts tests/access-routes.test.mjs tests/critical-flows.test.mjs tests/course-block4.test.mjs tests/block5-events-community.test.ts tests/block6-billing.test.mjs tests/block7-member-home.test.ts tests/contrast-accessibility.test.mjs tests/staging-readiness.test.mjs tests/landing-course-carousel.test.mjs tests/match-score.test.ts tests/dev-identity-seguranca.test.mjs tests/essential-profile.test.ts tests/video-hosting.test.ts tests/pwa-install.test.ts tests/sw-offline.test.mjs tests/event-ticket.test.ts tests/event-ticket-scan.test.ts tests/pwa-manifest.test.mjs",
     "mobile:check": "node scripts/mobile-check.mjs",
     "mobile:associations": "node scripts/mobile-associations.mjs",
     "mobile:sync": "npm run mobile:check && cap sync",
