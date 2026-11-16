@@ -25,7 +25,7 @@ test("o bundle publicado não contém a identidade de teste", { skip: !existsSyn
   const todos = alvos.map((f) => readFileSync(f, "utf8")).join("\n");
   assert.ok(todos.includes("getAuthenticatedIdentity"), "o bundle não parece ser o de produção");
 
-  for (const segredo of ["__TIME_DEV_IDENTITY__", "time-dev-identity", "membro.teste@time.local", "admin.teste@time.local", "getDevIdentity", "__TIME_DEV_DIRECTORY__", "dev_member_profiles", "Ana Contábil [DEMO]"]) {
+  for (const segredo of ["__TIME_DEV_IDENTITY__", "time-dev-identity", "membro.teste@time.local", "admin.teste@time.local", "novato.teste@time.local", "getDevIdentity", "__TIME_DEV_DIRECTORY__", "dev_member_profiles", "Ana Contábil [DEMO]"]) {
     // "getDevProfile" não entra: é só o nome de uma propriedade no ponto de chamada
     // (`dev.getDevProfile`), que sobrevive mesmo com o módulo eliminado. O que prova
     // a eliminação são os marcadores do módulo: a tabela e os nomes de demonstração.

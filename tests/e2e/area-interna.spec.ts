@@ -12,7 +12,7 @@ import { aguardarPaginaEstavel } from "./estabilidade";
  * escola ativa: `SCHOOL_STATUS=active` em `.dev.vars`.
  */
 
-async function entrar(page: Page, como: "membro" | "admin", retorno: string) {
+async function entrar(page: Page, como: "membro" | "novato" | "admin", retorno: string) {
   const resposta = await page.goto(`/dev/login?como=${como}&retorno=${encodeURIComponent(retorno)}`);
   return resposta;
 }
@@ -89,7 +89,8 @@ test("catálogo de cursos: títulos legíveis e categorias sem slug cru", async 
 });
 
 test("membro com perfil incompleto vê o motivo certo ao abrir um curso", async ({ page }) => {
-  await entrar(page, "membro", "/app/cursos");
+  // "novato" nunca preenche o perfil; "membro" é usado por outros testes que o completam.
+  await entrar(page, "novato", "/app/cursos");
   await aguardarPaginaEstavel(page);
   // O rótulo depende de o membro já ter começado o curso: "Começar agora" ou "Continuar curso".
   await page.getByRole("button", { name: /Começar agora|Continuar curso/ }).click();

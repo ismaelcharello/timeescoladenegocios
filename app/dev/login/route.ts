@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   const retorno = url.searchParams.get("retorno") ?? "/app";
   const destino = retorno.startsWith("/") && !retorno.startsWith("//") ? retorno : "/app";
   const response = NextResponse.redirect(new URL(destino, url.origin));
-  if (como === "membro" || como === "admin") {
+  if (como === "membro" || como === "novato" || como === "admin") {
     response.cookies.set(DEV_IDENTITY_COOKIE, como, { path: "/", httpOnly: true, sameSite: "lax" });
   } else {
     response.cookies.delete(DEV_IDENTITY_COOKIE);

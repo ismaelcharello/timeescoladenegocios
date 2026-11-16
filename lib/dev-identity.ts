@@ -1,4 +1,6 @@
 import { cookies, headers } from "next/headers";
+import { sql } from "drizzle-orm";
+import { getDb } from "@/db";
 import type { RequestIdentity } from "@/lib/auth";
 
 /**
@@ -22,11 +24,22 @@ export const DEV_IDENTITY_COOKIE = "time-dev-identity";
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
 
-export const DEV_IDENTITIES: Record<"membro" | "admin", RequestIdentity> = {
+export type DevIdentityKey = "membro" | "novato" | "admin";
+
+export const DEV_IDENTITIES: Record<DevIdentityKey, RequestIdentity> = {
   membro: {
     id: "00000000-0000-4000-8000-0000000000a1",
     email: "membro.teste@time.local",
     fullName: "Membro Teste [DEMO]",
+    role: "member",
+    isAdmin: false,
+    canManageEvents: false,
+  },
+  // Membro ativo SEM perfil: para testar as portas que dependem do cadastro.
+  novato: {
+    id: "00000000-0000-4000-8000-0000000000a3",
+    email: "novato.teste@time.local",
+    fullName: "Novato Teste [DEMO]",
     role: "member",
     isAdmin: false,
     canManageEvents: false,
@@ -46,8 +59,24 @@ export async function isLocalRequest(): Promise<boolean> {
   return LOCAL_HOSTS.has(host);
 }
 
+let membersReady = false;
+
+/** Os membros de teste precisam de linha em `members` com acesso ativo (D1 local). */
+async function ensureDevMembers() {
+  if (membersReady) return;
+  membersReady = true;
+  for (const key of ["membro", "novato"] as const) {
+    const who = DEV_IDENTITIES[key];
+    await getDb().run(
+      sql`INSERT OR IGNORE INTO members (email, full_name, access_status) VALUES (${who.email}, ${who.fullName}, 'active')`,
+    );
+  }
+}
+
 export async function getDevIdentity(): Promise<RequestIdentity | null> {
   if (!(await isLocalRequest())) return null;
   const choice = (await cookies()).get(DEV_IDENTITY_COOKIE)?.value;
-  return choice === "membro" || choice === "admin" ? DEV_IDENTITIES[choice] : null;
+  if (choice !== "membro" && choice !== "novato" && choice !== "admin") return null;
+  await ensureDevMembers();
+  return DEV_IDENTITIES[choice];
 }
