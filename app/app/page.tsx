@@ -5,6 +5,7 @@ import { calculateProfileCompleteness, getMissingRequiredProfileFields, isEssent
 import { buildHomeConnectionQuery, getHomeDateLabel, getHomeGreeting } from "@/lib/member-home";
 import { findConnections } from "@/lib/connection-matching";
 import { getSchoolStatus } from "@/lib/school-status";
+import { getFeatureStatusMap } from "@/lib/feature-status";
 import { SPA_SECTIONS } from "./member-nav";
 
 export const dynamic = "force-dynamic";
@@ -46,7 +47,7 @@ export default async function MemberAreaPage({ searchParams }: { searchParams?: 
 
   return <MemberPlatform
     initialSection={initialSection}
-    schoolStatus={getSchoolStatus()}
+    schoolStatus={getSchoolStatus()} features={getFeatureStatusMap()}
     profileCompleteness={profileCompleteness}
     profileReady={networkingProfileReady}
     missingFields={getMissingRequiredProfileFields(draft)}

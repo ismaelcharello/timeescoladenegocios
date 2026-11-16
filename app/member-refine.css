@@ -821,3 +821,6 @@ html[data-resolved="light"] .member-app .reference-event-body > div > b {
 .ticket-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2, 8px); }
 .ticket-tabs button { min-height: 44px; padding: 0 var(--s-4, 16px); border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--text); font-weight: 650; cursor: pointer; }
 .ticket-tabs button.active { border-color: var(--primary); background: var(--primary); color: var(--on-primary); }
+
+/* Selo "Em breve" na navegação (2026-11-16): áreas controladas por lib/feature-status.ts. */
+.mf-badge.mf-badge-soon { padding: 2px 8px; border-radius: 999px; background: color-mix(in srgb, var(--primary) 14%, transparent); color: var(--primary); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: none; }

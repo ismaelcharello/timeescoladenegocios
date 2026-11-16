@@ -2,6 +2,7 @@
 import type { AnyD1Database } from "drizzle-orm/d1";
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { applySecurityHeaders, isCrossSiteMutation } from "../lib/security-headers";
 
 interface AssetFetcher {
   fetch(request: Request): Promise<Response>;
@@ -45,7 +46,14 @@ const worker = {
       }, allowedWidths);
     }
 
-    return handler.fetch(request, env, ctx);
+    // CSRF, defesa em profundidade: mutação de /api vinda de outra origem não entra.
+    if (url.pathname.startsWith("/api/") && isCrossSiteMutation(request)) {
+      return new Response(JSON.stringify({ error: "Origem não permitida." }), { status: 403, headers: { "content-type": "application/json" } });
+    }
+
+    const response = await handler.fetch(request, env, ctx);
+    // CSP em modo relatório até os relatórios de produção mostrarem que nada legítimo é bloqueado.
+    return applySecurityHeaders(response, { cspMode: "report-only" });
   },
 };
 

@@ -56,7 +56,10 @@ export default function MemberFrame({
   accountLinks,
   showBilling = true,
   sheetTitle = "Mais áreas",
+  features = {},
 }: {
+  /** Áreas em "Em breve" (lib/feature-status.ts): ganham selo na navegação. */
+  features?: Partial<Record<string, "active" | "coming_soon">>;
   active: string;
   member: FrameMember;
   onNavigate?: (id: string) => void;
@@ -182,7 +185,7 @@ export default function MemberFrame({
       >
         <Icon name={item.icon} />
         <span>{item.label}</span>
-        {item.badge !== undefined ? <em className="mf-badge">{item.badge}</em> : null}
+        {features[item.id] === "coming_soon" ? <em className="mf-badge mf-badge-soon">Em breve</em> : item.badge !== undefined ? <em className="mf-badge">{item.badge}</em> : null}
       </Link>
     </li>
   );
@@ -367,7 +370,7 @@ export default function MemberFrame({
                   >
                     <Icon name={item.icon} />
                     <span>
-                      <strong>{item.label}</strong>
+                      <strong>{item.label}</strong>{features[item.id] === "coming_soon" ? <em className="mf-badge mf-badge-soon">Em breve</em> : null}
                       <small>{item.hint}</small>
                     </span>
                     <Icon name="chevron" size={16} />

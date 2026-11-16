@@ -10,7 +10,7 @@
     "binding": "ASSETS"
   },
   "images": { "binding": "IMAGES" },
-  "vars": { "SCHOOL_STATUS": "coming_soon" },
+  "vars": { "SCHOOL_STATUS": "coming_soon", "PODCASTS_STATUS": "coming_soon", "TUTOR_STATUS": "coming_soon", "ACHIEVEMENTS_STATUS": "coming_soon" },
   "d1_databases": [
     {
       "binding": "DB",

@@ -4,6 +4,7 @@ import { getDb } from "@/db";
 import { podcastEpisodes } from "@/db/schema";
 import { getRequestIdentity, isAdminRequest } from "@/lib/auth";
 import { canAccessResource, getMemberAccess } from "@/lib/access";
+import { comingSoonResponse, isFeatureComingSoon } from "@/lib/feature-status";
 
 const schema = z.object({
   id: z.number().int().positive().optional(), title: z.string().trim().min(2).max(180),
@@ -20,6 +21,7 @@ function slug(value: string) { return value.normalize("NFD").replace(/[\u0300-\u
 export async function GET(request: Request) {
   if (!(await getRequestIdentity(request))) return Response.json({ error: "Entre para acessar os podcasts." }, { status: 401 });
   const admin = await isAdminRequest(request); const access = await getMemberAccess(request);
+  if (!admin && isFeatureComingSoon("podcasts")) return comingSoonResponse("Podcasts");
   const rows = admin ? await getDb().select().from(podcastEpisodes).orderBy(asc(podcastEpisodes.position), desc(podcastEpisodes.updatedAt)) : await getDb().select().from(podcastEpisodes).where(eq(podcastEpisodes.status, "published")).orderBy(asc(podcastEpisodes.position), desc(podcastEpisodes.publishedAt));
   const canListen = canAccessResource(access, "podcasts");
   return Response.json({ episodes: rows.map((item) => ({ ...item, externalUrl: canListen ? item.externalUrl : "", locked: !canListen })) });

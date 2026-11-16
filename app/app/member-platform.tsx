@@ -12,6 +12,7 @@ import { Icon, type IconName } from "./icons";
 
 type Section = "inicio" | "cursos" | "podcasts" | "tutor" | "comunidade" | "agenda" | "conquistas";
 type SchoolStatus = "active" | "coming_soon";
+type FeatureStatusMap = Record<"podcasts" | "tutor" | "conquistas", "active" | "coming_soon">;
 type Member = { email: string; name: string; isAdmin: boolean; accessLevel: "registered" | "active" | "complimentary" | "admin"; accessStatus: string; permissions: Array<"courses" | "networking" | "community" | "events" | "podcasts" | "benefits" | "ombudsman"> };
 type LessonProgress = { watchSeconds: number; completed: boolean; startedAt: string | null; updatedAt: string };
 type Lesson = {
@@ -409,6 +410,27 @@ function UpcomingCourseShelf({ compact = false }: { compact?: boolean }) {
         ))}
       </div>
       <small className="upcoming-course-note">A prévia não representa matrícula, professor, data ou conteúdo confirmado.</small>
+    </section>
+  );
+}
+
+const COMING_SOON_COPY: Record<"podcasts" | "tutor" | "conquistas", { kicker: string; title: string; text: string }> = {
+  podcasts: { kicker: "PODCASTS TIME", title: "Conversas com quem faz acontecer.", text: "Os episódios da TIME estão sendo gravados. Quando o primeiro for publicado, ele aparece aqui, com o convidado e os temas de cada conversa." },
+  tutor: { kicker: "TUTOR TIME IA", title: "Conhecimento com fonte, não improviso.", text: "O Tutor responde a partir do conteúdo publicado pela TIME. Ele entra no ar junto com os primeiros cursos, para só citar o que existe de verdade." },
+  conquistas: { kicker: "CONQUISTAS", title: "Seu progresso, registrado.", text: "As conquistas acompanham aulas concluídas, presença em eventos e conexões feitas. Começam a contar quando a escola abrir." },
+};
+
+/** Área mantida em "Em breve" pelo dono (lib/feature-status.ts): sem acesso ao conteúdo, sem dado fictício. */
+function FeatureComingSoon({ area }: { area: "podcasts" | "tutor" | "conquistas" }) {
+  const copy = COMING_SOON_COPY[area];
+  return (
+    <section className="school-coming-soon" aria-labelledby={`coming-soon-${area}`} data-feature={area}>
+      <div className="school-coming-soon-glow" aria-hidden="true" />
+      <header className="school-coming-soon-hero">
+        <div><span>{copy.kicker}</span><strong>EM BREVE</strong></div>
+        <h1 id={`coming-soon-${area}`}>{copy.title}</h1>
+        <p>{copy.text}</p>
+      </header>
     </section>
   );
 }
@@ -1235,7 +1257,7 @@ function CourseModal({ course, onClose, onRefresh }: { course: Course; onClose: 
   );
 }
 
-export default function MemberPlatform({ member, schoolStatus = "active", initialSection = "inicio", profileCompleteness = 100, profileReady = true, missingFields = [], homeConnections = [], homeConnectionsError = "", greeting = "Olá", todayLabel = "HOJE" }: { member: Member; schoolStatus?: SchoolStatus; initialSection?: Section; profileCompleteness?: number; profileReady?: boolean; missingFields?: string[]; homeConnections?: HomeConnection[]; homeConnectionsError?: string; greeting?: string; todayLabel?: string }) {
+export default function MemberPlatform({ member, schoolStatus = "active", initialSection = "inicio", profileCompleteness = 100, profileReady = true, missingFields = [], homeConnections = [], homeConnectionsError = "", greeting = "Olá", todayLabel = "HOJE", features = { podcasts: "coming_soon", tutor: "coming_soon", conquistas: "coming_soon" } }: { member: Member; schoolStatus?: SchoolStatus; features?: FeatureStatusMap; initialSection?: Section; profileCompleteness?: number; profileReady?: boolean; missingFields?: string[]; homeConnections?: HomeConnection[]; homeConnectionsError?: string; greeting?: string; todayLabel?: string }) {
   const schoolComingSoon = schoolStatus === "coming_soon";
   const [section, setSection] = useState<Section>(initialSection);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -1354,6 +1376,7 @@ export default function MemberPlatform({ member, schoolStatus = "active", initia
 
   return (
     <MemberFrame
+      features={features}
       active={section}
       member={{ name: member.name, email: member.email, isAdmin: member.isAdmin }}
       onNavigate={(id) => navigateTo(id as Section)}
@@ -1363,11 +1386,11 @@ export default function MemberPlatform({ member, schoolStatus = "active", initia
           {section === "inicio" ? <InstallPrompt /> : null}
           {section === "inicio" ? <HomeSection member={member} courses={courses} schoolComingSoon={schoolComingSoon} posts={posts} events={events} connections={homeConnections} profileCompleteness={profileCompleteness} profileReady={profileReady} missingFields={missingFields} greeting={greeting} todayLabel={todayLabel} loading={{ courses: coursesLoading, community: communityLoading, events: eventsLoading }} errors={{ courses: coursesError, community: communityError, events: eventsError, connections: homeConnectionsError }} onOpenCourse={openCourse} onNavigate={navigateTo} /> : null}
           {section === "cursos" ? !canUse("courses") ? <><PageHeading kicker="ESCOLA TIME" title="Conteúdo que transforma conhecimento em resultado." description="A Escola TIME é exclusiva para membros ativos e cortesias válidas." /><MembershipGate area="a Escola TIME" /></> : schoolComingSoon ? <SchoolComingSoon /> : <><CoursesSection courses={courses} loading={coursesLoading} error={coursesError} search={search} onOpen={openCourse} />{!hasRequiredProfile ? <ProfileGate completeness={profileCompleteness} missingFields={missingFields} area="os cursos" /> : null}</> : null}
-          {section === "podcasts" ? <PodcastsSection episodes={podcasts} loading={podcastsLoading} error={podcastsError} canListen={canUse("podcasts")} /> : null}
-          {section === "tutor" ? !canUse("courses") ? <><PageHeading kicker="TUTOR TIME IA" title="Conhecimento com fonte, não improviso." description="O Tutor TIME é exclusivo para membros ativos." /><MembershipGate area="o Tutor TIME" /></> : <TutorSection courses={courses} member={member} /> : null}
+          {section === "podcasts" ? features.podcasts === "coming_soon" ? <FeatureComingSoon area="podcasts" /> : <PodcastsSection episodes={podcasts} loading={podcastsLoading} error={podcastsError} canListen={canUse("podcasts")} /> : null}
+          {section === "tutor" ? features.tutor === "coming_soon" ? <FeatureComingSoon area="tutor" /> : !canUse("courses") ? <><PageHeading kicker="TUTOR TIME IA" title="Conhecimento com fonte, não improviso." description="O Tutor TIME é exclusivo para membros ativos." /><MembershipGate area="o Tutor TIME" /></> : <TutorSection courses={courses} member={member} /> : null}
           {section === "comunidade" ? !canUse("community") ? <><PageHeading kicker="TIME COMMUNITY" title="Comunidade TIME" description="Conheça o ambiente e torne-se membro para participar." /><MembershipGate area="a comunidade" /></> : !hasRequiredProfile ? <><PageHeading kicker="TIME COMMUNITY" title="Comunidade TIME" description="Complete os campos essenciais do perfil para participar." /><ProfileGate completeness={profileCompleteness} missingFields={missingFields} area="a comunidade" /></> : <CommunitySection member={member} posts={posts} setPosts={setPosts} loading={communityLoading} error={communityError} reload={async () => { setCommunityLoading(true); try { await loadCommunity(); } catch (requestError) { setCommunityError(requestError instanceof Error ? requestError.message : "Falha ao carregar."); } finally { setCommunityLoading(false); } }} /> : null}
           {section === "agenda" ? !canUse("events") ? <><PageHeading kicker="EVENTOS TIME" title="Presença que vira conexão." description="A agenda completa e as inscrições são exclusivas para membros." /><MembershipGate area="os eventos e inscrições" /></> : <AgendaSection member={member} events={events} loading={eventsLoading} error={eventsError} onCommunity={() => navigateTo("comunidade")} reload={async () => { setEventsLoading(true); try { await loadEvents(); } catch (requestError) { setEventsError(requestError instanceof Error ? requestError.message : "Falha ao carregar eventos."); } finally { setEventsLoading(false); } }} /> : null}
-          {section === "conquistas" ? <AchievementsSection courses={courses} /> : null}
+          {section === "conquistas" ? features.conquistas === "coming_soon" ? <FeatureComingSoon area="conquistas" /> : <AchievementsSection courses={courses} /> : null}
         </div>
 
       {activeCourse && !schoolComingSoon ? <CourseModal course={activeCourse} onClose={() => setActiveCourse(null)} onRefresh={async () => { try { await loadCourses(); } catch (requestError) { setCoursesError(requestError instanceof Error ? requestError.message : "Não foi possível atualizar."); } }} /> : null}

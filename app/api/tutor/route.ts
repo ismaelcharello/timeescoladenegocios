@@ -2,6 +2,7 @@ import { and, asc, eq, isNull, or } from "drizzle-orm";
 import { getDb } from "@/db";
 import { courses, courseModules, lessons, tutorSettings } from "@/db/schema";
 import { getAuthorizedMember } from "@/lib/access";
+import { comingSoonResponse, isFeatureComingSoon } from "@/lib/feature-status";
 
 type AuthorizedSource = {
   id: string;
@@ -165,6 +166,7 @@ async function tutorConfiguration() {
 }
 
 export async function POST(request: Request) {
+  if (isFeatureComingSoon("tutor")) return comingSoonResponse("O Tutor TIME");
   const identity = await getAuthorizedMember(request, "courses");
   if (!identity) {
     return Response.json(

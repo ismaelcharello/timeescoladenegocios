@@ -338,3 +338,45 @@ test("ingresso com QR: o membro abre o ingresso, a portaria lê, relê e recusa 
   });
   expect(comoMembro.status(), "membro comum não pode usar a leitura de portaria").toBe(403);
 });
+
+test("áreas em 'Em breve' (podcasts, tutor, conquistas): selo na navegação, página de aviso e API fechada", async ({ page }) => {
+  await entrar(page, "membro", "/app?secao=podcasts");
+  await aguardarPaginaEstavel(page);
+  const base = new URL(page.url()).origin;
+
+  const aviso = page.locator('.school-coming-soon[data-feature="podcasts"]');
+  await expect(aviso).toBeVisible();
+  await expect(aviso).toContainText(/EM BREVE/);
+  await expect(page.locator(".podcast-list, [class*='podcast-episode']")).toHaveCount(0);
+
+  const selos = await page.locator(".mf-badge-soon").count();
+  expect(selos, "a navegação precisa sinalizar as áreas em breve").toBeGreaterThanOrEqual(1);
+
+  const podcasts = await page.request.get(`${base}/api/podcasts`);
+  expect(podcasts.status(), "a API de podcasts não pode entregar conteúdo em 'Em breve'").toBe(503);
+  const tutor = await page.request.post(`${base}/api/tutor`, { headers: { Origin: base }, data: { question: "oi" } });
+  expect(tutor.status()).toBe(503);
+});
+
+test("segurança do Worker: cabeçalhos em toda resposta e mutação de outra origem barrada", async ({ page }) => {
+  await entrar(page, "membro", "/app");
+  await aguardarPaginaEstavel(page);
+  const base = new URL(page.url()).origin;
+
+  const r = await page.request.get(`${base}/app`);
+  const h = r.headers();
+  expect(h["x-frame-options"]).toBe("DENY");
+  expect(h["x-content-type-options"]).toBe("nosniff");
+  expect(h["strict-transport-security"]).toMatch(/max-age=31536000/);
+  expect(h["content-security-policy-report-only"], "a CSP entra em modo relatório antes de bloquear").toContain("frame-ancestors 'none'");
+  expect(h["content-security-policy"], "ainda não pode bloquear: só relatório").toBeUndefined();
+
+  const estranha = await page.request.post(`${base}/api/community`, {
+    headers: { Origin: "https://site-malicioso.example", "Content-Type": "application/json" },
+    data: { content: "post forjado de outra origem", category: "general" },
+  });
+  expect(estranha.status(), "POST com Origin de outro site precisa ser recusado").toBe(403);
+
+  const propria = await page.request.get(`${base}/api/events`, { headers: { Origin: base } });
+  expect(propria.status(), "a própria origem segue funcionando").toBe(200);
+});

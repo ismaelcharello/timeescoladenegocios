@@ -65,6 +65,15 @@ Dono: Ismael (português; iniciante em Git/Terminal; TDAH: passos curtos e objet
       com ele ativo havia 4 falhas em 420 execuções no dev server, contra 0 em 390 sem ele; só
       `carregamento.spec.ts` o reativa. O Chromium do Playwright precisou ser baixado de novo
       (`npx playwright install chromium`) porque o cache do Mac foi zerado.
+- [x] 16. **Match de ponta a ponta, "Em breve" e segurança do Worker** (2026-11-16, commits b245ded…).
+      Substituto LOCAL do Supabase (`lib/dev-directory.ts`, tabela `dev_member_profiles` no D1 local,
+      eliminado do build) + ponto único de perfil (`lib/member-profile-store.ts`): perfil, diretório,
+      match e WhatsApp agora são exercitáveis logados. Reciprocidade usa o perfil público (já exposto a
+      membros) — NÃO precisa de migração nem de decisão de privacidade. Identidade de teste `novato`
+      (sem perfil). Podcasts, Tutor e Conquistas em "Em breve" (nav, página, API 503) por decisão do
+      dono; ligar por `vars` no `wrangler.jsonc`. Worker: HSTS, nosniff, anti-iframe, Permissions,
+      CSP em modo RELATÓRIO (`/api/csp-report`) e bloqueio de mutação cross-origin. Plano completo
+      revisado em `docs/PLANO-DE-ACAO.md` (fases A–E).
 - [ ] 8. **Varredura visual das rotas internas**: as 8 rotas de membro + admin nunca foram vistas
       renderizadas (todas as etapas 1–6 foram validadas por renderização estática). Precisa de
       sessão: o login do dono funciona no navegador dele.

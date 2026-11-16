@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import MemberFrame from "./member-frame";
 import type { NavId } from "./member-nav";
+import { getFeatureStatusMap } from "@/lib/feature-status";
 
 /**
  * Casca das páginas de rota própria (conexões, empresários, benefícios, ouvidoria…).
@@ -20,7 +21,7 @@ export default function MemberShell({
   isAdmin?: boolean;
 }) {
   return (
-    <MemberFrame active={active} member={{ name: memberName, email: memberEmail, isAdmin }}>
+    <MemberFrame active={active} member={{ name: memberName, email: memberEmail, isAdmin }} features={getFeatureStatusMap()}>
       <div className="mf-page">{children}</div>
     </MemberFrame>
   );
