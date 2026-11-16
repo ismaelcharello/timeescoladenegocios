@@ -19,6 +19,15 @@ export type DirectoryMember = {
 
 export type DirectoryProfile = Awaited<ReturnType<typeof getDirectoryProfile>>;
 
+/** Substituto local (D1) do Supabase, só no dev com a identidade de teste. */
+async function devDirectory() {
+  if (import.meta.env.DEV) {
+    const { getDevIdentity } = await import("@/lib/dev-identity");
+    if (await getDevIdentity()) return import("@/lib/dev-directory");
+  }
+  return null;
+}
+
 async function signedAvatar(path: string | null) {
   if (!path) return null;
   const supabase = await createAuthorizedDirectoryClient();
@@ -35,6 +44,9 @@ export async function searchDirectory(filters: {
   city?: string;
   service?: string;
 }) {
+  const dev = await devDirectory();
+  if (dev) return { members: await dev.searchDevDirectory(filters), error: "" };
+
   const supabase = await createAuthorizedDirectoryClient();
   if (!supabase) return { members: [] as DirectoryMember[], error: "Serviço indisponível." };
 
@@ -56,6 +68,9 @@ export async function searchDirectory(filters: {
 }
 
 export const getDirectoryProfile = cache(async (userId: string) => {
+  const dev = await devDirectory();
+  if (dev) return dev.getDevDirectoryProfile(userId);
+
   const supabase = await createAuthorizedDirectoryClient();
   if (!supabase) return null;
   const { data, error } = await supabase.rpc("get_member_directory_profile", {
@@ -65,6 +80,16 @@ export const getDirectoryProfile = cache(async (userId: string) => {
   if (!profile) return null;
   return { ...profile, avatar_url: await signedAvatar(profile.avatar_path) };
 });
+
+/** Só devolve o número de quem concluiu o perfil; o WhatsApp nunca sai nas buscas. */
+export async function getMemberWhatsapp(userId: string): Promise<string | null> {
+  const dev = await devDirectory();
+  if (dev) return dev.getDevWhatsapp(userId);
+  const supabase = await createAuthorizedDirectoryClient();
+  if (!supabase) return null;
+  const { data } = await supabase.rpc("get_member_whatsapp", { target_user_id: userId });
+  return (data as string | null) ?? null;
+}
 
 export function memberInitials(name: string | null) {
   return (name ?? "TIME")

@@ -1,6 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { getRequestIdentity } from "@/lib/auth";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { saveMemberProfile } from "@/lib/member-profile-store";
 import {
   calculateProfileCompleteness,
   getNetworkingProfileFieldErrors,
@@ -67,8 +67,7 @@ function json(result: SaveProfileResult, status = 200) {
 
 export async function saveMemberProfileRequest(request: Request) {
   const identity = await getRequestIdentity(request);
-  const supabase = await createServerSupabaseClient();
-  if (!identity || !supabase) return json({ ok: false, message: "Sua sessão expirou. Entre novamente." }, 401);
+  if (!identity) return json({ ok: false, message: "Sua sessão expirou. Entre novamente." }, 401);
 
   let input: SaveProfileInput;
   try {
@@ -100,7 +99,8 @@ export async function saveMemberProfileRequest(request: Request) {
     ...(!networkingReady ? { completed_at: null } : finalize ? { completed_at: new Date().toISOString() } : {}),
   };
 
-  const { error } = await supabase.from("member_profiles").upsert(payload, { onConflict: "user_id" });
+  const { error, unavailable } = await saveMemberProfile(identity.id, payload);
+  if (unavailable) return json({ ok: false, message: "Sua sessão expirou. Entre novamente." }, 401);
   if (error) {
     console.error("Unable to save member profile", { code: error.code });
     return json({ ok: false, message: "Não foi possível salvar agora. Tente novamente." }, 500);

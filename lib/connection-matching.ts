@@ -1,59 +1,77 @@
-import { searchDirectory, type DirectoryMember } from "@/lib/member-directory";
+import { getDirectoryProfile, searchDirectory, type DirectoryMember } from "@/lib/member-directory";
+import { scoreMatches, type MatchComponent, type MatchSeeker } from "@/lib/match-score";
 
+/**
+ * Conexões sugeridas para um membro, sobre o motor de lib/match-score.ts.
+ *
+ * O motor anterior contava palavras da busca em três campos e prendia a nota
+ * entre 52% e 96%: qualquer palavra casada parecia match forte. Este usa o
+ * perfil inteiro de quem busca (necessidade, oferta, público, cidade) e
+ * explica cada ponto.
+ *
+ * Reciprocidade: a busca do diretório não traz o que os outros membros
+ * PROCURAM, mas o perfil público de cada membro traz (`looking_for`,
+ * `desired_partnerships`…) — o mesmo dado que qualquer membro logado já vê
+ * na página de perfil. Por isso o match roda em duas passadas: a primeira
+ * sobre a lista, a segunda só sobre os finalistas, com as necessidades deles
+ * carregadas. Não expõe nada novo e não precisa de migração.
+ */
 export type ConnectionMatch = DirectoryMember & {
+  /** 0 a 100, sem piso nem teto artificial. */
   compatibility: number;
+  /** O motivo principal, para listas compactas. */
   reason: string;
+  reasons: string[];
   matchedTerms: string[];
+  confidence: "alta" | "media" | "baixa";
+  notEvaluated: string[];
+  components: Record<MatchComponent, number | null>;
 };
 
-const STOP_WORDS = new Set([
-  "preciso", "procuro", "quero", "alguém", "alguem", "uma", "um", "para", "com",
-  "que", "de", "da", "do", "das", "dos", "em", "na", "no", "nas", "nos", "por",
-  "meu", "minha", "me", "conhecer", "empresa", "profissional", "serviço", "servico",
-]);
+const FINALISTAS = 12;
 
-function normalize(value: string) {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+function needsOf(profile: { looking_for?: string | null; desired_professionals?: string | null; desired_partnerships?: string | null; desired_referrals?: string | null } | null) {
+  if (!profile) return "";
+  return [profile.looking_for, profile.desired_professionals, profile.desired_partnerships, profile.desired_referrals].filter(Boolean).join(" ");
 }
 
-function termsFrom(query: string) {
-  return [...new Set(normalize(query).split(/[^a-z0-9]+/).filter((term) => term.length >= 4 && !STOP_WORDS.has(term)))].slice(0, 12);
-}
-
-function matchMember(member: DirectoryMember, terms: string[]): ConnectionMatch | null {
-  const fields = {
-    segment: normalize(member.segment ?? ""),
-    service: normalize(`${member.services ?? ""} ${member.offers ?? ""}`),
-    context: normalize(`${member.company_description ?? ""} ${member.company_name ?? ""} ${member.job_title ?? ""} ${member.service_area ?? ""}`),
-  };
-  const matchedTerms = terms.filter((term) => Object.values(fields).some((field) => field.includes(term)));
-  if (!matchedTerms.length) return null;
-
-  const weighted = terms.reduce((total, term) => total + (fields.service.includes(term) ? 4 : 0) + (fields.segment.includes(term) ? 3 : 0) + (fields.context.includes(term) ? 2 : 0), 0);
-  const compatibility = Math.min(96, Math.max(52, Math.round(48 + (weighted / Math.max(terms.length * 4, 1)) * 48)));
-  const matchedLabel = matchedTerms.slice(0, 3).join(", ");
-  const reason = fields.service.includes(matchedTerms[0])
-    ? `A oferta ou serviço cadastrado por este membro contém “${matchedLabel}”.`
-    : fields.segment.includes(matchedTerms[0])
-      ? `O segmento cadastrado é compatível com “${matchedLabel}”.`
-      : `O perfil menciona “${matchedLabel}” na descrição profissional.`;
-
-  return { ...member, compatibility, reason, matchedTerms };
-}
-
-export async function findConnections(query: string) {
+export async function findConnections(
+  query: string,
+  seeker?: MatchSeeker | null,
+  options: { excludeUserId?: string; limit?: number } = {},
+): Promise<{ matches: ConnectionMatch[]; error: string; hint: string }> {
   const cleanQuery = query.trim().slice(0, 180);
-  if (!cleanQuery) return { matches: [] as ConnectionMatch[], error: "" };
-  const terms = termsFrom(cleanQuery);
-  if (!terms.length) return { matches: [] as ConnectionMatch[], error: "Descreva com um pouco mais de detalhe o que você precisa." };
+  const { excludeUserId, limit = 6 } = options;
 
-  // Consulta somente perfis concluídos e visíveis; a ordenação acontece sobre os dados reais retornados pelo diretório.
+  // A busca digitada é a necessidade do momento; o resto do perfil (oferta,
+  // público, cidade) continua valendo para reciprocidade e alcance.
+  const quemBusca: MatchSeeker = { ...(seeker ?? {}), ...(cleanQuery ? { looking_for: cleanQuery, desired_professionals: "", desired_partnerships: "", company_problems: "", desired_referrals: "" } : {}) };
+
   const { members, error } = await searchDirectory({});
-  if (error) return { matches: [] as ConnectionMatch[], error };
-  const matches = members
-    .map((member) => matchMember(member, terms))
-    .filter((member): member is ConnectionMatch => Boolean(member))
-    .sort((a, b) => b.compatibility - a.compatibility || a.full_name?.localeCompare(b.full_name ?? "") || 0)
-    .slice(0, 6);
-  return { matches, error: "" };
+  if (error) return { matches: [], error, hint: "" };
+  const candidatos = members.filter((m) => m.user_id !== excludeUserId);
+
+  const primeira = scoreMatches(quemBusca, candidatos, { limit: FINALISTAS, minScore: 1 });
+  if (primeira.message) return { matches: [], error: "", hint: primeira.message };
+
+  // Segunda passada: só os finalistas ganham as necessidades carregadas.
+  const enriquecidos = await Promise.all(
+    primeira.results.map(async ({ member }) => ({ ...member, needs: needsOf(await getDirectoryProfile(member.user_id)) })),
+  );
+  const segunda = scoreMatches(quemBusca, enriquecidos, { limit });
+
+  return {
+    error: "",
+    hint: "",
+    matches: segunda.results.map((r) => ({
+      ...r.member,
+      compatibility: r.score,
+      reason: r.reasons[0] ?? "Perfil relacionado ao que você procura.",
+      reasons: r.reasons,
+      matchedTerms: r.matchedTerms,
+      confidence: r.confidence,
+      notEvaluated: r.notEvaluated,
+      components: r.components,
+    })),
+  };
 }

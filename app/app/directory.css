@@ -652,3 +652,11 @@
     transform: none;
   }
 }
+
+/* Match explicável (2026-11-16): motivos em lista, confiança e o que não entrou na conta. */
+.connection-reasons { display: grid; gap: 6px; margin: 12px 0 0; padding: 0 0 0 18px; color: var(--text, #1b1a2e); font-size: 14px; line-height: 1.5; }
+.connection-reasons li::marker { color: var(--primary, #6a2cff); }
+.connection-not-evaluated { margin: 10px 0 0; color: var(--text-muted, #5d5a73); font-size: 12px; line-height: 1.5; }
+.connection-confidence { margin: 6px 0 0; font-size: 13px; color: var(--text-muted, #5d5a73); }
+.connection-confidence[data-confidence="alta"] { color: var(--success-text, #0b5d3b); }
+.connection-confidence[data-confidence="baixa"] { color: var(--warning-text, #8a5a00); }

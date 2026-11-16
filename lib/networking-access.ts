@@ -1,19 +1,13 @@
 import { redirect } from "next/navigation";
 import { getAuthorizedMember, requireMemberAccess } from "@/lib/access";
-import { isEssentialProfileReady, profileToDraft, type MemberProfile } from "@/lib/member-profile";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { isEssentialProfileReady, profileToDraft } from "@/lib/member-profile";
+import { loadMemberProfile } from "@/lib/member-profile-store";
 
 async function hasNetworkingProfile(user: { id: string; fullName: string; isAdmin: boolean }) {
   if (user.isAdmin) return true;
-  const supabase = await createServerSupabaseClient();
-  if (!supabase) return false;
-  const { data, error } = await supabase
-    .from("member_profiles")
-    .select("*")
-    .eq("user_id", user.id)
-    .maybeSingle();
-  if (error || !data) return false;
-  return isEssentialProfileReady(profileToDraft(data as MemberProfile, user.fullName));
+  const data = await loadMemberProfile(user.id);
+  if (!data) return false;
+  return isEssentialProfileReady(profileToDraft(data, user.fullName));
 }
 
 export async function getNetworkingMember(request?: Request) {

@@ -1,6 +1,6 @@
 import MemberPlatform from "./member-platform";
 import { requireMemberAccess } from "@/lib/access";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { loadMemberProfile } from "@/lib/member-profile-store";
 import { calculateProfileCompleteness, getMissingRequiredProfileFields, isEssentialProfileReady, profileToDraft, type MemberProfile } from "@/lib/member-profile";
 import { buildHomeConnectionQuery, getHomeDateLabel, getHomeGreeting } from "@/lib/member-home";
 import { findConnections } from "@/lib/connection-matching";
@@ -21,23 +21,15 @@ export default async function MemberAreaPage({ searchParams }: { searchParams?: 
   const initialSection = DEEP_LINK_SECTIONS.find((id) => id === requested && SPA_SECTIONS.has(id));
   const access = await requireMemberAccess("/app");
   const user = access.identity;
-  const supabase = await createServerSupabaseClient();
-  const { data: profile } = supabase
-    ? await supabase
-        .from("member_profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle()
-    : { data: null };
-
-  const typedProfile = (profile as MemberProfile | null) ?? null;
+  const profile: MemberProfile | null = await loadMemberProfile(user.id);
+  const typedProfile = profile;
   const draft = profileToDraft(typedProfile, user.fullName);
   const profileCompleteness = calculateProfileCompleteness(draft);
   const networkingProfileReady = user.isAdmin || isEssentialProfileReady(draft);
   const connectionQuery = buildHomeConnectionQuery(draft);
   const canLoadConnections = access.permissions.includes("networking") && networkingProfileReady && Boolean(connectionQuery);
   const connectionResult = canLoadConnections
-    ? await findConnections(connectionQuery)
+    ? await findConnections(connectionQuery, draft, { excludeUserId: user.id })
     : { matches: [], error: "" };
   const homeConnections = connectionResult.matches
     .filter((match) => match.user_id !== user.id)

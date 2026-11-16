@@ -63,7 +63,7 @@ test("Home usa dados protegidos somente após política central", () => {
   const page = source("../app/app/page.tsx");
   assert.match(page, /requireMemberAccess\("\/app"\)/);
   assert.match(page, /access\.permissions\.includes\("networking"\)/);
-  assert.match(page, /findConnections\(connectionQuery\)/);
+  assert.match(page, /findConnections\(connectionQuery, draft/);
   assert.match(page, /match\.user_id !== user\.id/);
 });
 

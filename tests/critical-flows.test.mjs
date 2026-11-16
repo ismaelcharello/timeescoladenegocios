@@ -116,17 +116,24 @@ test("onboarding salva por usuário e recarrega o perfil existente para edição
   const api = source("../lib/member-profile-api.ts");
 
   assert.match(page, /requireUser\("\/app\/cadastro"\)/);
-  assert.match(page, /\.eq\("user_id", user\.id\)\.maybeSingle\(\)/);
+  // A consulta por usuário saiu da página para o ponto único de leitura do perfil.
+  assert.match(page, /loadMemberProfile\(user\.id\)/);
+  const profileStore = source("../lib/member-profile-store.ts");
+  assert.match(profileStore, /\.eq\("user_id", userId\)\.maybeSingle\(\)/);
   assert.match(page, /initialProfile=/);
   assert.match(form, /profileToDraft\(initialProfile, user\.name\)/);
   assert.match(form, /fetch\("\/api\/member-profile", \{/);
   assert.match(form, /credentials: "same-origin"/);
   assert.match(form, /JSON\.stringify\(\{ draft, currentStep: step, finalize \}\)/);
-  assert.match(api, /if \(!identity \|\| !supabase\)/);
+  assert.match(api, /if \(!identity\) return json\(/);
+  // Sem cliente Supabase (sessão expirada) a escrita central responde `unavailable` e a API devolve 401.
+  assert.match(api, /if \(unavailable\) return json\(/);
   assert.match(api, /user_id: identity\.id/);
   assert.match(api, /finalize && !networkingReady/);
   assert.match(api, /completed_at: null/);
-  assert.match(api, /\.upsert\(payload, \{ onConflict: "user_id" \}\)/);
+  // O upsert vive no ponto único de escrita (lib/member-profile-store.ts).
+  assert.match(profileStore, /\.upsert\(payload, \{ onConflict: "user_id" \}\)/);
+  assert.match(api, /saveMemberProfile\(identity\.id, payload\)/)
 });
 
 test("cadastro novo sempre segue para onboarding e login preserva o retorno", () => {
@@ -252,7 +259,9 @@ test("diretório, busca, perfil e WhatsApp exigem networking no servidor", () =>
   assert.match(searchPage, /requireNetworkingAccess\("\/app\/conexoes"\)/);
   assert.match(profilePage, /requireNetworkingAccess\(`\/app\/membros\/\$\{id\}`\)/);
   assert.match(whatsapp, /requireNetworkingAccess\(`\/app\/membros\/\$\{id\}\/whatsapp`\)/);
-  assert.ok(whatsapp.indexOf("requireNetworkingAccess") < whatsapp.indexOf("get_member_whatsapp"));
+  // O RPC do WhatsApp mora em member-directory.ts; a rota chama a função central depois da trava.
+  assert.ok(whatsapp.indexOf("requireNetworkingAccess") < whatsapp.indexOf("getMemberWhatsapp"));
+  assert.match(directory, /get_member_whatsapp/);
   assert.match(directoryClient, /getNetworkingMember\(\)/);
   assert.match(directoryClient, /process\.env\.SUPABASE_SERVICE_ROLE_KEY/);
   assert.match(directoryClient, /if \(!config \|\| !key\) return null/);

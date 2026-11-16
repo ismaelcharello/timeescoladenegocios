@@ -1,5 +1,5 @@
 import { requireUser } from "@/lib/auth";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { loadMemberProfile } from "@/lib/member-profile-store";
 import { getSupabasePublicConfig } from "@/lib/supabase/config";
 import type { MemberProfile } from "@/lib/member-profile";
 import OnboardingForm from "./onboarding-form";
@@ -14,11 +14,8 @@ export const metadata = {
 
 export default async function MemberOnboardingPage() {
   const user = await requireUser("/app/cadastro");
-  const supabase = await createServerSupabaseClient();
   const supabaseConfig = getSupabasePublicConfig();
-  const { data } = supabase
-    ? await supabase.from("member_profiles").select("*").eq("user_id", user.id).maybeSingle()
-    : { data: null };
+  const data = await loadMemberProfile(user.id);
 
   return (
     <OnboardingForm
