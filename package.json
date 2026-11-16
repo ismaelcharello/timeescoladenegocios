@@ -66,5 +66,10 @@
     "wrangler": "4.92.0"
   },
   "type": "module",
-  "displayName": "TIME Escola de Negócios"
+  "displayName": "TIME Escola de Negócios",
+  "overrides": {
+    "@capacitor/assets": {
+      "sharp": "0.34.5"
+    }
+  }
 }
